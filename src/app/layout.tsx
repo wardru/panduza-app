@@ -7,8 +7,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={lato.className}>
+    <html lang="en" className="theme-dark">
+      <body className={`${lato.className} bg-primary`}>
         <header></header>
         <main>{children}</main>
         <footer></footer>

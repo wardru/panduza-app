@@ -10,6 +10,11 @@ const config: Config = {
     extend: {
       fontFamily : {
         Lato: ["Lato", "sans-serif"]
+      },
+      colors: {
+        header: "rgb(var(--color-header))",
+        primary: "rgb(var(--color-primary))",
+        secondary: "rgb(var(--color-secondary))",
       }
     },
   },
