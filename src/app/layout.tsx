@@ -8,10 +8,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="theme-dark">
-      <body className={`${lato.className} bg-primary`}>
-        <header></header>
+      <body className={`${lato.className}`}>
         <main>{children}</main>
-        <footer></footer>
       </body>
     </html>
   );

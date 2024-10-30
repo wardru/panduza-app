@@ -4,11 +4,12 @@
 
 .theme-dark {
     --color-header: 20 20 20;
-    --color-primary: 10 10 10;
-    --color-secondary: 255 255 255;
+    --color-primary: 255 255 255;
+    --color-secondary: 0 0 0;
 }
 
 .theme-light {
-    --color-primary: 68 74 158;
+    --color-header: 200 200 200;
+    --color-primary: 0 0 0;
     --color-secondary: 255 255 255;
 }
