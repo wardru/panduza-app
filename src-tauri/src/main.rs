@@ -1,19 +1,23 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 pub mod mqtt_handler;
+pub mod driver;
 
 use tauri::{Manager, State};
 use mqtt_handler::{MqttHandler, MqttMessageType};
 use std::time::Duration;
 use tokio::sync::Mutex;
 use rumqttc::ConnectionError;
+use driver::Driver;
 
 #[tauri::command]
 async fn connect(mqtt_handler_state: State<'_, Mutex<MqttHandler>>) -> Result<(), String> {
 
   let mut handler = mqtt_handler_state.lock().await;
 
-  let mut rec = handler.connect("localhost", 1883).await.map_err(|e| {println!("Connection error {:?}", e.to_string()); e.to_string()})?;
+  let mut rec = handler.connect("localhost", 1883).await.map_err(|e| e.to_string())?;
+
+  let platform_driver = Driver::new("_", handler.get_message_provider());
 
   tokio::spawn(async move {
     while let Some(msg) = rec.recv().await {
@@ -21,9 +25,7 @@ async fn connect(mqtt_handler_state: State<'_, Mutex<MqttHandler>>) -> Result<()
     }
   });
 
-  let mdr = handler.get_message_provider();
-
-  mdr.send(MqttMessageType::Subscribe("pza/_/structure/att".into())).await;
+  platform_driver.test("structure").await;
 
   Ok(())
 }

@@ -1,4 +1,4 @@
-use rumqttc::{AsyncClient, ClientError, ConnectionError, Event, EventLoop, Incoming, MqttOptions, QoS};
+use rumqttc::{AsyncClient, ClientError, ConnectionError, Event, EventLoop, Incoming, MqttOptions, QoS, ConnectReturnCode};
 use core::str;
 use std::time::Duration;
 use tokio::{sync::{mpsc, watch}, task, time::{self, error::{self, Elapsed}, timeout}};
@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use tokio::sync::Mutex;
 use std::sync::Arc;
 
-type MqttMessage = (String, String);
+pub type MqttMessage = (String, String);
 
 #[derive(Debug)]
 pub enum MqttMessageType
@@ -56,6 +56,10 @@ impl MqttHandler {
     where
         T: Into<String>,
     {
+        if self.rumqtt_client.is_some() {
+            return Err(ConnectionError::ConnectionRefused(ConnectReturnCode::ServiceUnavailable));
+        }
+
         let mut mqtt_options = MqttOptions::new(Uuid::new_v4(), address, port);
         mqtt_options.set_keep_alive(Duration::from_secs(5));
         let (client, eventloop) = AsyncClient::new(mqtt_options, 100);
@@ -126,9 +130,12 @@ impl MqttHandler {
         }
     }
 
-    pub async fn disconnect(&self) {
+    pub async fn disconnect(&mut self) {
         if let Some(client) = &self.rumqtt_client {
             client.lock().await.disconnect().await;
+            self.event_loop_handle.as_ref().unwrap().abort();
+            self.message_loop_handle.as_ref().unwrap().abort();
+            self.rumqtt_client = None;
         }
         else {
             println!("Can't disconnect, client is not connected");
