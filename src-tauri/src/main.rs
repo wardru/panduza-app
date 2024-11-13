@@ -1,65 +1,114 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-pub mod mqtt_handler;
-pub mod driver;
+pub mod mqtt_manager;
+pub mod driver_manager;
+//pub mod driver;
 
-use tauri::{Manager, State};
-use mqtt_handler::MqttHandler;
+use driver_manager::DriverManager;
+use tauri::{Manager, State, AppHandle, Emitter};
+use mqtt_manager::{MqttCommand, MqttManager, MqttMessage};
 use tokio::sync::Mutex;
-use driver::Driver;
 
 #[tauri::command]
-async fn connect(mqtt_handler_state: State<'_, Mutex<MqttHandler>>) -> Result<(), String> {
+async fn connect(mqtt_handler_state: State<'_, Mutex<MqttManager>>, app: AppHandle) -> Result<(), String> {
 
   let mut handler = mqtt_handler_state.lock().await;
 
-  let (mut rec1, mut rec2) = handler.connect("localhost", 1883).await.map_err(|e| e.to_string())?;
+  let command_sender = handler.connect("localhost".into(), 1883).await.map_err(|_| "failed!")?;
 
-  let _platform_driver = Driver::new("_", handler.get_message_provider());
+  let driver_manager = DriverManager::new();
 
-  tokio::spawn(async move {
-    while let Some(msg) = rec1.recv().await {
-      println!("msg: {msg:?}");
-    }
-  });
+  let structure = driver_manager.register_platform(command_sender.clone()).await.unwrap();
 
-  tokio::spawn(async move {
-    while let Some(msg) = rec2.recv().await {
-      println!("msg rec2: {msg:?}");
-    }
-  });
+  println!("coucouu");
+
+  let _ = app.emit("connect", "true").unwrap();
+
+  let _ = app.emit("structure", &structure).unwrap();
+
+   let (sender, mut receiver) = tokio::sync::mpsc::channel(100);
+
+   command_sender.send(mqtt_manager::MqttCommand::Subscribe("pza/my_psu/identity/att".into(), sender)).await;
+
+   while let Some(msg) = receiver.recv().await {
+        let str:&str = std::str::from_utf8(&msg.payload).unwrap();
+       app.emit("pza/my_psu/identity", str).unwrap();
+       break ;
+   }
+
+   let (sender, mut receiver) = tokio::sync::mpsc::channel(100);
+
+
+   command_sender.send(mqtt_manager::MqttCommand::Subscribe("pza/my_psu/control/voltage/att".into(), sender)).await;
+
+   while let Some(msg) = receiver.recv().await {
+      let number = std::str::from_utf8(&msg.payload).unwrap();
+      let number = number.parse::<f64>().unwrap();
+      println!("number: {:?}", number);
+       app.emit("pza/my_psu/control/voltage", number).unwrap();
+       break ;
+   }
+
+
+   let (sender, mut receiver) = tokio::sync::mpsc::channel(100);
+
+
+   command_sender.send(mqtt_manager::MqttCommand::Subscribe("pza/my_psu/control/current/att".into(), sender)).await;
+
+   while let Some(msg) = receiver.recv().await {
+      let number = std::str::from_utf8(&msg.payload).unwrap();
+      let number = number.parse::<f64>().unwrap();
+      println!("number: {:?}", number);
+       app.emit("pza/my_psu/control/current", number).unwrap();
+       break ;
+   }
 
   Ok(())
 }
 
 #[tauri::command]
-async fn disconnect(mqtt_handler_state: State<'_, Mutex<MqttHandler>>) -> Result<(), ()> {
+async fn disconnect(mqtt_handler_state: State<'_, Mutex<MqttManager>>, app: AppHandle) -> Result<(), ()> {
   let mut handler = mqtt_handler_state.lock().await;
 
   handler.disconnect().await;
+  let _ = app.emit("connect", "false").unwrap();
+  Ok(())
+}
+
+#[tauri::command]
+async fn new_value(topic: String, value: f64, mqtt_handler_state: State<'_, Mutex<MqttManager>>, app: AppHandle) -> Result<(), ()> {
+  let mut handler = mqtt_handler_state.lock().await;
+
+  let sender = handler.get_command_sender().unwrap();
+
+  println!("Ok so you want to send: {topic:?} : {value:?}");
+
+  sender.send(MqttCommand::Publish(MqttMessage {
+    topic: topic+"/cmd",
+    payload: value.to_string().into_bytes().into()
+  })).await;
+
   Ok(())
 }
 
 #[tokio::main]
 async fn main() {
-
-  let handler = MqttHandler::new();
-
    tauri::Builder::default()
     .setup(|app| {
-      app.manage(Mutex::new(handler));
-      if cfg!(debug_assertions) {
-        app.handle().plugin(
-          tauri_plugin_log::Builder::default()
-            .level(log::LevelFilter::Info)
-            .build(),
-        )?;
-      }
+
+      
+      let mqtt_manager = MqttManager::new();
+      let driver_manager = DriverManager::new();
+
+      app.manage(Mutex::new(mqtt_manager));
+      app.manage(Mutex::new(driver_manager));
+      
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
       connect,
-      disconnect
+      disconnect,
+      new_value
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
