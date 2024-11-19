@@ -2,70 +2,103 @@
 
 import Image from 'next/image';
 import PanduzaLogo from "../images/logo/logo_circle_black_blue_256.png";
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from '@tauri-apps/api/event';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useContext} from 'react';
+import { useClient, ConnectionState } from './client';
 
-const Header = () => {
+const statusColorMap: Record<ConnectionState, string> = {
+    [ConnectionState.Connected]: 'bg-green-500',
+    [ConnectionState.Disconnected]: 'bg-red-500',
+    [ConnectionState.Reconnecting]: 'bg-orange-500',
+};
 
+const buttonContentMap: Record<ConnectionState, string> = {
+    [ConnectionState.Connected]: 'Disconnect',
+    [ConnectionState.Disconnected]: 'Connect',
+    [ConnectionState.Reconnecting]: 'Cancel'
+}
 
-        useEffect(() => {
-        console.log("meh");
+const defaultAddress: string = "localhost";
+const defaultPort: number = 1883;
 
-        // Listen for the 'connect' event to update connection status
-            listen<string>('connect', (event) => {
-                if (event.payload === 'true') {
-                    setIsConnected(true);  // Set to true if 'connect' is successful
-                } else {
-                    setIsConnected(false); // Set to false if 'connect' fails
+const Logo = () => {
+    return (
+        <div className="flex-shrink-0 ml-2 mr-5" > {/* Ensures the logo doesn’t shrink */}
+            <Image
+                src={PanduzaLogo}
+                width={27}
+                height={27}
+                alt="logo"
+            />
+        </div>
+    );
+}
+
+const Header: React.FC = () => {
+    const { connectionState, connect, disconnect } = useClient();
+    const [address, setAddress] = useState(defaultAddress);
+    const [portAsString, setPortAsString] = useState(defaultPort.toString());
+
+    const getStatusColor = () => {
+        const color = statusColorMap[connectionState];
+    
+        if (!color) {
+            throw new Error(`Unknown state: ${connectionState}`);
+        }
+        return color;
+    }
+
+    const getButtonContent = () => {
+
+        const buttonContent = buttonContentMap[connectionState];
+
+        if (!buttonContent) {
+            throw new Error(`Unknown state: ${connectionState}`);
+        }
+        return buttonContent;
+    }
+
+    const onButtonAction = () => {
+        switch (connectionState) {
+            case ConnectionState.Connected:
+            case ConnectionState.Reconnecting:
+                disconnect();
+                break;
+            case ConnectionState.Disconnected:
+                let port: number = Number(portAsString);
+                if (isNaN(port) || port < 0 || port > 65535) {
+                    console.error(`Port ${port} is invalid! Must be a number between 0 and 65535`);
                 }
-            });
-    }, []);
-     
-    const [isConnected, setIsConnected] = useState(false); // Track connection status
-
-    const handleConnect = () => {
-        invoke("connect").then((response) => {
-            // Assuming the response is a boolean or something that indicates success/failure
-            if (response === true) {
-                setIsConnected(true);
-            } else {
-                setIsConnected(false);
-            }
-        });
-    };
-
-    const handleDisconnect = () => {
-        invoke("disconnect");
-        setIsConnected(false); // Set to false when disconnected
-    };
+                else {
+                    connect(address, port);
+                }
+                break;
+        }
+    }
 
     return (
         <div className="bg-header sticky top-0 flex py-1"> {/* Adjusted padding for more height */}
-            <div className="flex-shrink-0 ml-2 mr-5" > {/* Ensures the logo doesn’t shrink */}
-                <Image
-                    src={PanduzaLogo}
-                    width={27}
-                    height={27}
-                    alt="logo"
-                />
-            </div>
+            <Logo/>
             <div className="text-gray-400 flex flex-shrink-0 flex-grow space-x-2 items-center">
+                {(connectionState == ConnectionState.Reconnecting) ?
+                    <p>Reconnecting...</p> : null
+                }
                 <button className="text-primary hover:bg-slate-500 px-4 rounded-lg"
-                    onClick={() => invoke("connect").then(() => console.log("yepaa"))}
-                >
-                    Connect
+                    onClick={onButtonAction}>
+                    {getButtonContent()}
                 </button>
-                <button className="text-primary hover:bg-slate-500 px-4 rounded-lg"
-                    onClick={() => invoke("disconnect")}
-                >
-                   Disconnect 
-                </button>
-
-                <div
-                    className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}
-                />
-
+                <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
+                 {(connectionState === ConnectionState.Disconnected) ? (
+                    <div className="pl-3 text-black space-x-2">
+                        <input
+                            placeholder={defaultAddress}
+                            onChange={(e) => {setAddress(e.currentTarget.value === "" ? defaultAddress : e.currentTarget.value)}}
+                        />
+                        <input
+                            placeholder={defaultPort.toString()}
+                            onChange={(e) => {setPortAsString(e.currentTarget.value === "" ? defaultPort.toString() : e.currentTarget.value)}}
+                        />
+                    </div>
+                ) : null}
             </div>
         </div>
     );
