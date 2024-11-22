@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState } from 'react';
 import { invoke, Channel } from '@tauri-apps/api/core';
+import { register_platform_driver } from './driver';
 
 export enum ConnectionState {
     Connected = "Connected",
@@ -9,10 +10,7 @@ export enum ConnectionState {
     Disconnected = "Disconnected"
 }
 
-interface MqttMessage {
-    topic: string,
-    payload: Uint8Array
-}
+
 
 export interface PlatformContextType {
     connectionState: ConnectionState;
@@ -42,6 +40,7 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
                 switch (message) {
                     case ConnectionState.Connected:
                         setConnectionState(ConnectionState.Connected);
+                        register_platform_driver();
                         resolve(ConnectionState.Connected);
                         break;
                     case ConnectionState.Reconnecting:
@@ -77,14 +76,6 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
             console.error({e});
             disconnect();
             return ;
-        }
-
-        const sender = new Channel<MqttMessage>();
-
-        await invoke('register_driver', { baseTopic: "pza/_", topicList: ["pza/_/structure/att"], sender})
-
-        sender.onmessage = (message: MqttMessage) => {
-            console.log(`hiii ${message.topic} ${message.payload}`);
         }
     }
 

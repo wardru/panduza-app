@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bytes::Bytes;
-use rumqttc::{AsyncClient, ConnectionError, Event, EventLoop, Incoming, MqttOptions, Outgoing, SubscribeFilter};
+use rumqttc::{AsyncClient, ConnectionError, Event, EventLoop, Incoming, MqttOptions, Outgoing, SubscribeFilter, QoS};
 use uuid::Uuid;
 
 use tokio::sync::Mutex;
@@ -25,7 +25,7 @@ pub struct ShutdownRequest;
 #[derive(Clone, Serialize)]
 pub struct MqttMessage {
     topic: String,
-    payload: Bytes
+    payload: [u8]
 }
 
 #[derive(Clone, Serialize, PartialEq)]
@@ -94,12 +94,12 @@ impl Mqtt {
                             let mut parts = m.topic.split('/');
 
                             if let (Some(first), Some(second)) = (parts.next(), parts.next())  {
-                                let key = format!("{}/{}", first, second);
-                                println!("ok key: {key}");
-                                let dispatcher = self.dispatcher_map.lock().await;
-                                if let Some(sender) = dispatcher.get(&key) {
-                                    println!("let's gooo");
-                                    let _ = sender.send(MqttMessage{topic: m.topic, payload: m.payload});
+                                if first == "pza" {
+                                    let dispatcher = self.dispatcher_map.lock().await;
+                                    if let Some(sender) = dispatcher.get(second) {
+                                        println!("let's gooo");
+                                        let _ = sender.send(MqttMessage{topic: m.topic, payload: m.payload.to_vec()});
+                                    }
                                 }
                             }
                         }
@@ -192,9 +192,9 @@ pub async fn connect_to_platform(
 // User asked to register a driver
 #[tauri::command]
 pub async fn register_driver(
-    base_topic: String,
-    topic_list: Vec<String>,
-    sender: Channel<MqttMessage>,
+    driver_name: String,
+    attribute_list: Vec<String>,
+    on_driver_message: Channel<MqttMessage>,
     client: State<'_, Mutex<ClientState>>
 ) -> Result<(), String> {
     let client = client.lock().await;
@@ -204,21 +204,16 @@ pub async fn register_driver(
     }
 
     let mut dispatcher = client.dispatcher_map.lock().await;
-    dispatcher.insert(base_topic, sender);
+    dispatcher.insert(driver_name.to_string(), on_driver_message);
 
-    let mut list: Vec<SubscribeFilter> = Vec::new();
-
-    for elem in topic_list {
-        list.push(SubscribeFilter{path: elem, qos: rumqttc::QoS::AtLeastOnce});
-    }
-    
-    println!("lol: {:?}", list);
+    let list: Vec<SubscribeFilter> = attribute_list
+        .into_iter()
+        .map(|e| {
+            SubscribeFilter { path: format!("pza/{}/{}/att", driver_name, e), qos: QoS::AtLeastOnce }
+        })
+        .collect();
 
     let _ = client.mqtt_client.as_ref().unwrap().subscribe_many(list).await;
-
-    // add the sender to the event loop  based on base_topic
-    // subscribe to the topic list
-
     Ok(())
 }
 
