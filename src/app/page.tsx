@@ -1,15 +1,15 @@
 'use client';
 
 import Header from './header';
-import { ClientProvider } from './client';
+import { PlatformProvider } from './platform';
 
 const Main = () => {
   return (
-    <ClientProvider>
+    <PlatformProvider>
       <div className="bg-green-800 h-screen flex flex-col overflow-hidden">
         <Header />
       </div>
-    </ClientProvider>
+    </PlatformProvider>
   );
 };
 

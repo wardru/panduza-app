@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import PanduzaLogo from "../images/logo/logo_circle_black_blue_256.png";
 import {useState, useEffect, useContext} from 'react';
-import { useClient, ConnectionState } from './client';
+import { useClient, ConnectionState } from './platform';
 
 const statusColorMap: Record<ConnectionState, string> = {
     [ConnectionState.Connected]: 'bg-green-500',
@@ -57,7 +57,7 @@ const Header: React.FC = () => {
         return buttonContent;
     }
 
-    const onButtonAction = () => {
+    const onButtonAction = async () => {
         switch (connectionState) {
             case ConnectionState.Connected:
             case ConnectionState.Reconnecting:
@@ -69,7 +69,7 @@ const Header: React.FC = () => {
                     console.error(`Port ${port} is invalid! Must be a number between 0 and 65535`);
                 }
                 else {
-                    connect(address, port);
+                    await connect(address, port);
                 }
                 break;
         }

@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bytes::Bytes;
-use rumqttc::{AsyncClient, ConnectionError, Event, EventLoop, Incoming, MqttOptions, Outgoing};
+use rumqttc::{AsyncClient, ConnectionError, Event, EventLoop, Incoming, MqttOptions, Outgoing, SubscribeFilter};
 use uuid::Uuid;
 
 use tokio::sync::Mutex;
@@ -22,13 +22,13 @@ use serde::Serialize;
 
 pub struct ShutdownRequest;
 
+#[derive(Clone, Serialize)]
 pub struct MqttMessage {
     topic: String,
-    payload: Bytes,
+    payload: Bytes
 }
 
-#[derive(Clone, Serialize)]
-
+#[derive(Clone, Serialize, PartialEq)]
 pub enum ConnectionState {
     Connected,
     Reconnecting,
@@ -90,8 +90,21 @@ impl Mqtt {
                             let _ = self.event_sender.send(ConnectionState::Connected);
                             println!("connecting succeded");
                         }
+                        Ok(Event::Incoming(Incoming::Publish(m))) => {
+                            let mut parts = m.topic.split('/');
+
+                            if let (Some(first), Some(second)) = (parts.next(), parts.next())  {
+                                let key = format!("{}/{}", first, second);
+                                println!("ok key: {key}");
+                                let dispatcher = self.dispatcher_map.lock().await;
+                                if let Some(sender) = dispatcher.get(&key) {
+                                    println!("let's gooo");
+                                    let _ = sender.send(MqttMessage{topic: m.topic, payload: m.payload});
+                                }
+                            }
+                        }
                         Err(e) => {
-                            println!("connecting failed, setting wait");
+                            println!("connecting failed");
                             *self.network_status.lock().await = ConnectionState::Reconnecting;
                             let _ = self.event_sender.send(ConnectionState::Reconnecting);
                             need_retry_timeout = true;
@@ -108,7 +121,6 @@ impl Mqtt {
 
                 _ = async {
                     if need_retry_timeout == true {
-                        println!("will wait");
                         time::sleep(Duration::from_secs(3)).await;
                         need_retry_timeout = false;
                     }
@@ -126,7 +138,7 @@ pub struct ClientState {
     shutdown_tx: Option<oneshot::Sender<ShutdownRequest>>,
 
     network_status: Arc<Mutex<ConnectionState>>,
-    sender_map: Arc<Mutex<HashMap<String, Channel<MqttMessage>>>>
+    dispatcher_map: Arc<Mutex<HashMap<String, Channel<MqttMessage>>>>
 }
 
 impl ClientState {
@@ -136,7 +148,7 @@ impl ClientState {
             shutdown_tx: None,
 
             network_status: Arc::new(Mutex::new(ConnectionState::Disconnected)),
-            sender_map: Arc::new(Mutex::new(HashMap::new()))
+            dispatcher_map: Arc::new(Mutex::new(HashMap::new()))
         }
     }
 }
@@ -167,7 +179,7 @@ pub async fn connect_to_platform(
     let port: u16 = port.try_into()
         .map_err(|_| format!("Port {} is invalid", port))?;
 
-    let (mqtt_client, shutdown_tx) = Mqtt::new(address, port, client.network_status.clone(), client.sender_map.clone(), on_connection_state);
+    let (mqtt_client, shutdown_tx) = Mqtt::new(address, port, client.network_status.clone(), client.dispatcher_map.clone(), on_connection_state);
 
     client.mqtt_client = Some(mqtt_client.get_client());
     client.shutdown_tx = Some(shutdown_tx);
@@ -183,8 +195,27 @@ pub async fn register_driver(
     base_topic: String,
     topic_list: Vec<String>,
     sender: Channel<MqttMessage>,
-) -> Result<(), ()> {
-    // check if connected
+    client: State<'_, Mutex<ClientState>>
+) -> Result<(), String> {
+    let client = client.lock().await;
+
+    if *client.network_status.lock().await != ConnectionState::Connected {
+        return Err("Client not connected".into());
+    }
+
+    let mut dispatcher = client.dispatcher_map.lock().await;
+    dispatcher.insert(base_topic, sender);
+
+    let mut list: Vec<SubscribeFilter> = Vec::new();
+
+    for elem in topic_list {
+        list.push(SubscribeFilter{path: elem, qos: rumqttc::QoS::AtLeastOnce});
+    }
+    
+    println!("lol: {:?}", list);
+
+    let _ = client.mqtt_client.as_ref().unwrap().subscribe_many(list).await;
+
     // add the sender to the event loop  based on base_topic
     // subscribe to the topic list
 
