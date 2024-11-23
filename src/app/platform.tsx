@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState } from 'react';
 import { invoke, Channel } from '@tauri-apps/api/core';
-import { register_platform_driver } from './driver';
+import { Driver } from './driver';
 
 export enum ConnectionState {
     Connected = "Connected",
@@ -10,7 +10,45 @@ export enum ConnectionState {
     Disconnected = "Disconnected"
 }
 
+interface MqttMessage {
+    topic: string,
+    payload: Uint8Array 
+}
 
+export async function register_platform_driver() {
+    const onDriverMessage = new Channel<MqttMessage>;
+
+    const waitForStructure = async () => {
+        return new Promise<Uint8Array>((resolve, reject) => {
+
+            const timeout = setTimeout(() => {
+                reject("timed out");
+            }, 1000);
+
+            onDriverMessage.onmessage = (message) => {
+                // we got a structure, we clear the timeout and resolve the promise with the raw payload.
+                clearTimeout(timeout);
+                resolve(message.payload);
+            }
+        });
+    }
+
+    await invoke('register_driver', { driverName: "_", attributeList: ["structure"], onDriverMessage });
+
+    try {
+        const payload = await waitForStructure();
+        const structure_json = JSON.parse(String.fromCharCode(...payload));
+
+        // register drivers
+        
+        for (let driver in structure_json.driver_instances) {
+            console.log(driver);
+        }
+
+    } catch(e) {
+        console.error(e);
+    }
+}
 
 export interface PlatformContextType {
     connectionState: ConnectionState;
@@ -23,6 +61,7 @@ const PlatformContext = createContext<PlatformContextType | undefined>(undefined
 export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const [connectionState, setConnectionState] = useState<ConnectionState>(ConnectionState.Disconnected);
     let firstAttempt: boolean = false;
+    let driverMap = new Map<string, Driver>;
     
     const connect = async (address: string, port: number) => {
 
@@ -35,8 +74,11 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
         firstAttempt = true;
         
         const waitForConnection = new Promise<ConnectionState>((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                reject(new Error("Connection timed out"));
+            }, 3000);
+
             onConnectionState.onmessage = (message) => {
-                console.log(`wtfff ${message}`);
                 switch (message) {
                     case ConnectionState.Connected:
                         setConnectionState(ConnectionState.Connected);
@@ -64,14 +106,8 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
             return ;    
         };
 
-        const timeout = new Promise<never>((_, reject) => {
-            setTimeout(() => {
-                reject(new Error("Connection timed out"));
-            }, 3000); // Timeout after 5 seconds
-        });
-
         try {
-            await Promise.race([waitForConnection, timeout]);
+            await waitForConnection;
         } catch (e) {
             console.error({e});
             disconnect();

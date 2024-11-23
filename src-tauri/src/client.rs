@@ -25,7 +25,7 @@ pub struct ShutdownRequest;
 #[derive(Clone, Serialize)]
 pub struct MqttMessage {
     topic: String,
-    payload: [u8]
+    payload: Bytes 
 }
 
 #[derive(Clone, Serialize, PartialEq)]
@@ -83,7 +83,6 @@ impl Mqtt {
         loop {
             tokio::select! {
                 event = self.event_loop.poll(), if need_retry_timeout == false => {
-
                     match event {
                         Ok(Event::Incoming(Incoming::ConnAck(_))) => {
                             *self.network_status.lock().await = ConnectionState::Connected;
@@ -97,14 +96,20 @@ impl Mqtt {
                                 if first == "pza" {
                                     let dispatcher = self.dispatcher_map.lock().await;
                                     if let Some(sender) = dispatcher.get(second) {
-                                        println!("let's gooo");
-                                        let _ = sender.send(MqttMessage{topic: m.topic, payload: m.payload.to_vec()});
+                                        println!("Got message:\n\t[Topic]: {}\n\t[Payload]: {:?}", m.topic, m.payload);
+                                        let _ = sender.send(MqttMessage{topic: m.topic, payload: m.payload});
+                                    }
+                                    else {
+                                        println!("Got LOST message:\n\t[Topic]: {}\n\t[Payload]: {:?}", m.topic, m.payload);
                                     }
                                 }
                             }
+                            else {
+                                println!("Got BAD message:\n\t[Topic]: {}\n\t[Payload]: {:?}", m.topic, m.payload);
+                            }
                         }
                         Err(e) => {
-                            println!("connecting failed");
+                            println!("connecting failed: {e:?}");
                             *self.network_status.lock().await = ConnectionState::Reconnecting;
                             let _ = self.event_sender.send(ConnectionState::Reconnecting);
                             need_retry_timeout = true;
@@ -175,9 +180,7 @@ pub async fn connect_to_platform(
         _ => {}
     }
     
-    //todo: proper error on bad port
-    let port: u16 = port.try_into()
-        .map_err(|_| format!("Port {} is invalid", port))?;
+    let port: u16 = port.try_into().map_err(|_| format!("Port {} is invalid", port))?;
 
     let (mqtt_client, shutdown_tx) = Mqtt::new(address, port, client.network_status.clone(), client.dispatcher_map.clone(), on_connection_state);
 
