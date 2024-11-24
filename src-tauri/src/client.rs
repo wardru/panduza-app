@@ -39,7 +39,7 @@ struct Mqtt {
     client: AsyncClient,
     event_loop: EventLoop,
     network_status: Arc<Mutex<ConnectionState>>,
-    dispatcher_map: Arc<Mutex<HashMap<String, Channel<MqttMessage>>>>,
+    dispatcher_map: Arc<Mutex<HashMap<String, Channel<Bytes>>>>,
     event_sender: Channel<ConnectionState>,
 
     shutdown_rx: oneshot::Receiver<ShutdownRequest>,
@@ -50,7 +50,7 @@ impl Mqtt {
         address: String,
         port: u16,
         network_status: Arc<Mutex<ConnectionState>>,
-        dispatcher_map: Arc<Mutex<HashMap<String, Channel<MqttMessage>>>>,
+        dispatcher_map: Arc<Mutex<HashMap<String, Channel<Bytes>>>>,
         event_sender: Channel<ConnectionState>,
     ) -> (Mqtt, oneshot::Sender<ShutdownRequest>) {
         let client_id = Uuid::new_v4();
@@ -90,22 +90,9 @@ impl Mqtt {
                             println!("connecting succeded");
                         }
                         Ok(Event::Incoming(Incoming::Publish(m))) => {
-                            let mut parts = m.topic.split('/');
-
-                            if let (Some(first), Some(second)) = (parts.next(), parts.next())  {
-                                if first == "pza" {
-                                    let dispatcher = self.dispatcher_map.lock().await;
-                                    if let Some(sender) = dispatcher.get(second) {
-                                        println!("Got message:\n\t[Topic]: {}\n\t[Payload]: {:?}", m.topic, m.payload);
-                                        let _ = sender.send(MqttMessage{topic: m.topic, payload: m.payload});
-                                    }
-                                    else {
-                                        println!("Got LOST message:\n\t[Topic]: {}\n\t[Payload]: {:?}", m.topic, m.payload);
-                                    }
-                                }
-                            }
-                            else {
-                                println!("Got BAD message:\n\t[Topic]: {}\n\t[Payload]: {:?}", m.topic, m.payload);
+                            if let Some(sender) = self.dispatcher_map.lock().await.get(&m.topic) {
+                                println!("Got message:\n\t[Topic]: {}\n\t[Payload]: {:?}", m.topic, m.payload);
+                                let _ = sender.send(m.payload);
                             }
                         }
                         Err(e) => {
@@ -143,7 +130,7 @@ pub struct ClientState {
     shutdown_tx: Option<oneshot::Sender<ShutdownRequest>>,
 
     network_status: Arc<Mutex<ConnectionState>>,
-    dispatcher_map: Arc<Mutex<HashMap<String, Channel<MqttMessage>>>>
+    dispatcher_map: Arc<Mutex<HashMap<String, Channel<Bytes>>>>
 }
 
 impl ClientState {
@@ -192,12 +179,11 @@ pub async fn connect_to_platform(
     Ok(())
 }
 
-// User asked to register a driver
+// User asked to register an attribute 
 #[tauri::command]
-pub async fn register_driver(
-    driver_name: String,
-    attribute_list: Vec<String>,
-    on_driver_message: Channel<MqttMessage>,
+pub async fn register_attribute(
+    attribute_topic: String,
+    on_attribute_message: Channel<Bytes>,
     client: State<'_, Mutex<ClientState>>
 ) -> Result<(), String> {
     let client = client.lock().await;
@@ -207,16 +193,9 @@ pub async fn register_driver(
     }
 
     let mut dispatcher = client.dispatcher_map.lock().await;
-    dispatcher.insert(driver_name.to_string(), on_driver_message);
+    dispatcher.insert(attribute_topic.clone(), on_attribute_message);
 
-    let list: Vec<SubscribeFilter> = attribute_list
-        .into_iter()
-        .map(|e| {
-            SubscribeFilter { path: format!("pza/{}/{}/att", driver_name, e), qos: QoS::AtLeastOnce }
-        })
-        .collect();
-
-    let _ = client.mqtt_client.as_ref().unwrap().subscribe_many(list).await;
+    let _ = client.mqtt_client.as_ref().unwrap().subscribe(&attribute_topic, QoS::AtLeastOnce).await;
     Ok(())
 }
 

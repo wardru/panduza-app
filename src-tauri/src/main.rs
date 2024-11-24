@@ -16,7 +16,7 @@ async fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             app_lib::client::connect_to_platform,
-            app_lib::client::register_driver,
+            app_lib::client::register_attribute,
             app_lib::client::disconnect_from_platform
         ])
         .run(tauri::generate_context!())
