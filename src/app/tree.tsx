@@ -96,14 +96,22 @@ const TreeView: React.FC = () => {
     
 
     return (
-        <div className="text-white bg-gray-800 h-full">
+        <div className="text-white bg-gray-800 h-full w-full">
             {platform.structure ?
                 <RichTreeView items={tree}/>
                 :
-                "No platform connected"
+                <div className="h-full w-full bg-neutral-900 flex items-center justify-center">
+                    No platform connected..
+                </div>
             }
         </div>
     );
 }
 
-export default TreeView;
+const TreePanel: React.FC = () => {
+    return (
+        <TreeView/>
+    );
+}
+
+export default TreePanel;
