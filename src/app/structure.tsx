@@ -1,20 +1,20 @@
 import { Channel, invoke } from '@tauri-apps/api/core';
 
-interface IAttribute {
+export interface IAttribute {
     mode: string,
     type: string,
     settings?: any | null
     info: string | null;
 }
 
-interface IClass {
+export interface IClass {
     attributes: Record<string, IAttribute>
     classes: Record<string, IClass>
     info: string | null
     tags: string[]
 }
 
-interface IDriver {
+export interface IDriver {
     attributes: Record<string, IAttribute>
     classes: Record<string, IClass>
     info: string | null

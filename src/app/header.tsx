@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import PanduzaLogo from "../images/logo/logo_circle_black_blue_256.png";
 import {useState, useEffect, useContext} from 'react';
-import { useClient, ConnectionState } from './platform';
+import { usePlatform, ConnectionState } from './platform';
 
 const statusColorMap: Record<ConnectionState, string> = {
     [ConnectionState.Connected]: 'bg-green-500',
@@ -34,7 +34,7 @@ const Logo = () => {
 }
 
 const Header: React.FC = () => {
-    const { connectionState, connect, disconnect } = useClient();
+    const { connectionState, connect, disconnect } = usePlatform();
     const [address, setAddress] = useState(defaultAddress);
     const [portAsString, setPortAsString] = useState(defaultPort.toString());
 

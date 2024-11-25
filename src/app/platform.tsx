@@ -19,6 +19,7 @@ interface MqttMessage {
 
 export interface PlatformContextType {
     connectionState: ConnectionState;
+    structure: IStructure | undefined;
     connect: (address: string, port: number) => void;
     disconnect: () => void;
 }
@@ -30,7 +31,7 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
     const [structure, setStructure] = useState<IStructure | undefined>(undefined);
 
     let firstAttempt: boolean = false;
-    
+
     const connect = async (address: string, port: number) => {
 
         if (connectionState !== ConnectionState.Disconnected) {
@@ -59,6 +60,7 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
                         }
                         break;
                     case ConnectionState.Reconnecting:
+                        setStructure(undefined);
                         if (firstAttempt == true) {
                             disconnect();
                             reject("Could not connect");
@@ -90,23 +92,22 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
 
     const disconnect = () => {
         invoke('disconnect_from_platform');
+        setStructure(undefined);
         setConnectionState(ConnectionState.Disconnected);
     }
 
-
-
     return (
-        <PlatformContext.Provider value={{ connectionState, connect, disconnect }}>
+        <PlatformContext.Provider value={{ connectionState, structure, connect, disconnect }}>
             {children}
         </PlatformContext.Provider>
     );
 };
 
-export const useClient = () => {
+export const usePlatform = () => {
     const context = useContext(PlatformContext);
 
     if (!context) {
-        throw new Error('useClient must be used inside a PlatformProvider');
+        throw new Error('usePlatform must be used inside a PlatformProvider');
     }
     return context;
 };
