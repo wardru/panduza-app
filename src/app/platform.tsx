@@ -15,11 +15,14 @@ interface MqttMessage {
     payload: Uint8Array 
 }
 
-
+class Attribute {
+    
+}
 
 export interface PlatformContextType {
     connectionState: ConnectionState;
     structure: IStructure | undefined;
+    attributes: Record<string, Attribute>;
     connect: (address: string, port: number) => void;
     disconnect: () => void;
 }

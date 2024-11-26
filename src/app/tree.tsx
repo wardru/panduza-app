@@ -3,6 +3,8 @@ import { usePlatform, PlatformContextType, ConnectionState } from './platform';
 import { useEffect, useState } from 'react';
 import { IStructure, IDriver, IClass, IAttribute } from "./structure";
 import { TreeViewBaseItem } from "@mui/x-tree-view/models";
+import { useTreeViewApiRef } from '@mui/x-tree-view/hooks';
+import { Allotment } from "allotment";
 
 type ExtendedTreeItemProps = {
     id: string,
@@ -13,9 +15,14 @@ type ExtendedTreeItemProps = {
 
 type TreeItemProps = TreeViewBaseItem<ExtendedTreeItemProps>;
 
-const TreeView: React.FC = () => {
+interface TreeViewProps {
+    onAttributeSelect: (itemId: string | null) => void;
+}
+
+const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
     const platform = usePlatform();
     const [tree, setTree] = useState<TreeItemProps[]>([]);
+    const apiRef = useTreeViewApiRef();
 
     const createAttributeTreeItem = (baseId: string, attributeName: string, attribute: IAttribute): TreeItemProps => {
         return {
@@ -89,16 +96,25 @@ const TreeView: React.FC = () => {
 
     useEffect(() => {
         if (!platform.structure) {
+            console.log("aie caramba");
+            onAttributeSelect(null);
             return ;
         }
         setTree(createTreeFromStructure(platform.structure));
     }, [platform.structure]);
     
+    const handleItemSelect = (event: React.SyntheticEvent | null, itemId: string) => {
+        const item = apiRef.current!.getItem(itemId);
+
+        if (item && item.type === "attribute") {
+            onAttributeSelect(itemId);
+        }
+    }
 
     return (
-        <div className="text-white bg-gray-800 h-full w-full">
+        <div className="text-white bg-gray-800 h-full w-full overflow-auto">
             {platform.structure ?
-                <RichTreeView items={tree}/>
+                <RichTreeView apiRef={apiRef} items={tree} onItemFocus={handleItemSelect}/>
                 :
                 <div className="h-full w-full bg-neutral-900 flex items-center justify-center">
                     No platform connected..
@@ -108,9 +124,31 @@ const TreeView: React.FC = () => {
     );
 }
 
-const TreePanel: React.FC = () => {
+interface InfoPanelProps {
+    item: string | null
+}
+
+const InfoPanel: React.FC<InfoPanelProps> = ({item}) => {
     return (
-        <TreeView/>
+        <div className="h-full w-full bg-yellow-900 overflow-auto">
+            Info panel
+            {item ?
+                <p>coucou {item}</p>
+                :
+                null
+            }
+        </div>
+    )
+}
+
+const TreePanel: React.FC = () => {
+    const [selectedItem, setSelectedItem] = useState<string | null>(null);
+
+    return (
+        <Allotment vertical={true}>
+            <TreeView onAttributeSelect={(itemId) => setSelectedItem(itemId)}/>
+            <InfoPanel item={selectedItem}/>
+        </Allotment>
     );
 }
 

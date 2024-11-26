@@ -91,7 +91,7 @@ impl Mqtt {
                         }
                         Ok(Event::Incoming(Incoming::Publish(m))) => {
                             if let Some(sender) = self.dispatcher_map.lock().await.get(&m.topic) {
-                                println!("Got message:\n\t[Topic]: {}\n\t[Payload]: {:?}", m.topic, m.payload);
+                                println!("Got message:\n\t[Topic]: {}\n\t[Payload]: {:?}\n", m.topic, m.payload);
                                 let _ = sender.send(m.payload);
                             }
                         }
