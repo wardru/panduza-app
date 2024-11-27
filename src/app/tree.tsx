@@ -90,13 +90,11 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
             }
             tree.push(elem);
         }
-        console.log(tree);
         return tree;
     }
 
     useEffect(() => {
         if (!platform.structure) {
-            console.log("aie caramba");
             onAttributeSelect(null);
             return ;
         }
@@ -129,6 +127,8 @@ interface InfoPanelProps {
 }
 
 const InfoPanel: React.FC<InfoPanelProps> = ({item}) => {
+    const platform = usePlatform();
+
     return (
         <div className="h-full w-full bg-yellow-900 overflow-auto">
             Info panel

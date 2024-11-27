@@ -1,8 +1,9 @@
 'use client';
 
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { invoke, Channel } from '@tauri-apps/api/core';
-import { parseStructure, IStructure } from './structure';
+import { parseStructure, IStructure, IAttribute, IClass } from './structure';
+import { Attribute, AttributeString, AttributeEnum, AttributeBoolean, AttributeSI, AttributeType, AttributeMode} from './attribute';
 
 export enum ConnectionState {
     Connected = "Connected",
@@ -15,25 +16,72 @@ interface MqttMessage {
     payload: Uint8Array 
 }
 
-class Attribute {
-    
-}
-
 export interface PlatformContextType {
     connectionState: ConnectionState;
     structure: IStructure | undefined;
-    attributes: Record<string, Attribute>;
+    attributes: AttributeMap;
     connect: (address: string, port: number) => void;
     disconnect: () => void;
 }
+
+type AttributeMap = Record<string, Attribute>;
 
 const PlatformContext = createContext<PlatformContextType | undefined>(undefined);
 
 export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const [connectionState, setConnectionState] = useState<ConnectionState>(ConnectionState.Disconnected);
     const [structure, setStructure] = useState<IStructure | undefined>(undefined);
+    const [attributes, setAttributes] = useState<AttributeMap>({});
 
     let firstAttempt: boolean = false;
+
+    const createAttributesInClass = (map: AttributeMap, driver: string, parentClasses: string[], self: IClass) => {
+        for (const attribute in self.attributes) {
+            const path = [driver, ...parentClasses, attribute].join('/');
+            map[path] = createNewAttribute(attribute, driver, parentClasses, self.attributes[attribute]);
+        }
+        for (const iclass in self.classes) {
+            createAttributesInClass(map, driver, [...parentClasses, iclass] , self.classes[iclass]);
+        }
+    }
+
+    const factoryMap: Record<string, (name: string, driver: string, classes: string[], cfg: IAttribute) => Attribute> = {
+        [AttributeType.String]: (name, driver, classes, cfg) => new AttributeString(name, driver, classes, cfg),
+        [AttributeType.Boolean]: (name, driver, classes, cfg) => new AttributeBoolean(name, driver, classes, cfg),
+        [AttributeType.Enum]: (name, driver, classes, cfg) => new AttributeEnum(name, driver, classes, cfg),
+        [AttributeType.SI]: (name, driver, classes, cfg) => new AttributeSI(name, driver, classes, cfg),
+    }
+
+    const createNewAttribute = (name: string, driver: string, classes: string[], cfg: IAttribute): Attribute => {
+        const factory = factoryMap[cfg.type];
+        if (!factory) {
+            throw new Error(`Unsupported attribute type: ${cfg.type}`);
+        }
+        return factory(name, driver, classes, cfg);
+    }
+
+    const createAttributeMap = () : AttributeMap => {
+        let newMap: AttributeMap = {};
+
+        for (const driver in structure?.drivers) {
+            const attributes = structure.drivers[driver].attributes;
+            const classes = structure.drivers[driver].classes;
+
+            for (const attribute in attributes) {
+                newMap[`${driver}/${attribute}`] = createNewAttribute(attribute, driver, [], attributes[attribute]);
+            }
+
+            for (const iclass in classes) {
+                createAttributesInClass(newMap, driver, [iclass], classes[iclass]);
+            }
+        }
+
+        return newMap;
+    }
+
+    useEffect(() => {
+        (structure) ? setAttributes(createAttributeMap()) : setAttributes({});
+    }, [structure]);
 
     const connect = async (address: string, port: number) => {
 
@@ -100,7 +148,7 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
     }
 
     return (
-        <PlatformContext.Provider value={{ connectionState, structure, connect, disconnect }}>
+        <PlatformContext.Provider value={{ connectionState, attributes, structure, connect, disconnect }}>
             {children}
         </PlatformContext.Provider>
     );
