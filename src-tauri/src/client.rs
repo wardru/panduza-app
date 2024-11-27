@@ -192,10 +192,34 @@ pub async fn register_attribute(
         return Err("Client not connected".into());
     }
 
+    println!("called register_attribute on topic: {}", attribute_topic);
+
     let mut dispatcher = client.dispatcher_map.lock().await;
     dispatcher.insert(attribute_topic.clone(), on_attribute_message);
 
     let _ = client.mqtt_client.as_ref().unwrap().subscribe(&attribute_topic, QoS::AtLeastOnce).await;
+    Ok(())
+}
+
+// User asked to publish a value
+#[tauri::command]
+pub async fn publish(
+    attribute_topic: String,
+    value: Bytes,
+    client: State<'_, Mutex<ClientState>>
+) -> Result<(), String> {
+    let client = client.lock().await;
+
+    if *client.network_status.lock().await != ConnectionState::Connected {
+        return Err("Client not connected".into());
+    }
+    
+    println!("called publish on topic: {}", attribute_topic);
+
+    let mqtt_client = client.mqtt_client.as_ref().unwrap();
+
+    let _ = mqtt_client.publish(attribute_topic, QoS::AtLeastOnce, false, value).await;
+
     Ok(())
 }
 

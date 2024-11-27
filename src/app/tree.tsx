@@ -6,6 +6,8 @@ import { TreeViewBaseItem } from "@mui/x-tree-view/models";
 import { useTreeViewApiRef } from '@mui/x-tree-view/hooks';
 import { Allotment } from "allotment";
 
+import { Attribute, AttributeString, AttributeBool } from './attribute';
+
 type ExtendedTreeItemProps = {
     id: string,
     label: string,
@@ -126,14 +128,66 @@ interface InfoPanelProps {
     item: string | null
 }
 
+interface BoolWidgetProps {
+    attribute: AttributeBool;
+}
+
+const BoolWidget: React.FC<BoolWidgetProps> = ({ attribute }) => {
+    const [value, setValue] = useState(attribute.value);
+
+    useEffect(() => {
+        const updateValue = () => setValue(attribute.value);
+
+        // Subscribe to updates from the attribute
+        attribute.subscribe(updateValue);
+
+        // Cleanup subscription when unmounting
+        return () => {
+            attribute.unsubscribe(updateValue);
+        };
+    }, [attribute]);
+
+    return (
+        <div>
+            <button className="bg-red-300" onClick={() => attribute.setValue(!value)}>
+                {value ? "true" : "false"}
+            </button>
+        </div>
+    );
+};
+
 const InfoPanel: React.FC<InfoPanelProps> = ({item}) => {
     const platform = usePlatform();
+
+    const setStringWidget = (attribute: AttributeString) => {
+        return (
+            <div>
+                <input value={"efe"}/>
+               {attribute.name} 
+            </div>
+        );
+    }
+
+    const setNewWidget = (item: string) => {
+        console.log(`cucu ${item}`);
+        let attribute = platform.attributes[item];
+
+        if (!attribute) {
+            return null;
+        }
+        if (attribute.type === "string") {
+            return setStringWidget(attribute as AttributeString);
+        } else if (attribute.type === "boolean") {
+            return <BoolWidget key={attribute.topic} attribute={attribute as AttributeBool} />;
+        }
+        return null;
+    }
 
     return (
         <div className="h-full w-full bg-yellow-900 overflow-auto">
             Info panel
             {item ?
-                <p>coucou {item}</p>
+                setNewWidget(item)
                 :
                 null
             }
