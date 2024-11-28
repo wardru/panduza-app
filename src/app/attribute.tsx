@@ -33,8 +33,140 @@ export abstract class Attribute {
 }
 
 export class AttributeString extends Attribute {
+    private _value: string = "";
+    private onAttributeMessage: Channel<Uint8Array>;
+    private listeners: Array<() => void> = []; // Listeners to notify on change
+
     constructor(name: string, parentDriver: string, parentClasses: string[], cfg: IAttribute) {
         super(name, parentDriver, parentClasses, cfg);
+        this.onAttributeMessage = new Channel<Uint8Array>();
+
+        invoke('register_attribute', { attributeTopic: this.topic, onAttributeMessage: this.onAttributeMessage });
+    
+        this.onAttributeMessage.onmessage = (message) => {
+            this._value = String.fromCharCode(...message);
+            this.notifyListeners();
+        }
+    }
+    
+    get value() : string {
+        return this._value;
+    }
+    
+    setValue(val: string) {
+        let bytes = new TextEncoder().encode(val);
+        invoke('publish', { attributeTopic: this.topic, value: bytes});
+    }
+
+    subscribe(listener: () => void) {
+        this.listeners.push(listener);
+    }
+
+    unsubscribe(listener: () => void) {
+        this.listeners = this.listeners.filter((l) => l !== listener);
+    }
+
+    notifyListeners() {
+        this.listeners.forEach((listener) => listener());
+    }
+}
+
+interface SiProps {
+    min: number,
+    max: number,
+    decimals: number,
+    unit: string
+}
+
+export class AttributeSi extends Attribute {
+    private _value: number = 0;
+    private _props: SiProps = {
+        min: 0,
+        max: 0,
+        decimals: 0,
+        unit: ""
+    };
+    private onAttributeMessage: Channel<Uint8Array>;
+    private listeners: Array<() => void> = []; // Listeners to notify on change
+
+    constructor(name: string, parentDriver: string, parentClasses: string[], cfg: IAttribute) {
+        super(name, parentDriver, parentClasses, cfg);
+
+        this._props.decimals = cfg.settings!.decimals;
+        this._props.min = cfg.settings!.min;
+        this._props.max = cfg.settings!.max;
+        this._props.unit = cfg.settings!.unit;
+
+        this.onAttributeMessage = new Channel<Uint8Array>();
+
+        invoke('register_attribute', { attributeTopic: this.topic, onAttributeMessage: this.onAttributeMessage });
+    
+        this.onAttributeMessage.onmessage = (message) => {
+            this._value = Number(String.fromCharCode(...message));
+            this.notifyListeners();
+        }
+    }
+
+    setValue(val: string) {
+        let bytes = new TextEncoder().encode(this.validateInput(val));
+        invoke('publish', { attributeTopic: this.topic, value: bytes});
+    }
+
+    validateInput(val: string): string {
+        const num = parseFloat(val);
+        
+        if (isNaN(num)) {
+            throw new Error(`Invalid input for Si attribute "${this.name}": "${val}" is not a number.`);
+        }
+    
+        if (num < this.min || num > this.max) {
+            throw new Error(
+                `Value ${num} is out of range for Si attribute "${this.name}". Expected range: [${this.min}, ${this.max}].`
+            );
+        }
+    
+        if (val.includes('.') && val.split(".")[1].length > this._props.decimals) {
+            const clampedValue = num.toFixed(this._props.decimals);
+
+            console.warn(
+                `Attribute Si "${this.name}" has a precision of ${this._props.decimals}. Clamped ${num} to ${clampedValue}.`
+            );
+            return clampedValue;
+        }
+    
+        return num.toString();
+    }
+
+    get min() : number {
+        return this._props.min;
+    }
+
+    get max() : number {
+        return this._props.max;
+    }
+   
+    get unit(): string {
+        return this._props.unit;
+    }
+
+    get decimals(): number {
+        return this._props.decimals;
+    }
+
+    get value() : number {
+        return this._value;
+    }
+
+    subscribe(listener: () => void) {
+        this.listeners.push(listener);
+    }
+
+    unsubscribe(listener: () => void) {
+        this.listeners = this.listeners.filter((l) => l !== listener);
+    }
+
+    notifyListeners() {
+        this.listeners.forEach((listener) => listener());
     }
 }
 
@@ -58,7 +190,6 @@ export class AttributeBool extends Attribute {
 
     setValue(val: boolean) {
         let bytes = new TextEncoder().encode((val === false) ? "false" : "true");
-        console.log(`lol: ${val} ${bytes}`);
         invoke('publish', { attributeTopic: this.topic, value: bytes});
     }
 
@@ -84,12 +215,6 @@ export class AttributeBool extends Attribute {
 }
 
 export class AttributeEnum extends Attribute {
-    constructor(name: string, parentDriver: string, parentClasses: string[], cfg: IAttribute) {
-        super(name, parentDriver, parentClasses, cfg);
-    }
-}
-
-export class AttributeSI extends Attribute {
     constructor(name: string, parentDriver: string, parentClasses: string[], cfg: IAttribute) {
         super(name, parentDriver, parentClasses, cfg);
     }

@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { invoke, Channel } from '@tauri-apps/api/core';
 import { parseStructure, IStructure, IAttribute, IClass } from './structure';
-import { Attribute, AttributeString, AttributeEnum, AttributeBool, AttributeSI, AttributeType, AttributeMode} from './attribute';
+import { Attribute, AttributeString, AttributeEnum, AttributeBool, AttributeSi, AttributeType, AttributeMode} from './attribute';
 
 export enum ConnectionState {
     Connected = "Connected",
@@ -49,7 +49,7 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
         [AttributeType.String]: (name, driver, classes, cfg) => new AttributeString(name, driver, classes, cfg),
         [AttributeType.Bool]: (name, driver, classes, cfg) => new AttributeBool(name, driver, classes, cfg),
         [AttributeType.Enum]: (name, driver, classes, cfg) => new AttributeEnum(name, driver, classes, cfg),
-        [AttributeType.Si]: (name, driver, classes, cfg) => new AttributeSI(name, driver, classes, cfg),
+        [AttributeType.Si]: (name, driver, classes, cfg) => new AttributeSi(name, driver, classes, cfg),
     }
 
     const createNewAttribute = (name: string, driver: string, classes: string[], cfg: IAttribute): Attribute => {
@@ -104,7 +104,6 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
                         clearTimeout(timeout);
                         try {
                             setStructure(await parseStructure());
-                            console.log("mdrrr");
                             setConnectionState(ConnectionState.Connected);
                             resolve(ConnectionState.Connected);
                         } catch (e) {

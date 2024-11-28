@@ -6,7 +6,7 @@ import { TreeViewBaseItem } from "@mui/x-tree-view/models";
 import { useTreeViewApiRef } from '@mui/x-tree-view/hooks';
 import { Allotment } from "allotment";
 
-import { Attribute, AttributeString, AttributeBool } from './attribute';
+import { Attribute, AttributeString, AttributeBool, AttributeSi, AttributeEnum, AttributeType} from './attribute';
 
 type ExtendedTreeItemProps = {
     id: string,
@@ -132,16 +132,26 @@ interface BoolWidgetProps {
     attribute: AttributeBool;
 }
 
-const BoolWidget: React.FC<BoolWidgetProps> = ({ attribute }) => {
+interface StringWidgetProps {
+    attribute: AttributeString;
+}
+
+interface EnumWidgetProps {
+    attribute: AttributeEnum;
+}
+
+interface SiWidgetProps {
+    attribute: AttributeSi;
+}
+
+const StringWidget: React.FC<StringWidgetProps> = ({ attribute }) => {
     const [value, setValue] = useState(attribute.value);
 
     useEffect(() => {
         const updateValue = () => setValue(attribute.value);
 
-        // Subscribe to updates from the attribute
         attribute.subscribe(updateValue);
 
-        // Cleanup subscription when unmounting
         return () => {
             attribute.unsubscribe(updateValue);
         };
@@ -149,7 +159,66 @@ const BoolWidget: React.FC<BoolWidgetProps> = ({ attribute }) => {
 
     return (
         <div>
-            <button className="bg-red-300" onClick={() => attribute.setValue(!value)}>
+            Value: {value}
+        </div>
+    );
+};
+
+const SiWidget: React.FC<SiWidgetProps> = ({ attribute }) => {
+    const [value, setValue] = useState(attribute.value);
+    const [error, setError] = useState<string | null>(null);
+    
+    useEffect(() => {
+
+        const updateValue = () => setValue(attribute.value);
+
+        attribute.subscribe(updateValue);
+
+        return () => {
+            attribute.unsubscribe(updateValue);
+        };
+    }, [attribute]);
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key !== 'Enter') {
+            return ;
+        }
+
+        try {
+            attribute.setValue(event.currentTarget.value);
+            setError(null);
+        } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            setError(errorMessage);
+            console.error(`Could not set value: {}`, e);
+        }
+    }
+
+    return (
+        <div>
+            <p>Value: {value}</p>
+            <p>SetValue: <input className="text-black bg-white ml-1 px-2 py-1 rounded-md" onKeyDown={handleKeyDown}/></p>
+            {error && <p className="text-red-500 mt-2">{error}</p>}
+        </div>
+    )
+}
+
+const BoolWidget: React.FC<BoolWidgetProps> = ({ attribute }) => {
+    const [value, setValue] = useState(attribute.value);
+
+    useEffect(() => {
+        const updateValue = () => setValue(attribute.value);
+
+        attribute.subscribe(updateValue);
+
+        return () => {
+            attribute.unsubscribe(updateValue);
+        };
+    }, [attribute]);
+
+    return (
+        <div>
+            Value: <button className="text-white hover:bg-neutral-900 bg-black ml-1 px-6 py-1 rounded-md" onClick={() => attribute.setValue(!value)}>
                 {value ? "true" : "false"}
             </button>
         </div>
@@ -159,33 +228,42 @@ const BoolWidget: React.FC<BoolWidgetProps> = ({ attribute }) => {
 const InfoPanel: React.FC<InfoPanelProps> = ({item}) => {
     const platform = usePlatform();
 
-    const setStringWidget = (attribute: AttributeString) => {
-        return (
-            <div>
-                <input value={"efe"}/>
-               {attribute.name} 
-            </div>
-        );
+    const widgetFactoryMap: Record<string, (attribute: Attribute) => React.ReactElement> = {
+        [AttributeType.Bool]: (attribute) => { return <BoolWidget key={attribute.name} attribute={attribute as AttributeBool}/> },
+        [AttributeType.String]: (attribute) => { return <StringWidget key={attribute.name} attribute={attribute as AttributeString}/> },
+        [AttributeType.Si]: (attribute) => { return <SiWidget key={attribute.name} attribute={attribute as AttributeSi}/> },
     }
 
     const setNewWidget = (item: string) => {
-        console.log(`cucu ${item}`);
-        let attribute = platform.attributes[item];
+        const attribute = platform.attributes[item];
 
         if (!attribute) {
             return null;
         }
-        if (attribute.type === "string") {
-            return setStringWidget(attribute as AttributeString);
-        } else if (attribute.type === "boolean") {
-            return <BoolWidget key={attribute.topic} attribute={attribute as AttributeBool} />;
+
+        const widget = widgetFactoryMap[attribute.type](attribute);
+
+        if (!widget) {
+            return null;
         }
-        return null;
+     
+        return (
+            <div>
+                <p>Attribute: {attribute.name}</p>
+                <p>Classes: {attribute.parentClasses.join('/')}</p>
+                <p>Driver: {attribute.parentDriver}</p>
+                <br/>
+                {widget}
+                <br/>
+            </div>
+        );
     }
 
     return (
-        <div className="h-full w-full bg-yellow-900 overflow-auto">
-            Info panel
+        <div className="h-full w-full text-white bg-neutral-800 overflow-auto">
+            <p>Info panel</p>
+            <p>------------------------</p>
+            <br/>
             {item ?
                 setNewWidget(item)
                 :
