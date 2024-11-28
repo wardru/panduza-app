@@ -54,7 +54,7 @@ export class AttributeString extends Attribute {
     }
     
     setValue(val: string) {
-        let bytes = new TextEncoder().encode(val);
+        const bytes = new TextEncoder().encode(val);
         invoke('publish', { attributeTopic: this.topic, value: bytes});
     }
 
@@ -108,7 +108,7 @@ export class AttributeSi extends Attribute {
     }
 
     setValue(val: string) {
-        let bytes = new TextEncoder().encode(this.validateInput(val));
+        const bytes = new TextEncoder().encode(this.validateInput(val));
         invoke('publish', { attributeTopic: this.topic, value: bytes});
     }
 
@@ -189,7 +189,7 @@ export class AttributeBool extends Attribute {
     }
 
     setValue(val: boolean) {
-        let bytes = new TextEncoder().encode((val === false) ? "false" : "true");
+        const bytes = new TextEncoder().encode((val === false) ? "false" : "true");
         invoke('publish', { attributeTopic: this.topic, value: bytes});
     }
 

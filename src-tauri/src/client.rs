@@ -1,12 +1,11 @@
 use std::time::Duration;
 
 use bytes::Bytes;
-use rumqttc::{AsyncClient, ConnectionError, Event, EventLoop, Incoming, MqttOptions, Outgoing, SubscribeFilter, QoS};
+use rumqttc::{AsyncClient, Event, EventLoop, Incoming, MqttOptions, QoS};
 use uuid::Uuid;
 
 use tokio::sync::Mutex;
-use tokio::sync::{mpsc, oneshot, watch};
-use tokio::task;
+use tokio::sync::oneshot;
 use tokio::time;
 
 use futures::future;

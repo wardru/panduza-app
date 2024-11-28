@@ -1,19 +1,14 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect} from 'react';
 import { invoke, Channel } from '@tauri-apps/api/core';
 import { parseStructure, IStructure, IAttribute, IClass } from './structure';
-import { Attribute, AttributeString, AttributeEnum, AttributeBool, AttributeSi, AttributeType, AttributeMode} from './attribute';
+import { Attribute, AttributeString, AttributeEnum, AttributeBool, AttributeSi, AttributeType} from './attribute';
 
 export enum ConnectionState {
     Connected = "Connected",
     Reconnecting = "Reconnecting",
     Disconnected = "Disconnected"
-}
-
-interface MqttMessage {
-    topic: string,
-    payload: Uint8Array 
 }
 
 export interface PlatformContextType {
@@ -22,6 +17,13 @@ export interface PlatformContextType {
     attributes: AttributeMap;
     connect: (address: string, port: number) => void;
     disconnect: () => void;
+}
+
+const factoryMap: Record<string, (name: string, driver: string, classes: string[], cfg: IAttribute) => Attribute> = {
+    [AttributeType.String]: (name, driver, classes, cfg) => new AttributeString(name, driver, classes, cfg),
+    [AttributeType.Bool]: (name, driver, classes, cfg) => new AttributeBool(name, driver, classes, cfg),
+    [AttributeType.Enum]: (name, driver, classes, cfg) => new AttributeEnum(name, driver, classes, cfg),
+    [AttributeType.Si]: (name, driver, classes, cfg) => new AttributeSi(name, driver, classes, cfg),
 }
 
 type AttributeMap = Record<string, Attribute>;
@@ -35,53 +37,59 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
 
     let firstAttempt: boolean = false;
 
-    const createAttributesInClass = (map: AttributeMap, driver: string, parentClasses: string[], self: IClass) => {
-        for (const attribute in self.attributes) {
-            const path = [driver, ...parentClasses, attribute].join('/');
-            map[path] = createNewAttribute(attribute, driver, parentClasses, self.attributes[attribute]);
-        }
-        for (const iclass in self.classes) {
-            createAttributesInClass(map, driver, [...parentClasses, iclass] , self.classes[iclass]);
-        }
-    }
-
-    const factoryMap: Record<string, (name: string, driver: string, classes: string[], cfg: IAttribute) => Attribute> = {
-        [AttributeType.String]: (name, driver, classes, cfg) => new AttributeString(name, driver, classes, cfg),
-        [AttributeType.Bool]: (name, driver, classes, cfg) => new AttributeBool(name, driver, classes, cfg),
-        [AttributeType.Enum]: (name, driver, classes, cfg) => new AttributeEnum(name, driver, classes, cfg),
-        [AttributeType.Si]: (name, driver, classes, cfg) => new AttributeSi(name, driver, classes, cfg),
-    }
-
-    const createNewAttribute = (name: string, driver: string, classes: string[], cfg: IAttribute): Attribute => {
-        const factory = factoryMap[cfg.type];
-        if (!factory) {
-            throw new Error(`Unsupported attribute type: ${cfg.type}`);
-        }
-        return factory(name, driver, classes, cfg);
-    }
-
-    const createAttributeMap = () : AttributeMap => {
-        let newMap: AttributeMap = {};
-
-        for (const driver in structure?.drivers) {
-            const attributes = structure.drivers[driver].attributes;
-            const classes = structure.drivers[driver].classes;
-
-            for (const attribute in attributes) {
-                newMap[`${driver}/${attribute}`] = createNewAttribute(attribute, driver, [], attributes[attribute]);
+    useEffect(() => {
+        const createNewAttribute = (name: string, driver: string, classes: string[], cfg: IAttribute): Attribute => {
+            const factory = factoryMap[cfg.type];
+            if (!factory) {
+                throw new Error(`Unsupported attribute type: ${cfg.type}`);
             }
+            return factory(name, driver, classes, cfg);
+        };
 
-            for (const iclass in classes) {
-                createAttributesInClass(newMap, driver, [iclass], classes[iclass]);
+        const createAttributesInClass = (map: AttributeMap, driver: string, parentClasses: string[], self: IClass) => {
+            for (const attribute in self.attributes) {
+                const path = [driver, ...parentClasses, attribute].join('/');
+                map[path] = createNewAttribute(attribute, driver, parentClasses, self.attributes[attribute]);
             }
-        }
+            for (const iclass in self.classes) {
+                createAttributesInClass(map, driver, [...parentClasses, iclass] , self.classes[iclass]);
+            }
+        };
 
-        return newMap;
-    }
+        const createAttributeMap = () : AttributeMap => {
+            const newMap: AttributeMap = {};
+
+            for (const driver in structure?.drivers) {
+                const attributes = structure.drivers[driver].attributes;
+                const classes = structure.drivers[driver].classes;
+
+                for (const attribute in attributes) {
+                    newMap[`${driver}/${attribute}`] = createNewAttribute(attribute, driver, [], attributes[attribute]);
+                }
+
+                for (const iclass in classes) {
+                    createAttributesInClass(newMap, driver, [iclass], classes[iclass]);
+                }
+            }
+            return newMap;
+        };
+
+
+        if (structure)
+            setAttributes(createAttributeMap())
+        else
+            setAttributes({});
+    }, [structure]);
 
     useEffect(() => {
-        (structure) ? setAttributes(createAttributeMap()) : setAttributes({});
-    }, [structure]);
+        window.onbeforeunload = function() {
+            disconnect();
+        };
+
+        return () => {
+            window.onbeforeunload = null;
+        };
+    }, []);
 
     const connect = async (address: string, port: number) => {
 

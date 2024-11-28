@@ -98,7 +98,7 @@ async function fetchStructure() {
 }
 
 function registerAttribute(name: string, obj: any) {
-    let iattribute: IAttribute = {
+    const iattribute: IAttribute = {
         info: null,
         mode: "",
         type: "",
@@ -118,7 +118,7 @@ function registerAttribute(name: string, obj: any) {
 }
 
 function registerClass(name: string, obj: any) {
-    let iclass: IClass = {
+    const iclass: IClass = {
         attributes: {},
         classes: {},
         info: null,
@@ -142,7 +142,7 @@ function registerClass(name: string, obj: any) {
 }
 
 function registerDriver(name: string, obj: any) {
-    let idriver: IDriver = {
+    const idriver: IDriver = {
         attributes: {},
         classes: {},
         info: null
@@ -164,9 +164,8 @@ function registerDriver(name: string, obj: any) {
 }
 
 export async function parseStructure() {
-    let jsonPayload = await fetchStructure();
-
-    let istructure: IStructure = {
+    const jsonPayload = await fetchStructure();
+    const istructure: IStructure = {
         drivers: {},
         info: null
     };

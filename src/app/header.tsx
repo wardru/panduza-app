@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import PanduzaLogo from "../images/logo/logo_circle_black_blue_256.png";
-import {useState, useEffect, useContext} from 'react';
+import {useState} from 'react';
 import { usePlatform, ConnectionState } from './platform';
 
 const statusColorMap: Record<ConnectionState, string> = {
@@ -64,7 +64,7 @@ const Header: React.FC = () => {
                 disconnect();
                 break;
             case ConnectionState.Disconnected:
-                let port: number = Number(portAsString);
+                const port: number = Number(portAsString);
                 if (isNaN(port) || port < 0 || port > 65535) {
                     console.error(`Port ${port} is invalid! Must be a number between 0 and 65535`);
                 }

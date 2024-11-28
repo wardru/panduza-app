@@ -1,12 +1,12 @@
-import { RichTreeView, TreeItem2 } from "@mui/x-tree-view";
-import { usePlatform, PlatformContextType, ConnectionState } from './platform';
+import { RichTreeView} from "@mui/x-tree-view";
+import { usePlatform} from './platform';
 import { useEffect, useState } from 'react';
 import { IStructure, IDriver, IClass, IAttribute } from "./structure";
 import { TreeViewBaseItem } from "@mui/x-tree-view/models";
 import { useTreeViewApiRef } from '@mui/x-tree-view/hooks';
 import { Allotment } from "allotment";
 
-import { Attribute, AttributeString, AttributeBool, AttributeSi, AttributeEnum, AttributeType} from './attribute';
+import { Attribute, AttributeString, AttributeBool, AttributeSi, AttributeType} from './attribute';
 
 type ExtendedTreeItemProps = {
     id: string,
@@ -26,82 +26,83 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
     const [tree, setTree] = useState<TreeItemProps[]>([]);
     const apiRef = useTreeViewApiRef();
 
-    const createAttributeTreeItem = (baseId: string, attributeName: string, attribute: IAttribute): TreeItemProps => {
-        return {
-            label: attributeName,
-            id: baseId + "/" + attributeName,
-            type: "attribute",
-            attributeType: attribute.type
-        }
-    }
 
-    const fillClassTree = (baseId: string, iclass: IClass): TreeItemProps[] => {
-        let classTree: TreeItemProps[] = [];
-
-        for (const className in iclass.classes) {
-            let newId = baseId + "/" + className;
-            let elem: TreeItemProps = {
-                label: className,
-                id: newId,
-                type: "class",
-                children: fillClassTree(newId, iclass.classes[className])
-            }
-            classTree.push(elem);
-        }
-
-        for (const attributeName in iclass.attributes) {
-            let attributeItem = createAttributeTreeItem(baseId, attributeName, iclass.attributes[attributeName]);
-            classTree.push(attributeItem);
-        }
-
-        return classTree;
-    }
-
-    const fillDriverTree = (baseId: string, driver: IDriver): TreeItemProps[] => {
-        let driverTree: TreeItemProps[] = [];
-
-        for (const className in driver.classes) {
-            let newId = baseId + "/" + className;
-
-            let elem: TreeItemProps = {
-                label: className,
-                id: newId,
-                type: "class",
-                children: fillClassTree(newId, driver.classes[className])
-            }
-            driverTree.push(elem);
-        }
-
-        for (const attributeName in driver.attributes) {
-            const attributeItem = createAttributeTreeItem(baseId, attributeName, driver.attributes[attributeName]);
-            driverTree.push(attributeItem);
-        }
-
-        return driverTree;
-    }
-
-    const createTreeFromStructure = (structure: IStructure): TreeItemProps[] => {
-        let tree: TreeItemProps[] = [];
-        
-        for (const driverName in structure.drivers) {
-            let elem: TreeItemProps = {
-                label: driverName,
-                id: driverName,
-                type: "driver",
-                children: fillDriverTree(driverName, structure.drivers[driverName])
-            }
-            tree.push(elem);
-        }
-        return tree;
-    }
 
     useEffect(() => {
+        const createAttributeTreeItem = (baseId: string, attributeName: string, attribute: IAttribute): TreeItemProps => {
+            return {
+                label: attributeName,
+                id: baseId + "/" + attributeName,
+                type: "attribute",
+                attributeType: attribute.type
+            }
+        }
+
+        const fillClassTree = (baseId: string, iclass: IClass): TreeItemProps[] => {
+            const classTree: TreeItemProps[] = [];
+
+            for (const className in iclass.classes) {
+                const newId = baseId + "/" + className;
+                const elem: TreeItemProps = {
+                    label: className,
+                    id: newId,
+                    type: "class",
+                    children: fillClassTree(newId, iclass.classes[className])
+                }
+                classTree.push(elem);
+            }
+
+            for (const attributeName in iclass.attributes) {
+                const attributeItem = createAttributeTreeItem(baseId, attributeName, iclass.attributes[attributeName]);
+                classTree.push(attributeItem);
+            }
+
+            return classTree;
+        }
+
+        const fillDriverTree = (baseId: string, driver: IDriver): TreeItemProps[] => {
+            const driverTree: TreeItemProps[] = [];
+
+            for (const className in driver.classes) {
+                const newId = baseId + "/" + className;
+                const elem: TreeItemProps = {
+                    label: className,
+                    id: newId,
+                    type: "class",
+                    children: fillClassTree(newId, driver.classes[className])
+                }
+                driverTree.push(elem);
+            }
+
+            for (const attributeName in driver.attributes) {
+                const attributeItem = createAttributeTreeItem(baseId, attributeName, driver.attributes[attributeName]);
+                driverTree.push(attributeItem);
+            }
+
+            return driverTree;
+        }
+
+        const createTreeFromStructure = (structure: IStructure): TreeItemProps[] => {
+            const tree: TreeItemProps[] = [];
+
+            for (const driverName in structure.drivers) {
+                const elem: TreeItemProps = {
+                    label: driverName,
+                    id: driverName,
+                    type: "driver",
+                    children: fillDriverTree(driverName, structure.drivers[driverName])
+                }
+                tree.push(elem);
+            }
+            return tree;
+        }
+
         if (!platform.structure) {
             onAttributeSelect(null);
             return ;
         }
         setTree(createTreeFromStructure(platform.structure));
-    }, [platform.structure]);
+    }, [platform.structure, onAttributeSelect]);
     
     const handleItemSelect = (event: React.SyntheticEvent | null, itemId: string) => {
         const item = apiRef.current!.getItem(itemId);
@@ -134,10 +135,6 @@ interface BoolWidgetProps {
 
 interface StringWidgetProps {
     attribute: AttributeString;
-}
-
-interface EnumWidgetProps {
-    attribute: AttributeEnum;
 }
 
 interface SiWidgetProps {
@@ -195,9 +192,17 @@ const SiWidget: React.FC<SiWidgetProps> = ({ attribute }) => {
     }
 
     return (
-        <div>
-            <p>Value: {value}</p>
-            <p>SetValue: <input className="text-black bg-white ml-1 px-2 py-1 rounded-md" onKeyDown={handleKeyDown}/></p>
+        <div className="space-y-3">
+            {
+                attribute.mode !== "WO" ?
+                    <p>Value : <input className="text-black bg-white ml-1 px-2 py-1 rounded-md" disabled={true} value={value}/></p>
+                    : null
+            }
+            {
+                attribute.mode !== "RO" ?
+                <p>SetValue: <input className="text-black bg-white ml-1 px-2 py-1 rounded-md" onKeyDown={handleKeyDown}/></p>
+                : null
+            }
             {error && <p className="text-red-500 mt-2">{error}</p>}
         </div>
     )
@@ -218,7 +223,11 @@ const BoolWidget: React.FC<BoolWidgetProps> = ({ attribute }) => {
 
     return (
         <div>
-            Value: <button className="text-white hover:bg-neutral-900 bg-black ml-1 px-6 py-1 rounded-md" onClick={() => attribute.setValue(!value)}>
+            Value: <button
+                        className="text-white hover:bg-neutral-900 bg-black ml-1 px-6 py-1 rounded-md"
+                        onClick={() => attribute.setValue(!value)}
+                        disabled={attribute.mode === "RO"}
+                    >
                 {value ? "true" : "false"}
             </button>
         </div>
