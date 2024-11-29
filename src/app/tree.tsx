@@ -250,7 +250,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({item}) => {
             return null;
         }
 
-        const widget = widgetFactoryMap[attribute.type](attribute);
+        const widget = widgetFactoryMap[attribute.type];
 
         if (!widget) {
             return null;
@@ -262,7 +262,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({item}) => {
                 <p>Classes: {attribute.parentClasses.join('/')}</p>
                 <p>Driver: {attribute.parentDriver}</p>
                 <br/>
-                {widget}
+                {widget(attribute)}
                 <br/>
             </div>
         );
