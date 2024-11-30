@@ -195,7 +195,7 @@ const SiWidget: React.FC<SiWidgetProps> = ({ attribute }) => {
         <div className="space-y-3">
             {
                 attribute.mode !== "WO" ?
-                    <p>Value : <input className="text-black bg-white ml-1 px-2 py-1 rounded-md" disabled={true} value={value}/></p>
+                    <p>Value : <input className="text-black bg-white ml-1 px-2 py-1 rounded-md" disabled={true} value={value}/>    {attribute.unit}</p>
                     : null
             }
             {

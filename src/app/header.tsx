@@ -37,6 +37,7 @@ const Header: React.FC = () => {
     const { connectionState, connect, disconnect } = usePlatform();
     const [address, setAddress] = useState(defaultAddress);
     const [portAsString, setPortAsString] = useState(defaultPort.toString());
+    const [error, setError] = useState<string | null>(null);
 
     const getStatusColor = () => {
         const color = statusColorMap[connectionState];
@@ -69,7 +70,13 @@ const Header: React.FC = () => {
                     console.error(`Port ${port} is invalid! Must be a number between 0 and 65535`);
                 }
                 else {
-                    await connect(address, port);
+                    try {
+                        await connect(address, port);
+                        setError(null);
+                    } catch (e) {
+                        const errorMessage = e instanceof Error ? e.message : String(e);
+                        setError(errorMessage);
+                    }
                 }
                 break;
         }
@@ -88,7 +95,7 @@ const Header: React.FC = () => {
                 </button>
                 <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
                  {(connectionState === ConnectionState.Disconnected) ? (
-                    <div className="pl-3 text-black space-x-2">
+                    <div className="pl-3 text-black space-x-2 flex">
                         <input
                             placeholder={defaultAddress}
                             onChange={(e) => {setAddress(e.currentTarget.value === "" ? defaultAddress : e.currentTarget.value)}}
@@ -97,6 +104,7 @@ const Header: React.FC = () => {
                             placeholder={defaultPort.toString()}
                             onChange={(e) => {setPortAsString(e.currentTarget.value === "" ? defaultPort.toString() : e.currentTarget.value)}}
                         />
+                        {error && <p className="text-red-500 mt-2">{error}</p>}
                     </div>
                 ) : null}
             </div>

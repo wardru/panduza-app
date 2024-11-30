@@ -17,6 +17,7 @@ export enum AttributeMode {
 export abstract class Attribute {
     readonly name: string;
     readonly topic: string;
+    readonly cmd_topic: string;
     readonly type: string;
     readonly parentClasses: string[];
     readonly parentDriver: string;
@@ -25,6 +26,7 @@ export abstract class Attribute {
     constructor(name: string, parentDriver: string, parentClasses: string[], cfg: IAttribute) {
         this.name = name;
         this.topic = ["pza", parentDriver, ...parentClasses, name, "att"].join('/');
+        this.cmd_topic = ["pza", parentDriver, ...parentClasses, name, "cmd"].join('/');
         this.parentClasses = parentClasses;
         this.parentDriver = parentDriver;
         this.type = cfg.type;
@@ -55,7 +57,7 @@ export class AttributeString extends Attribute {
     
     setValue(val: string) {
         const bytes = new TextEncoder().encode(val);
-        invoke('publish', { attributeTopic: this.topic, value: bytes});
+        invoke('publish', { attributeTopic: this.cmd_topic, value: bytes});
     }
 
     subscribe(listener: () => void) {
@@ -109,7 +111,7 @@ export class AttributeSi extends Attribute {
 
     setValue(val: string) {
         const bytes = new TextEncoder().encode(this.validateInput(val));
-        invoke('publish', { attributeTopic: this.topic, value: bytes});
+        invoke('publish', { attributeTopic: this.cmd_topic, value: bytes});
     }
 
     validateInput(val: string): string {
@@ -190,7 +192,7 @@ export class AttributeBool extends Attribute {
 
     setValue(val: boolean) {
         const bytes = new TextEncoder().encode((val === false) ? "false" : "true");
-        invoke('publish', { attributeTopic: this.topic, value: bytes});
+        invoke('publish', { attributeTopic: this.cmd_topic, value: bytes});
     }
 
     get value() : boolean {

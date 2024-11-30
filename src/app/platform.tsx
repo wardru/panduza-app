@@ -136,16 +136,14 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
         try {
             await invoke('connect_to_platform', { address: address, port: port, onConnectionState})
         } catch(e) {
-            console.error(`Error. Couldn't connect: ${e}`);
-            return ;    
+            throw new Error(`Error. ${e}`);
         };
 
         try {
             await waitForConnection;
         } catch (e) {
-            console.error({e});
             disconnect();
-            return ;
+            throw new Error(`Error. ${e}`);
         }
     }
 
