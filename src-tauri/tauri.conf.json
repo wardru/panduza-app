@@ -1,6 +1,6 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "app",
+  "productName": "panduzapp",
   "version": "0.1.0",
   "identifier": "com.tauri.build",
   "build": {
@@ -12,9 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "app",
-        "width": 800,
-        "height": 600,
+        "title": "Panduza app",
+        "width": 1600,
+        "height": 900,
         "resizable": true,
         "fullscreen": false
       }

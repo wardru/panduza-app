@@ -1,7 +1,7 @@
 [package]
-name = "app"
+name = "panduzapp"
 version = "0.1.0"
-description = "A Tauri App"
+description = "Panduza App"
 authors = ["you"]
 license = ""
 repository = ""
