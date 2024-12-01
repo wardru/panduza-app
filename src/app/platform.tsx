@@ -14,7 +14,7 @@ export enum ConnectionState {
 export interface PlatformContextType {
     connectionState: ConnectionState;
     structure: IStructure | undefined;
-    attributes: AttributeMap;
+    attributes: AttributeMap | undefined;
     connect: (address: string, port: number) => void;
     disconnect: () => void;
 }
@@ -33,53 +33,43 @@ const PlatformContext = createContext<PlatformContextType | undefined>(undefined
 export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const [connectionState, setConnectionState] = useState<ConnectionState>(ConnectionState.Disconnected);
     const [structure, setStructure] = useState<IStructure | undefined>(undefined);
-    const [attributes, setAttributes] = useState<AttributeMap>({});
+    const [attributes, setAttributes] = useState<AttributeMap | undefined>(undefined);
 
-    let firstAttempt: boolean = false;
+    const createNewAttribute = (name: string, driver: string, classes: string[], cfg: IAttribute): Attribute => {
+        const factory = factoryMap[cfg.type];
+        if (!factory) {
+            throw new Error(`Unsupported attribute type: ${cfg.type}`);
+        }
+        return factory(name, driver, classes, cfg);
+    };
 
-    useEffect(() => {
-        const createNewAttribute = (name: string, driver: string, classes: string[], cfg: IAttribute): Attribute => {
-            const factory = factoryMap[cfg.type];
-            if (!factory) {
-                throw new Error(`Unsupported attribute type: ${cfg.type}`);
+    const createAttributesInClass = (map: AttributeMap, driver: string, parentClasses: string[], self: IClass) => {
+        for (const attribute in self.attributes) {
+            const path = [driver, ...parentClasses, attribute].join('/');
+            map[path] = createNewAttribute(attribute, driver, parentClasses, self.attributes[attribute]);
+        }
+        for (const iclass in self.classes) {
+            createAttributesInClass(map, driver, [...parentClasses, iclass] , self.classes[iclass]);
+        }
+    };
+
+    const createAttributeMap = (structure: IStructure) : AttributeMap => {
+        const newMap: AttributeMap = {};
+
+        for (const driver in structure.drivers) {
+            const attributes = structure.drivers[driver].attributes;
+            const classes = structure.drivers[driver].classes;
+
+            for (const attribute in attributes) {
+                newMap[`${driver}/${attribute}`] = createNewAttribute(attribute, driver, [], attributes[attribute]);
             }
-            return factory(name, driver, classes, cfg);
-        };
 
-        const createAttributesInClass = (map: AttributeMap, driver: string, parentClasses: string[], self: IClass) => {
-            for (const attribute in self.attributes) {
-                const path = [driver, ...parentClasses, attribute].join('/');
-                map[path] = createNewAttribute(attribute, driver, parentClasses, self.attributes[attribute]);
+            for (const iclass in classes) {
+                createAttributesInClass(newMap, driver, [iclass], classes[iclass]);
             }
-            for (const iclass in self.classes) {
-                createAttributesInClass(map, driver, [...parentClasses, iclass] , self.classes[iclass]);
-            }
-        };
-
-        const createAttributeMap = () : AttributeMap => {
-            const newMap: AttributeMap = {};
-
-            for (const driver in structure?.drivers) {
-                const attributes = structure.drivers[driver].attributes;
-                const classes = structure.drivers[driver].classes;
-
-                for (const attribute in attributes) {
-                    newMap[`${driver}/${attribute}`] = createNewAttribute(attribute, driver, [], attributes[attribute]);
-                }
-
-                for (const iclass in classes) {
-                    createAttributesInClass(newMap, driver, [iclass], classes[iclass]);
-                }
-            }
-            return newMap;
-        };
-
-
-        if (structure)
-            setAttributes(createAttributeMap())
-        else
-            setAttributes({});
-    }, [structure]);
+        }
+        return newMap;
+    };
 
     useEffect(() => {
         window.onbeforeunload = function() {
@@ -89,7 +79,18 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
         return () => {
             window.onbeforeunload = null;
         };
-    }, []);
+    });
+
+    const connectToPlatform = async () => {
+        const structure = await parseStructure();
+        setStructure(structure);
+        setAttributes(createAttributeMap(structure));
+    }
+
+    const disconnectFromPlatform = async () => {
+        setStructure(undefined);
+        setAttributes(undefined);
+    }
 
     const connect = async (address: string, port: number) => {
 
@@ -99,57 +100,32 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
         }
 
         const onConnectionState = new Channel<ConnectionState>();
-        firstAttempt = true;
         
-        const waitForConnection = new Promise<ConnectionState>((resolve, reject) => {
-            const timeout = setTimeout(() => {
-                reject(new Error("Connection timed out"));
-            }, 3000);
-
-            onConnectionState.onmessage = async (message) => {
-                switch (message) {
-                    case ConnectionState.Connected:
-                        clearTimeout(timeout);
-                        try {
-                            setStructure(await parseStructure());
-                            setConnectionState(ConnectionState.Connected);
-                            resolve(ConnectionState.Connected);
-                        } catch (e) {
-                            console.error(`Could not get structure: ${e}`)
-                        }
-                        break;
-                    case ConnectionState.Reconnecting:
-                        setStructure(undefined);
-                        if (firstAttempt == true) {
-                            disconnect();
-                            reject("Could not connect");
-                        }
-                        else {
-                            setConnectionState(ConnectionState.Reconnecting);
-                        }
-                        break;
-                }
-                firstAttempt = false;
+        onConnectionState.onmessage = async (message) => {
+            switch (message) {
+                case ConnectionState.Connected:
+                    await connectToPlatform();
+                    setConnectionState(ConnectionState.Connected);
+                    break;
+                case ConnectionState.Reconnecting:
+                    await disconnectFromPlatform();
+                    setConnectionState(ConnectionState.Reconnecting);
+                    break;
             }
-        });
+        }
    
         try {
             await invoke('connect_to_platform', { address: address, port: port, onConnectionState})
+            await connectToPlatform();
+            setConnectionState(ConnectionState.Connected);
         } catch(e) {
             throw new Error(`Error. ${e}`);
         };
-
-        try {
-            await waitForConnection;
-        } catch (e) {
-            disconnect();
-            throw new Error(`Error. ${e}`);
-        }
     }
 
-    const disconnect = () => {
+    const disconnect = async () => {
         invoke('disconnect_from_platform');
-        setStructure(undefined);
+        await disconnectFromPlatform();
         setConnectionState(ConnectionState.Disconnected);
     }
 

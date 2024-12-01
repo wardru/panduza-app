@@ -57,7 +57,7 @@ export class AttributeString extends Attribute {
     
     setValue(val: string) {
         const bytes = new TextEncoder().encode(val);
-        invoke('publish', { attributeTopic: this.cmd_topic, value: bytes});
+        invoke('publish', { commandTopic: this.cmd_topic, value: bytes});
     }
 
     subscribe(listener: () => void) {
@@ -111,7 +111,7 @@ export class AttributeSi extends Attribute {
 
     setValue(val: string) {
         const bytes = new TextEncoder().encode(this.validateInput(val));
-        invoke('publish', { attributeTopic: this.cmd_topic, value: bytes});
+        invoke('publish', { commandTopic: this.cmd_topic, value: bytes});
     }
 
     validateInput(val: string): string {
@@ -192,7 +192,7 @@ export class AttributeBool extends Attribute {
 
     setValue(val: boolean) {
         const bytes = new TextEncoder().encode((val === false) ? "false" : "true");
-        invoke('publish', { attributeTopic: this.cmd_topic, value: bytes});
+        invoke('publish', { commandTopic: this.cmd_topic, value: bytes});
     }
 
     get value() : boolean {

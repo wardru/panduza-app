@@ -26,8 +26,6 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
     const [tree, setTree] = useState<TreeItemProps[]>([]);
     const apiRef = useTreeViewApiRef();
 
-
-
     useEffect(() => {
         const createAttributeTreeItem = (baseId: string, attributeName: string, attribute: IAttribute): TreeItemProps => {
             return {
@@ -166,7 +164,6 @@ const SiWidget: React.FC<SiWidgetProps> = ({ attribute }) => {
     const [error, setError] = useState<string | null>(null);
     
     useEffect(() => {
-
         const updateValue = () => setValue(attribute.value);
 
         attribute.subscribe(updateValue);
@@ -244,6 +241,10 @@ const InfoPanel: React.FC<InfoPanelProps> = ({item}) => {
     }
 
     const setNewWidget = (item: string) => {
+
+        if (!platform.attributes)
+                return null;
+
         const attribute = platform.attributes[item];
 
         if (!attribute) {

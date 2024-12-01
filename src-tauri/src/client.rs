@@ -37,8 +37,10 @@ pub enum ConnectionState {
 struct Mqtt {
     client: AsyncClient,
     event_loop: EventLoop,
+
     network_status: Arc<Mutex<ConnectionState>>,
     dispatcher_map: Arc<Mutex<HashMap<String, Channel<Bytes>>>>,
+    
     event_sender: Channel<ConnectionState>,
 
     shutdown_rx: oneshot::Receiver<ShutdownRequest>,
@@ -75,6 +77,16 @@ impl Mqtt {
         self.client.clone()
     }
 
+    async fn try_connect(&mut self) -> Result<(), String> {
+        let event = self.event_loop.poll().await;
+
+        match event {
+            Ok(Event::Incoming(Incoming::ConnAck(_))) => { Ok(()) }
+            Err(e) => { Err(e.to_string()) }
+            _ => { Err("Unknown error".into()) }
+        }
+    }
+
     async fn start(mut self) {
         let mut shutdown_rx = self.shutdown_rx.fuse();
         let mut need_retry_timeout: bool = false;
@@ -86,7 +98,6 @@ impl Mqtt {
                         Ok(Event::Incoming(Incoming::ConnAck(_))) => {
                             *self.network_status.lock().await = ConnectionState::Connected;
                             let _ = self.event_sender.send(ConnectionState::Connected);
-                            println!("connecting succeded");
                         }
                         Ok(Event::Incoming(Incoming::Publish(m))) => {
                             if let Some(sender) = self.dispatcher_map.lock().await.get(&m.topic) {
@@ -94,8 +105,7 @@ impl Mqtt {
                                 let _ = sender.send(m.payload);
                             }
                         }
-                        Err(e) => {
-                            println!("connecting failed: {e:?}");
+                        Err(_) => {
                             *self.network_status.lock().await = ConnectionState::Reconnecting;
                             let _ = self.event_sender.send(ConnectionState::Reconnecting);
                             need_retry_timeout = true;
@@ -168,13 +178,15 @@ pub async fn connect_to_platform(
     
     let port: u16 = port.try_into().map_err(|_| format!("Port {} is invalid", port))?;
 
-    let (mqtt_client, shutdown_tx) = Mqtt::new(address, port, client.network_status.clone(), client.dispatcher_map.clone(), on_connection_state);
+    let (mut mqtt_client, shutdown_tx) = Mqtt::new(address, port, client.network_status.clone(), client.dispatcher_map.clone(), on_connection_state);
 
+    mqtt_client.try_connect().await?;
+    
     client.mqtt_client = Some(mqtt_client.get_client());
     client.shutdown_tx = Some(shutdown_tx);
 
+    *client.network_status.lock().await = ConnectionState::Connected;
     tokio::spawn(mqtt_client.start());
-
     Ok(())
 }
 
@@ -203,7 +215,7 @@ pub async fn register_attribute(
 // User asked to publish a value
 #[tauri::command]
 pub async fn publish(
-    attribute_topic: String,
+    command_topic: String,
     value: Bytes,
     client: State<'_, Mutex<ClientState>>
 ) -> Result<(), String> {
@@ -213,18 +225,16 @@ pub async fn publish(
         return Err("Client not connected".into());
     }
     
-    println!("called publish on topic: {}", attribute_topic);
-
     let mqtt_client = client.mqtt_client.as_ref().unwrap();
 
-    let _ = mqtt_client.publish(attribute_topic, QoS::AtLeastOnce, false, value).await;
+    let _ = mqtt_client.publish(command_topic, QoS::AtLeastOnce, false, value).await;
 
     Ok(())
 }
 
 // User request to disconnect
 #[tauri::command]
-pub async fn disconnect_from_platform(client: State<'_, Mutex<ClientState>>) -> Result<(), String> {
+pub async fn disconnect_from_platform(client: State<'_, Mutex<ClientState>>) -> Result<(), ()> {
     println!("called disconnect");
     
     let mut client = client.lock().await;
