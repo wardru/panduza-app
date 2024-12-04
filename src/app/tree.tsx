@@ -262,6 +262,9 @@ const InfoPanel: React.FC<InfoPanelProps> = ({item}) => {
                 <p>Attribute: {attribute.name}</p>
                 <p>Classes: {attribute.parentClasses.join('/')}</p>
                 <p>Driver: {attribute.parentDriver}</p>
+                <p>Type: {attribute.type}</p>
+                <p>Mode: {attribute.mode}</p>
+                {attribute.info ? <p>Info: {attribute.info}</p> : null}
                 <br/>
                 {widget(attribute)}
                 <br/>

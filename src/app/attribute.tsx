@@ -22,6 +22,7 @@ export abstract class Attribute {
     readonly parentClasses: string[];
     readonly parentDriver: string;
     readonly mode: string;
+    readonly info: string | null;
    
     constructor(name: string, parentDriver: string, parentClasses: string[], cfg: IAttribute) {
         this.name = name;
@@ -31,6 +32,7 @@ export abstract class Attribute {
         this.parentDriver = parentDriver;
         this.type = cfg.type;
         this.mode = cfg.mode;
+        this.info = cfg.info;
     }
 }
 
