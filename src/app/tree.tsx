@@ -209,24 +209,49 @@ const BoolWidget: React.FC<BoolWidgetProps> = ({ attribute }) => {
     const [value, setValue] = useState(attribute.value);
 
     useEffect(() => {
-        const updateValue = () => setValue(attribute.value);
+        if (attribute.mode !== "WO") {
+            const updateValue = () => setValue(attribute.value);
 
-        attribute.subscribe(updateValue);
+            attribute.subscribe(updateValue);
 
-        return () => {
-            attribute.unsubscribe(updateValue);
-        };
+            return () => {
+                attribute.unsubscribe(updateValue);
+            };
+        }
     }, [attribute]);
 
     return (
         <div>
-            Value: <button
+            {attribute.mode === "WO" ?
+                <div className="flex space-x-3">
+                    <p> Shoot: </p>
+
+                    <button
                         className="text-white hover:bg-neutral-900 bg-black ml-1 px-6 py-1 rounded-md"
-                        onClick={() => attribute.setValue(!value)}
-                        disabled={attribute.mode === "RO"}
+                        onClick={() => attribute.setValue(true)}
                     >
-                {value ? "true" : "false"}
-            </button>
+                        True
+                    </button>
+                    <button
+                        className="text-white hover:bg-neutral-900 bg-black ml-1 px-6 py-1 rounded-md"
+                        onClick={() => attribute.setValue(false)}
+                    >
+                        False
+                    </button>
+                </div>
+
+                :
+
+                <div>
+                    Value: <button
+                                className="text-white hover:bg-neutral-900 bg-black ml-1 px-6 py-1 rounded-md"
+                                onClick={() => attribute.setValue(!value)}
+                                disabled={attribute.mode === "RO"}
+                            >
+                        {value ? "true" : "false"}
+                    </button>
+                </div>
+            }
         </div>
     );
 };
