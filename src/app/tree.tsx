@@ -2,7 +2,7 @@ import { RichTreeView} from "@mui/x-tree-view";
 import { usePlatform} from './platform';
 import { useEffect, useState } from 'react';
 import { IStructure, IDriver, IClass, IAttribute } from "./structure";
-import { TreeViewBaseItem } from "@mui/x-tree-view/models";
+import { TreeViewBaseItem, TreeViewItemId } from "@mui/x-tree-view/models";
 import { useTreeViewApiRef } from '@mui/x-tree-view/hooks';
 import { Allotment } from "allotment";
 
@@ -25,6 +25,20 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
     const platform = usePlatform();
     const [tree, setTree] = useState<TreeItemProps[]>([]);
     const apiRef = useTreeViewApiRef();
+
+    const getAllIdsWithChildren = () => {
+        const ids: TreeViewItemId[] = [];
+
+        const registerId = (item: TreeViewBaseItem) => {
+            if (item.children?.length) {
+                ids.push(item.id);
+                item.children.forEach(registerId);
+            }
+        }
+
+        tree.forEach(registerId);
+        return ids;
+    };
 
     useEffect(() => {
         const createAttributeTreeItem = (baseId: string, attributeName: string, attribute: IAttribute): TreeItemProps => {
@@ -113,7 +127,7 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
     return (
         <div className="text-white bg-gray-800 h-full w-full overflow-auto">
             {platform.structure ?
-                <RichTreeView apiRef={apiRef} items={tree} onItemFocus={handleItemSelect}/>
+                <RichTreeView apiRef={apiRef} items={tree} onItemFocus={handleItemSelect} expandedItems={getAllIdsWithChildren()}/>
                 :
                 <div className="h-full w-full bg-neutral-900 flex items-center justify-center">
                     No platform connected..
