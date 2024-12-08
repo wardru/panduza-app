@@ -1,12 +1,12 @@
-import { RichTreeView} from "@mui/x-tree-view";
-import { usePlatform} from './platform';
+import { RichTreeView } from "@mui/x-tree-view";
+import { usePlatform } from './platform';
 import { useEffect, useState } from 'react';
 import { IStructure, IDriver, IClass, IAttribute } from "./structure";
 import { TreeViewBaseItem, TreeViewItemId } from "@mui/x-tree-view/models";
 import { useTreeViewApiRef } from '@mui/x-tree-view/hooks';
 import { Allotment } from "allotment";
 
-import { Attribute, AttributeString, AttributeBool, AttributeSi, AttributeType} from './attribute';
+import { Attribute, AttributeString, AttributeBool, AttributeSi, AttributeType } from './attribute';
 
 type ExtendedTreeItemProps = {
     id: string,
@@ -25,20 +25,9 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
     const platform = usePlatform();
     const [tree, setTree] = useState<TreeItemProps[]>([]);
     const apiRef = useTreeViewApiRef();
+    const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
-    const getAllIdsWithChildren = () => {
-        const ids: TreeViewItemId[] = [];
 
-        const registerId = (item: TreeViewBaseItem) => {
-            if (item.children?.length) {
-                ids.push(item.id);
-                item.children.forEach(registerId);
-            }
-        }
-
-        tree.forEach(registerId);
-        return ids;
-    };
 
     useEffect(() => {
         const createAttributeTreeItem = (baseId: string, attributeName: string, attribute: IAttribute): TreeItemProps => {
@@ -111,11 +100,29 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
 
         if (!platform.structure) {
             onAttributeSelect(null);
-            return ;
+            return;
         }
         setTree(createTreeFromStructure(platform.structure));
     }, [platform.structure, onAttributeSelect]);
-    
+
+    useEffect(() => {
+
+        const getAllIdsWithChildren = () => {
+            const ids: TreeViewItemId[] = [];
+        
+            const registerId = (item: TreeViewBaseItem) => {
+                if (item.children?.length) {
+                    ids.push(item.id);
+                    item.children.forEach(registerId);
+                }
+            }
+        
+            tree.forEach(registerId);
+            return ids;
+        };
+        setExpandedItems(getAllIdsWithChildren());
+    }, [tree]);
+
     const handleItemSelect = (event: React.SyntheticEvent | null, itemId: string) => {
         const item = apiRef.current!.getItem(itemId);
 
@@ -124,10 +131,23 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
         }
     }
 
+    const handleExpandedItemsChange = (
+        event: React.SyntheticEvent,
+        itemIds: string[],
+    ) => {
+        setExpandedItems(itemIds);
+    };
+
     return (
         <div className="text-white bg-gray-800 h-full w-full overflow-auto">
             {platform.structure ?
-                <RichTreeView apiRef={apiRef} items={tree} onItemFocus={handleItemSelect} expandedItems={getAllIdsWithChildren()}/>
+                <RichTreeView
+                    apiRef={apiRef}
+                    items={tree}
+                    onItemFocus={handleItemSelect}
+                    expandedItems={expandedItems}
+                    onExpandedItemsChange={handleExpandedItemsChange}
+                />
                 :
                 <div className="h-full w-full bg-neutral-900 flex items-center justify-center">
                     No platform connected..
@@ -176,7 +196,7 @@ const StringWidget: React.FC<StringWidgetProps> = ({ attribute }) => {
 const SiWidget: React.FC<SiWidgetProps> = ({ attribute }) => {
     const [value, setValue] = useState(attribute.value);
     const [error, setError] = useState<string | null>(null);
-    
+
     useEffect(() => {
         const updateValue = () => setValue(attribute.value);
 
@@ -189,7 +209,7 @@ const SiWidget: React.FC<SiWidgetProps> = ({ attribute }) => {
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key !== 'Enter') {
-            return ;
+            return;
         }
 
         try {
@@ -206,13 +226,13 @@ const SiWidget: React.FC<SiWidgetProps> = ({ attribute }) => {
         <div className="space-y-3">
             {
                 attribute.mode !== "WO" ?
-                    <p>Value : <input className="text-black bg-white ml-1 px-2 py-1 rounded-md" disabled={true} value={value}/>    {attribute.unit}</p>
+                    <p>Value : <input className="text-black bg-white ml-1 px-2 py-1 rounded-md" disabled={true} value={value} />    {attribute.unit}</p>
                     : null
             }
             {
                 attribute.mode !== "RO" ?
-                <p>SetValue: <input className="text-black bg-white ml-1 px-2 py-1 rounded-md" onKeyDown={handleKeyDown}/></p>
-                : null
+                    <p>SetValue: <input className="text-black bg-white ml-1 px-2 py-1 rounded-md" onKeyDown={handleKeyDown} /></p>
+                    : null
             }
             {error && <p className="text-red-500 mt-2">{error}</p>}
         </div>
@@ -258,10 +278,10 @@ const BoolWidget: React.FC<BoolWidgetProps> = ({ attribute }) => {
 
                 <div>
                     Value: <button
-                                className="text-white hover:bg-neutral-900 bg-black ml-1 px-6 py-1 rounded-md"
-                                onClick={() => attribute.setValue(!value)}
-                                disabled={attribute.mode === "RO"}
-                            >
+                        className="text-white hover:bg-neutral-900 bg-black ml-1 px-6 py-1 rounded-md"
+                        onClick={() => attribute.setValue(!value)}
+                        disabled={attribute.mode === "RO"}
+                    >
                         {value ? "true" : "false"}
                     </button>
                 </div>
@@ -270,19 +290,19 @@ const BoolWidget: React.FC<BoolWidgetProps> = ({ attribute }) => {
     );
 };
 
-const InfoPanel: React.FC<InfoPanelProps> = ({item}) => {
+const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
     const platform = usePlatform();
 
     const widgetFactoryMap: Record<string, (attribute: Attribute) => React.ReactElement> = {
-        [AttributeType.Bool]: (attribute) => { return <BoolWidget key={attribute.name} attribute={attribute as AttributeBool}/> },
-        [AttributeType.String]: (attribute) => { return <StringWidget key={attribute.name} attribute={attribute as AttributeString}/> },
-        [AttributeType.Si]: (attribute) => { return <SiWidget key={attribute.name} attribute={attribute as AttributeSi}/> },
+        [AttributeType.Bool]: (attribute) => { return <BoolWidget key={attribute.name} attribute={attribute as AttributeBool} /> },
+        [AttributeType.String]: (attribute) => { return <StringWidget key={attribute.name} attribute={attribute as AttributeString} /> },
+        [AttributeType.Si]: (attribute) => { return <SiWidget key={attribute.name} attribute={attribute as AttributeSi} /> },
     }
 
     const setNewWidget = (item: string) => {
 
         if (!platform.attributes)
-                return null;
+            return null;
 
         const attribute = platform.attributes[item];
 
@@ -295,7 +315,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({item}) => {
         if (!widget) {
             return null;
         }
-     
+
         return (
             <div>
                 <p>Attribute: {attribute.name}</p>
@@ -304,9 +324,9 @@ const InfoPanel: React.FC<InfoPanelProps> = ({item}) => {
                 <p>Type: {attribute.type}</p>
                 <p>Mode: {attribute.mode}</p>
                 {attribute.info ? <p>Info: {attribute.info}</p> : null}
-                <br/>
+                <br />
                 {widget(attribute)}
-                <br/>
+                <br />
             </div>
         );
     }
@@ -315,7 +335,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({item}) => {
         <div className="h-full w-full text-white bg-neutral-800 overflow-auto">
             <p>Info panel</p>
             <p>------------------------</p>
-            <br/>
+            <br />
             {item ?
                 setNewWidget(item)
                 :
@@ -330,8 +350,8 @@ const TreePanel: React.FC = () => {
 
     return (
         <Allotment vertical={true}>
-            <TreeView onAttributeSelect={(itemId) => setSelectedItem(itemId)}/>
-            <InfoPanel item={selectedItem}/>
+            <TreeView onAttributeSelect={(itemId) => setSelectedItem(itemId)} />
+            <InfoPanel item={selectedItem} />
         </Allotment>
     );
 }
