@@ -14,6 +14,12 @@ const nextConfig = {
   },
   // Configure assetPrefix or else the server won't properly resolve your assets.
   assetPrefix: isProd ? null : `http://${internalHost}:3000`,
+
+  // Next.js displays a static indicator in the bottom corner of the screen that signals
+  // if a route will be prerendered at build time.
+  devIndicators: {
+    appIsrStatus: false,
+  },
 };
 
 export default nextConfig;
