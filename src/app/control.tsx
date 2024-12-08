@@ -1,7 +1,6 @@
 const ControlPanel: React.FC = () => {
     return (
-        <div className="h-full w-full">
-            Control
+        <div className="h-full w-full bg-neutral-900">
         </div>
     );
 }
