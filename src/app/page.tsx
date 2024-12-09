@@ -6,6 +6,7 @@ import 'allotment/dist/style.css';
 import { PlatformProvider } from './platform';
 import Header from './header';
 import Explorer from './explorer';
+import ControlPanel from './ControlView/ControlView';
 
 import { useState, useEffect } from 'react';
 
@@ -85,6 +86,7 @@ const Main = () => {
                 >
                     <Allotment defaultSizes={[1, 3]}>
                         <Explorer />
+                        <ControlPanel />
                     </Allotment>
 
                     <DragOverlay

@@ -20,6 +20,7 @@
         "@dnd-kit/modifiers": "^9.0.0",
         "@heroicons/react": "^2.2.0",
         "@tauri-apps/api": "^2.1.1",
+        "@xyflow/react": "^12.3.6",
         "allotment": "^1.20.2",
         "eslint-config-next": "^15.1.0",
         "i18next": "^24.2.0",
@@ -27,7 +28,8 @@
         "react": "^19",
         "react-dom": "^19",
         "react-i18next": "^15.4.0",
-        "sharp": "^0.33.5"
+        "sharp": "^0.33.5",
+        "uuid": "^11.0.3"
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3.2.0",
