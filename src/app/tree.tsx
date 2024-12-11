@@ -186,9 +186,35 @@ const StringWidget: React.FC<StringWidgetProps> = ({ attribute }) => {
         };
     }, [attribute]);
 
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key !== 'Enter')
+            return ;
+
+        const str = event.currentTarget.value;
+
+        if (str === "") {
+            return ;
+        }
+        attribute.setValue(str);
+    }
+
     return (
         <div>
-            Value: {value}
+            {attribute.mode !== "WO" ?
+                <label className="text-white">
+                    Value: {value}
+                </label>
+                :
+                null
+            }
+            {attribute.mode !== "RO" ?
+                <div>
+                    <label> Set Value: </label>
+                    <input className="text-black" onKeyDown={handleKeyDown}/>
+                </div>
+                :
+                null
+            }
         </div>
     );
 };

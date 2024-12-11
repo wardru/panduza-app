@@ -48,7 +48,7 @@ export class AttributeString extends Attribute {
         invoke('register_attribute', { attributeTopic: this.topic, onAttributeMessage: this.onAttributeMessage });
     
         this.onAttributeMessage.onmessage = (message) => {
-            this._value = String.fromCharCode(...message);
+            this._value = String.fromCharCode(...message).slice(1, -1);
             this.notifyListeners();
         }
     }
@@ -58,7 +58,7 @@ export class AttributeString extends Attribute {
     }
     
     setValue(val: string) {
-        const bytes = new TextEncoder().encode(val);
+        const bytes = new TextEncoder().encode("\"" + val + "\"");
         invoke('publish', { commandTopic: this.cmd_topic, value: bytes});
     }
 
