@@ -72,6 +72,11 @@ export const PlatformProvider: React.FC<{children: React.ReactNode}> = ({childre
     };
 
     useEffect(() => {
+
+        // ONLY FOR HOT RELOAD DEBUG PURPOSE
+        // causes a warning: IPC custom protocol failed, Tauri will now use the postMessage interface instead
+        // ultimately we should kill the reload function at some point
+
         window.onbeforeunload = function() {
             disconnect();
         };

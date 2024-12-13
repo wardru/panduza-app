@@ -22,7 +22,7 @@ const defaultPort: number = 1883;
 
 const Logo = () => {
     return (
-        <div className="flex-shrink-0 ml-2 mr-5" > {/* Ensures the logo doesn’t shrink */}
+        <div className="flex-shrink-0 ml-2 mr-5" >
             <Image
                 src={PanduzaLogo}
                 width={27}
@@ -33,7 +33,11 @@ const Logo = () => {
     );
 }
 
-const Header: React.FC = () => {
+interface HeaderProps {
+    onAboutClick: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({onAboutClick}) => {
     const { connectionState, connect, disconnect } = usePlatform();
     const [address, setAddress] = useState(defaultAddress);
     const [portAsString, setPortAsString] = useState(defaultPort.toString());
@@ -67,7 +71,7 @@ const Header: React.FC = () => {
             case ConnectionState.Disconnected:
                 const port: number = Number(portAsString);
                 if (isNaN(port) || port < 0 || port > 65535) {
-                    console.error(`Port ${port} is invalid! Must be a number between 0 and 65535`);
+                    setError(`Port ${port} is invalid! Must be a number between 0 and 65535`);
                 }
                 else {
                     try {
@@ -83,32 +87,40 @@ const Header: React.FC = () => {
     }
 
     return (
-        <div className="bg-header sticky top-0 flex py-1"> {/* Adjusted padding for more height */}
-            <Logo/>
-            <div className="text-gray-400 flex flex-shrink-0 flex-grow space-x-2 items-center">
-                {(connectionState == ConnectionState.Reconnecting) ?
-                    <p>Reconnecting...</p> : null
-                }
-                <button className="text-primary hover:bg-slate-500 px-4 rounded-lg"
-                    onClick={onButtonAction}>
-                    {getButtonContent()}
-                </button>
-                <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
-                 {(connectionState === ConnectionState.Disconnected) ? (
-                    <div className="pl-3 text-black space-x-2 flex">
-                        <input
-                            placeholder={defaultAddress}
-                            onChange={(e) => {setAddress(e.currentTarget.value === "" ? defaultAddress : e.currentTarget.value)}}
-                        />
-                        <input
-                            placeholder={defaultPort.toString()}
-                            onChange={(e) => {setPortAsString(e.currentTarget.value === "" ? defaultPort.toString() : e.currentTarget.value)}}
-                        />
-                        {error && <p className="text-red-500 mt-2">{error}</p>}
-                    </div>
-                ) : null}
-            </div>
-        </div>
+       <div className="bg-header sticky top-0 flex py-1 items-center">
+           <Logo />
+           <div className="text-primary flex space-x-2 items-center flex-1">
+               {(connectionState == ConnectionState.Reconnecting) ? (
+                   <p>Reconnecting...</p>
+               ) : null}
+               <button
+                   className="hover:bg-slate-600 px-4 rounded-lg"
+                   onClick={onButtonAction}>
+                   {getButtonContent()}
+               </button>
+               <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
+               {(connectionState === ConnectionState.Disconnected) ? (
+                   <div className="pl-3 text-black space-x-2 flex">
+                       <input
+                           placeholder={defaultAddress}
+                           onChange={(e) =>
+                               setAddress(e.currentTarget.value === "" ? defaultAddress : e.currentTarget.value)
+                           }
+                       />
+                       <input
+                           placeholder={defaultPort.toString()}
+                           onChange={(e) =>
+                               setPortAsString(e.currentTarget.value === "" ? defaultPort.toString() : e.currentTarget.value)
+                           }
+                       />
+                       {error && <p className="text-red-500 mt-2">{error}</p>}
+                   </div>
+               ) : null}
+           </div>
+           <button className="hover:bg-slate-600 px-4 rounded-lg text-primary mr-5" onClick={() => {onAboutClick()}}>
+               About
+           </button>
+       </div>
     );
 }
 

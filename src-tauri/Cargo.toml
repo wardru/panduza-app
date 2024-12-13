@@ -1,6 +1,6 @@
 [package]
-name = "panduzapp"
-version = "0.1.0"
+name = "panduza-app"
+version = "0.0.0"
 description = "Panduza App"
 authors = ["you"]
 license = ""
@@ -29,3 +29,4 @@ uuid = { version = "1.11.0", features = ["v4"] }
 bytes = "1.9.0"
 futures = "0.3.31"
 thiserror = "2.0.3"
+clap = { version = "4.5.23", features = ["derive"] }

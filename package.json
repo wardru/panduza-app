@@ -1,6 +1,7 @@
 {
-  "name": "panduzapp",
-  "version": "0.1.0",
+  "name": "panduza-app",
+  "version": "0.0.0",
+  "app_name": "Panduza App",
   "private": true,
   "scripts": {
     "dev": "next dev",

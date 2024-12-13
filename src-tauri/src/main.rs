@@ -7,8 +7,16 @@ use tokio::sync::Mutex;
 
 use app_lib::client::ClientState;
 
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {}
+
 #[tokio::main]
 async fn main() {
+
+    Args::parse();
 
     tauri::Builder::default()
         .setup(|app| {
