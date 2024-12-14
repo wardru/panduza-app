@@ -124,7 +124,10 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
     }, [tree]);
 
     const handleItemSelect = (event: React.SyntheticEvent | null, itemId: string) => {
-        const item = apiRef.current!.getItem(itemId);
+        if (!apiRef.current)
+            return;
+
+        const item = apiRef.current.getItem(itemId);
 
         if (item && item.type === "attribute") {
             onAttributeSelect(itemId);

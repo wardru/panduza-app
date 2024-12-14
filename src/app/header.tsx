@@ -17,8 +17,8 @@ const buttonContentMap: Record<ConnectionState, string> = {
     [ConnectionState.Reconnecting]: 'Cancel'
 }
 
-const defaultAddress: string = "localhost";
-const defaultPort: number = 1883;
+const defaultAddress= "localhost";
+const defaultPort = 1883;
 
 const Logo = () => {
     return (
@@ -69,7 +69,7 @@ const Header: React.FC<HeaderProps> = ({onAboutClick}) => {
                 disconnect();
                 break;
             case ConnectionState.Disconnected:
-                const port: number = Number(portAsString);
+                const port = Number(portAsString);
                 if (isNaN(port) || port < 0 || port > 65535) {
                     setError(`Port ${port} is invalid! Must be a number between 0 and 65535`);
                 }

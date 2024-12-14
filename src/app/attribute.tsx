@@ -37,7 +37,7 @@ export abstract class Attribute {
 }
 
 export class AttributeString extends Attribute {
-    private _value: string = "";
+    private _value = "";
     private onAttributeMessage: Channel<Uint8Array>;
     private listeners: Array<() => void> = []; // Listeners to notify on change
 
@@ -83,7 +83,7 @@ interface SiProps {
 }
 
 export class AttributeSi extends Attribute {
-    private _value: number = 0;
+    private _value = 0;
     private _props: SiProps = {
         min: 0,
         max: 0,
@@ -96,10 +96,14 @@ export class AttributeSi extends Attribute {
     constructor(name: string, parentDriver: string, parentClasses: string[], cfg: IAttribute) {
         super(name, parentDriver, parentClasses, cfg);
 
-        this._props.decimals = cfg.settings!.decimals;
-        this._props.min = cfg.settings!.min;
-        this._props.max = cfg.settings!.max;
-        this._props.unit = cfg.settings!.unit;
+        if (!cfg.settings) {
+            throw new Error("Attribute SI doesn't have settings!");
+        }
+
+        this._props.decimals = cfg.settings.decimals;
+        this._props.min = cfg.settings.min;
+        this._props.max = cfg.settings.max;
+        this._props.unit = cfg.settings.unit;
 
         this.onAttributeMessage = new Channel<Uint8Array>();
 
@@ -175,7 +179,7 @@ export class AttributeSi extends Attribute {
 }
 
 export class AttributeBool extends Attribute {
-    _value: boolean = false;
+    _value = false;
     onAttributeMessage: Channel<Uint8Array>;
     listeners: Array<() => void> = []; // Listeners to notify on change
 
@@ -218,8 +222,4 @@ export class AttributeBool extends Attribute {
     }
 }
 
-export class AttributeEnum extends Attribute {
-    constructor(name: string, parentDriver: string, parentClasses: string[], cfg: IAttribute) {
-        super(name, parentDriver, parentClasses, cfg);
-    }
-}
+export class AttributeEnum extends Attribute {}
