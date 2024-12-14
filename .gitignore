@@ -38,3 +38,5 @@ next-env.d.ts
 # cache
 /.xwin-cache
 
+/src-tauri/target
+/src-tauri/gen

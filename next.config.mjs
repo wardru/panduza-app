@@ -4,26 +4,27 @@ const internalHost = process.env.TAURI_DEV_HOST || 'localhost';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Ensure Next.js uses SSG instead of SSR
-  // https://nextjs.org/docs/pages/building-your-application/deploying/static-exports
-  output: 'export',
-  // Note: This feature is required to use the Next.js Image component in SSG mode.
-  // See https://nextjs.org/docs/messages/export-image-api for different workarounds.
-  images: {
-    unoptimized: true,
-  },
-  // Configure assetPrefix or else the server won't properly resolve your assets.
-  assetPrefix: isProd ? null : `http://${internalHost}:3000`,
+    // Ensure Next.js uses SSG instead of SSR
+    // https://nextjs.org/docs/pages/building-your-application/deploying/static-exports
+    output: 'export',
 
-  // Next.js displays a static indicator in the bottom corner of the screen that signals
-  // if a route will be prerendered at build time.
-  devIndicators: {
-    appIsrStatus: false,
-  },
+    // Note: This feature is required to use the Next.js Image component in SSG mode.
+    // See https://nextjs.org/docs/messages/export-image-api for different workarounds.
+    images: {
+        unoptimized: true,
+    },
+    // Configure assetPrefix or else the server won't properly resolve your assets.
+    assetPrefix: isProd ? null : `http://${internalHost}:3000`,
 
-  eslint: {
-    dirs: ["src"],
-  },
+    // Next.js displays a static indicator in the bottom corner of the screen that signals
+    // if a route will be prerendered at build time.
+    devIndicators: {
+        appIsrStatus: false,
+    },
+
+    eslint: {
+        dirs: ['src'],
+    },
 };
 
 export default nextConfig;

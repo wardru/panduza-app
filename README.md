@@ -27,3 +27,9 @@ npm run tauri build
 ```
 npm run lint
 ```
+
+## Prettier
+
+```
+npm run format
+```

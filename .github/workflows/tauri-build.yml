@@ -1,75 +1,72 @@
 name: Tauri Build
 run-name: Tauri Build for '${{ github.event.inputs.platform }}'
 
-
 on:
-  workflow_dispatch:
-    inputs:
-      platform:
-        description: "Choose the platform to build on"
-        required: true
-        default: "windows-latest"
-        type: choice
-        options:
-          - "ubuntu-latest"
-          - "macos-latest"
-          - "windows-latest"
-
+    workflow_dispatch:
+        inputs:
+            platform:
+                description: 'Choose the platform to build on'
+                required: true
+                default: 'windows-latest'
+                type: choice
+                options:
+                    - 'ubuntu-latest'
+                    - 'macos-latest'
+                    - 'windows-latest'
 
 # This workflow will build your tauri app just uploading it has an artifact
 jobs:
-  build-tauri:
-    permissions:
-      contents: write
-    strategy:
-      fail-fast: true
-    name: Build for '${{ github.event.inputs.platform }}'
-    runs-on: ${{ github.event.inputs.platform }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true
+    build-tauri:
+        permissions:
+            contents: write
+        strategy:
+            fail-fast: true
+        name: Build for '${{ github.event.inputs.platform }}'
+        runs-on: ${{ github.event.inputs.platform }}
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  lfs: true
 
-      - name: setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
+            - name: setup node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: lts/*
 
-      - name: install Rust stable
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
-          targets: ${{ github.event.inputs.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+            - name: install Rust stable
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
+                  targets: ${{ github.event.inputs.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-      - name: install dependencies (ubuntu only)
-        if: github.event.inputs.platform == 'ubuntu-latest' # This must match the platform value defined above.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y  libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-        # webkitgtk 4.0 is for Tauri v1 - webkitgtk 4.1 is for Tauri v2.
-        # You can remove the one that doesn't apply to your app to speed up the workflow a bit.
+            - name: install dependencies (ubuntu only)
+              if: github.event.inputs.platform == 'ubuntu-latest' # This must match the platform value defined above.
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y  libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+              # webkitgtk 4.0 is for Tauri v1 - webkitgtk 4.1 is for Tauri v2.
+              # You can remove the one that doesn't apply to your app to speed up the workflow a bit.
 
-      - name: install frontend dependencies
-        # todo: remove --legacy-peer-deps once allotment supports React 19
-        run: npm install --legacy-peer-deps
+            - name: install frontend dependencies
+              # todo: remove --legacy-peer-deps once allotment supports React 19
+              run: npm install --legacy-peer-deps
 
-      # If tagName and releaseId are omitted tauri-action will only build the app and won't try to upload any assets.
-      - uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-           args: ${{ github.event.inputs.platform == 'macos-latest' && '--target universal-apple-darwin' || '' }}
+            # If tagName and releaseId are omitted tauri-action will only build the app and won't try to upload any assets.
+            - uses: tauri-apps/tauri-action@v0
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  args: ${{ github.event.inputs.platform == 'macos-latest' && '--target universal-apple-darwin' || '' }}
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: tauri-build-${{ github.event.inputs.platform }}
-          path: |
-            src-tauri/target/release/bundle/msi/
-            src-tauri/target/release/bundle/nsis/
-            src-tauri/target/release/bundle/deb/
-            src-tauri/target/release/bundle/rpm/
-            src-tauri/target/universal-apple-darwin/release/bundle/dmg/
-
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: tauri-build-${{ github.event.inputs.platform }}
+                  path: |
+                      src-tauri/target/release/bundle/msi/
+                      src-tauri/target/release/bundle/nsis/
+                      src-tauri/target/release/bundle/deb/
+                      src-tauri/target/release/bundle/rpm/
+                      src-tauri/target/universal-apple-darwin/release/bundle/dmg/
 
 # TODO: for releases other examples from https://github.com/tauri-apps/tauri-action/tree/v0/examples

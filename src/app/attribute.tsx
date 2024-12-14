@@ -2,16 +2,16 @@ import { invoke, Channel } from '@tauri-apps/api/core';
 import { IAttribute } from './structure';
 
 export enum AttributeType {
-    String = "string",
-    Enum = "enum",
-    Bool = "boolean",
-    Si = "si"
+    String = 'string',
+    Enum = 'enum',
+    Bool = 'boolean',
+    Si = 'si',
 }
 
 export enum AttributeMode {
-    RO = "RO",
-    RW = "RW",
-    WO = "WO"
+    RO = 'RO',
+    RW = 'RW',
+    WO = 'WO',
 }
 
 export abstract class Attribute {
@@ -23,11 +23,11 @@ export abstract class Attribute {
     readonly parentDriver: string;
     readonly mode: string;
     readonly info: string | null;
-   
+
     constructor(name: string, parentDriver: string, parentClasses: string[], cfg: IAttribute) {
         this.name = name;
-        this.topic = ["pza", parentDriver, ...parentClasses, name, "att"].join('/');
-        this.cmd_topic = ["pza", parentDriver, ...parentClasses, name, "cmd"].join('/');
+        this.topic = ['pza', parentDriver, ...parentClasses, name, 'att'].join('/');
+        this.cmd_topic = ['pza', parentDriver, ...parentClasses, name, 'cmd'].join('/');
         this.parentClasses = parentClasses;
         this.parentDriver = parentDriver;
         this.type = cfg.type;
@@ -37,7 +37,7 @@ export abstract class Attribute {
 }
 
 export class AttributeString extends Attribute {
-    private _value = "";
+    private _value = '';
     private onAttributeMessage: Channel<Uint8Array>;
     private listeners: Array<() => void> = []; // Listeners to notify on change
 
@@ -45,21 +45,24 @@ export class AttributeString extends Attribute {
         super(name, parentDriver, parentClasses, cfg);
         this.onAttributeMessage = new Channel<Uint8Array>();
 
-        invoke('register_attribute', { attributeTopic: this.topic, onAttributeMessage: this.onAttributeMessage });
-    
+        invoke('register_attribute', {
+            attributeTopic: this.topic,
+            onAttributeMessage: this.onAttributeMessage,
+        });
+
         this.onAttributeMessage.onmessage = (message) => {
             this._value = String.fromCharCode(...message).slice(1, -1);
             this.notifyListeners();
-        }
+        };
     }
-    
-    get value() : string {
+
+    get value(): string {
         return this._value;
     }
-    
+
     setValue(val: string) {
-        const bytes = new TextEncoder().encode("\"" + val + "\"");
-        invoke('publish', { commandTopic: this.cmd_topic, value: bytes});
+        const bytes = new TextEncoder().encode('"' + val + '"');
+        invoke('publish', { commandTopic: this.cmd_topic, value: bytes });
     }
 
     subscribe(listener: () => void) {
@@ -76,10 +79,10 @@ export class AttributeString extends Attribute {
 }
 
 interface SiProps {
-    min: number,
-    max: number,
-    decimals: number,
-    unit: string
+    min: number;
+    max: number;
+    decimals: number;
+    unit: string;
 }
 
 export class AttributeSi extends Attribute {
@@ -88,7 +91,7 @@ export class AttributeSi extends Attribute {
         min: 0,
         max: 0,
         decimals: 0,
-        unit: ""
+        unit: '',
     };
     private onAttributeMessage: Channel<Uint8Array>;
     private listeners: Array<() => void> = []; // Listeners to notify on change
@@ -107,33 +110,36 @@ export class AttributeSi extends Attribute {
 
         this.onAttributeMessage = new Channel<Uint8Array>();
 
-        invoke('register_attribute', { attributeTopic: this.topic, onAttributeMessage: this.onAttributeMessage });
-    
+        invoke('register_attribute', {
+            attributeTopic: this.topic,
+            onAttributeMessage: this.onAttributeMessage,
+        });
+
         this.onAttributeMessage.onmessage = (message) => {
             this._value = Number(String.fromCharCode(...message));
             this.notifyListeners();
-        }
+        };
     }
 
     setValue(val: string) {
         const bytes = new TextEncoder().encode(this.validateInput(val));
-        invoke('publish', { commandTopic: this.cmd_topic, value: bytes});
+        invoke('publish', { commandTopic: this.cmd_topic, value: bytes });
     }
 
     validateInput(val: string): string {
         const num = parseFloat(val);
-        
+
         if (isNaN(num)) {
             throw new Error(`Invalid input for Si attribute "${this.name}": "${val}" is not a number.`);
         }
-    
+
         if (num < this.min || num > this.max) {
             throw new Error(
                 `Value ${num} is out of range for Si attribute "${this.name}". Expected range: [${this.min}, ${this.max}].`
             );
         }
-    
-        if (val.includes('.') && val.split(".")[1].length > this._props.decimals) {
+
+        if (val.includes('.') && val.split('.')[1].length > this._props.decimals) {
             const clampedValue = num.toFixed(this._props.decimals);
 
             console.warn(
@@ -141,18 +147,18 @@ export class AttributeSi extends Attribute {
             );
             return clampedValue;
         }
-    
+
         return num.toString();
     }
 
-    get min() : number {
+    get min(): number {
         return this._props.min;
     }
 
-    get max() : number {
+    get max(): number {
         return this._props.max;
     }
-   
+
     get unit(): string {
         return this._props.unit;
     }
@@ -161,7 +167,7 @@ export class AttributeSi extends Attribute {
         return this._props.decimals;
     }
 
-    get value() : number {
+    get value(): number {
         return this._value;
     }
 
@@ -187,21 +193,24 @@ export class AttributeBool extends Attribute {
         super(name, parentDriver, parentClasses, cfg);
         this.onAttributeMessage = new Channel<Uint8Array>();
 
-        invoke('register_attribute', { attributeTopic: this.topic, onAttributeMessage: this.onAttributeMessage });
-    
+        invoke('register_attribute', {
+            attributeTopic: this.topic,
+            onAttributeMessage: this.onAttributeMessage,
+        });
+
         this.onAttributeMessage.onmessage = (message) => {
             const str = String.fromCharCode(...message);
-            this._value = (str === "false") ? false : true;
+            this._value = str === 'false' ? false : true;
             this.notifyListeners();
-        }
+        };
     }
 
     setValue(val: boolean) {
-        const bytes = new TextEncoder().encode((val === false) ? "false" : "true");
-        invoke('publish', { commandTopic: this.cmd_topic, value: bytes});
+        const bytes = new TextEncoder().encode(val === false ? 'false' : 'true');
+        invoke('publish', { commandTopic: this.cmd_topic, value: bytes });
     }
 
-    get value() : boolean {
+    get value(): boolean {
         return this._value;
     }
 

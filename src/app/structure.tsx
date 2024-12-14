@@ -3,28 +3,28 @@
 import { Channel, invoke } from '@tauri-apps/api/core';
 
 export interface IAttribute {
-    mode: string,
-    type: string,
-    settings?: any | null
+    mode: string;
+    type: string;
+    settings?: any | null;
     info: string | null;
 }
 
 export interface IClass {
-    attributes: Record<string, IAttribute>
-    classes: Record<string, IClass>
-    info: string | null
-    tags: string[]
+    attributes: Record<string, IAttribute>;
+    classes: Record<string, IClass>;
+    info: string | null;
+    tags: string[];
 }
 
 export interface IDriver {
-    attributes: Record<string, IAttribute>
-    classes: Record<string, IClass>
-    info: string | null
+    attributes: Record<string, IAttribute>;
+    classes: Record<string, IClass>;
+    info: string | null;
 }
 
 export interface IStructure {
-    drivers: Record<string, IDriver>
-    info: string | null
+    drivers: Record<string, IDriver>;
+    info: string | null;
 }
 
 function validateKey(key: string, obj: any) {
@@ -42,7 +42,7 @@ function validateKeys(itf: any, obj: any) {
 function parseTags(obj: any) {
     if (Array.isArray(obj.tags)) {
         const allStrings = obj.tags.every((tag: any) => typeof tag === 'string');
-        
+
         if (allStrings) {
             return obj.tags;
         }
@@ -58,14 +58,14 @@ function parseInfo(obj: any) {
 }
 
 function parseMode(obj: any) {
-    if (typeof obj.mode === 'string' && ["RO", "RW", "WO"].includes(obj.mode)) {
+    if (typeof obj.mode === 'string' && ['RO', 'RW', 'WO'].includes(obj.mode)) {
         return obj.mode;
     }
     throw new Error(`Mode field has bad type or is not a valid mode ${obj.mode}`);
 }
 
 function parseType(obj: any) {
-    const typeList = ["string", "boolean", "si", "enum"];
+    const typeList = ['string', 'boolean', 'si', 'enum'];
 
     if (typeof obj.type === 'string' && typeList.includes(obj.type)) {
         return obj.type;
@@ -74,40 +74,42 @@ function parseType(obj: any) {
 }
 
 async function fetchStructure() {
-    const onStructureMessage = new Channel<Uint8Array>;
+    const onStructureMessage = new Channel<Uint8Array>();
 
     const waitForStructure = async () => {
         return new Promise<Uint8Array>((resolve, reject) => {
-
             const timeout = setTimeout(() => {
-                reject("timed out");
+                reject('timed out');
             }, 1000);
 
             onStructureMessage.onmessage = (message) => {
                 // we got a structure, we clear the timeout and resolve the promise with the raw payload.
                 clearTimeout(timeout);
                 resolve(message);
-            }
+            };
         });
-    }
+    };
 
-    await invoke('register_attribute', { attributeTopic: "pza/_/structure/att", onAttributeMessage: onStructureMessage });
+    await invoke('register_attribute', {
+        attributeTopic: 'pza/_/structure/att',
+        onAttributeMessage: onStructureMessage,
+    });
 
     const payload = await waitForStructure();
     const structure_json = JSON.parse(String.fromCharCode(...payload));
-    
+
     return structure_json;
 }
 
 function registerAttribute(name: string, obj: any) {
     const iattribute: IAttribute = {
         info: null,
-        mode: "",
-        type: "",
-    }
-    
+        mode: '',
+        type: '',
+    };
+
     validateKeys(iattribute, obj);
-    
+
     iattribute.info = parseInfo(obj);
     iattribute.mode = parseMode(obj);
     iattribute.type = parseType(obj);
@@ -124,14 +126,14 @@ function registerClass(name: string, obj: any) {
         attributes: {},
         classes: {},
         info: null,
-        tags: []
-    }
+        tags: [],
+    };
 
     validateKeys(iclass, obj);
-   
+
     iclass.info = parseInfo(obj);
     iclass.tags = parseTags(obj);
-    
+
     for (const attributeKey in obj.attributes) {
         iclass.attributes[attributeKey] = registerAttribute(attributeKey, obj.attributes[attributeKey]);
     }
@@ -147,8 +149,8 @@ function registerDriver(name: string, obj: any) {
     const idriver: IDriver = {
         attributes: {},
         classes: {},
-        info: null
-    }
+        info: null,
+    };
 
     validateKeys(idriver, obj);
 
@@ -169,7 +171,7 @@ export async function parseStructure() {
     const jsonPayload = await fetchStructure();
     const istructure: IStructure = {
         drivers: {},
-        info: null
+        info: null,
     };
 
     validateKey('driver_instances', jsonPayload);
@@ -179,6 +181,6 @@ export async function parseStructure() {
     for (const driverKey in jsonPayload.driver_instances) {
         istructure.drivers[driverKey] = registerDriver(driverKey, jsonPayload.driver_instances[driverKey]);
     }
-    
+
     return istructure;
 }

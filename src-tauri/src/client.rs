@@ -4,8 +4,8 @@ use bytes::Bytes;
 use rumqttc::{AsyncClient, Event, EventLoop, Incoming, MqttOptions, QoS};
 use uuid::Uuid;
 
-use tokio::sync::Mutex;
 use tokio::sync::oneshot;
+use tokio::sync::Mutex;
 use tokio::time;
 
 use futures::future;
@@ -16,22 +16,22 @@ use std::sync::Arc;
 
 use std::collections::HashMap;
 
-use tauri::{ipc::Channel, State};
 use serde::Serialize;
+use tauri::{ipc::Channel, State};
 
 pub struct ShutdownRequest;
 
 #[derive(Clone, Serialize)]
 pub struct MqttMessage {
     topic: String,
-    payload: Bytes 
+    payload: Bytes,
 }
 
 #[derive(Clone, Serialize, PartialEq)]
 pub enum ConnectionState {
     Connected,
     Reconnecting,
-    Disconnected
+    Disconnected,
 }
 
 struct Mqtt {
@@ -40,7 +40,7 @@ struct Mqtt {
 
     network_status: Arc<Mutex<ConnectionState>>,
     dispatcher_map: Arc<Mutex<HashMap<String, Channel<Bytes>>>>,
-    
+
     event_sender: Channel<ConnectionState>,
 
     shutdown_rx: oneshot::Receiver<ShutdownRequest>,
@@ -81,9 +81,9 @@ impl Mqtt {
         let event = self.event_loop.poll().await;
 
         match event {
-            Ok(Event::Incoming(Incoming::ConnAck(_))) => { Ok(()) }
-            Err(e) => { Err(e.to_string()) }
-            _ => { Err("Unknown error".into()) }
+            Ok(Event::Incoming(Incoming::ConnAck(_))) => Ok(()),
+            Err(e) => Err(e.to_string()),
+            _ => Err("Unknown error".into()),
         }
     }
 
@@ -93,7 +93,7 @@ impl Mqtt {
 
         loop {
             tokio::select! {
-                event = self.event_loop.poll(), if need_retry_timeout == false => {
+                event = self.event_loop.poll(), if !need_retry_timeout => {
                     match event {
                         Ok(Event::Incoming(Incoming::ConnAck(_))) => {
                             *self.network_status.lock().await = ConnectionState::Connected;
@@ -121,7 +121,7 @@ impl Mqtt {
                 }
 
                 _ = async {
-                    if need_retry_timeout == true {
+                    if need_retry_timeout {
                         time::sleep(Duration::from_secs(3)).await;
                         need_retry_timeout = false;
                     }
@@ -139,7 +139,13 @@ pub struct ClientState {
     shutdown_tx: Option<oneshot::Sender<ShutdownRequest>>,
 
     network_status: Arc<Mutex<ConnectionState>>,
-    dispatcher_map: Arc<Mutex<HashMap<String, Channel<Bytes>>>>
+    dispatcher_map: Arc<Mutex<HashMap<String, Channel<Bytes>>>>,
+}
+
+impl Default for ClientState {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ClientState {
@@ -149,7 +155,7 @@ impl ClientState {
             shutdown_tx: None,
 
             network_status: Arc::new(Mutex::new(ConnectionState::Disconnected)),
-            dispatcher_map: Arc::new(Mutex::new(HashMap::new()))
+            dispatcher_map: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 }
@@ -165,7 +171,6 @@ pub async fn connect_to_platform(
     on_connection_state: Channel<ConnectionState>,
     client: State<'_, Mutex<ClientState>>,
 ) -> Result<(), String> {
-
     println!("called connect on {}:{}", address, port);
 
     let mut client = client.lock().await;
@@ -175,13 +180,21 @@ pub async fn connect_to_platform(
         ConnectionState::Reconnecting => return Err("Already trying to reconnect".into()),
         _ => {}
     }
-    
-    let port: u16 = port.try_into().map_err(|_| format!("Port {} is invalid", port))?;
 
-    let (mut mqtt_client, shutdown_tx) = Mqtt::new(address, port, client.network_status.clone(), client.dispatcher_map.clone(), on_connection_state);
+    let port: u16 = port
+        .try_into()
+        .map_err(|_| format!("Port {} is invalid", port))?;
+
+    let (mut mqtt_client, shutdown_tx) = Mqtt::new(
+        address,
+        port,
+        client.network_status.clone(),
+        client.dispatcher_map.clone(),
+        on_connection_state,
+    );
 
     mqtt_client.try_connect().await?;
-    
+
     client.mqtt_client = Some(mqtt_client.get_client());
     client.shutdown_tx = Some(shutdown_tx);
 
@@ -190,12 +203,12 @@ pub async fn connect_to_platform(
     Ok(())
 }
 
-// User asked to register an attribute 
+// User asked to register an attribute
 #[tauri::command]
 pub async fn register_attribute(
     attribute_topic: String,
     on_attribute_message: Channel<Bytes>,
-    client: State<'_, Mutex<ClientState>>
+    client: State<'_, Mutex<ClientState>>,
 ) -> Result<(), String> {
     let client = client.lock().await;
 
@@ -208,7 +221,12 @@ pub async fn register_attribute(
     let mut dispatcher = client.dispatcher_map.lock().await;
     dispatcher.insert(attribute_topic.clone(), on_attribute_message);
 
-    let _ = client.mqtt_client.as_ref().unwrap().subscribe(&attribute_topic, QoS::AtLeastOnce).await;
+    let _ = client
+        .mqtt_client
+        .as_ref()
+        .unwrap()
+        .subscribe(&attribute_topic, QoS::AtLeastOnce)
+        .await;
     Ok(())
 }
 
@@ -217,17 +235,19 @@ pub async fn register_attribute(
 pub async fn publish(
     command_topic: String,
     value: Bytes,
-    client: State<'_, Mutex<ClientState>>
+    client: State<'_, Mutex<ClientState>>,
 ) -> Result<(), String> {
     let client = client.lock().await;
 
     if *client.network_status.lock().await != ConnectionState::Connected {
         return Err("Client not connected".into());
     }
-    
+
     let mqtt_client = client.mqtt_client.as_ref().unwrap();
 
-    let _ = mqtt_client.publish(command_topic, QoS::AtLeastOnce, false, value).await;
+    let _ = mqtt_client
+        .publish(command_topic, QoS::AtLeastOnce, false, value)
+        .await;
 
     Ok(())
 }
@@ -236,7 +256,7 @@ pub async fn publish(
 #[tauri::command]
 pub async fn disconnect_from_platform(client: State<'_, Mutex<ClientState>>) -> Result<(), ()> {
     println!("called disconnect");
-    
+
     let mut client = client.lock().await;
 
     if let Some(shutdown) = client.shutdown_tx.take() {
