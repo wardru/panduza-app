@@ -7,7 +7,7 @@ Follow Tauri's Prerequisites page and install all dependencies for your platform
 ## Install deps
 
 ```
-npm install
+npm install --legacy-peer-deps
 ```
 
 ## Build (dev mode)
@@ -20,4 +20,10 @@ npm run tauri dev
 
 ```
 npm run tauri build
+```
+
+## JS Lint
+
+```
+npm run lint
 ```

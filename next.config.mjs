@@ -20,6 +20,10 @@ const nextConfig = {
   devIndicators: {
     appIsrStatus: false,
   },
+
+  eslint: {
+    dirs: ["src"],
+  },
 };
 
 export default nextConfig;
