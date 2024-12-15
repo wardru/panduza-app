@@ -10,22 +10,36 @@ use app_lib::client::ClientState;
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
-struct Args {}
+#[command(about, long_about = None)]
+struct Args {
+    #[arg(short = 'V', long)]
+    version: bool,
+}
+
+#[tauri::command]
+fn get_build_info() -> String {
+    option_env!("GIT_DESCRIBE").unwrap_or("unknown").to_string()
+}
 
 #[tokio::main]
 async fn main() {
+    let version = get_build_info();
 
-    Args::parse();
+    let args = Args::parse();
+
+    if args.version {
+        println!("{}", version);
+        return;
+    }
 
     tauri::Builder::default()
         .setup(|app| {
-
             app.manage(Mutex::new(ClientState::new()));
 
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            get_build_info,
             app_lib::client::connect_to_platform,
             app_lib::client::register_attribute,
             app_lib::client::publish,
