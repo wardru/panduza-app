@@ -7,9 +7,13 @@
         "dev": "next dev",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint",
         "tauri": "tauri",
-        "format": "prettier . --write"
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "format:changelog": "hallmark CHANGELOG.md",
+        "lint": "eslint . --fix",
+        "lint:check": "eslint . --max-warnings 0",
+        "lint:next": "next lint"
     },
     "dependencies": {
         "@emotion/react": "^11.14.0",
