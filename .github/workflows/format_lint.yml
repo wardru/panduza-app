@@ -1,0 +1,35 @@
+name: Format & Lint
+
+on:
+    pull_request:
+    push:
+        branches:
+            - main
+
+env:
+    CARGO_TERM_COLOR: always
+
+jobs:
+    cargo_checks:
+        name: Cargo Checks
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  lfs: true
+            - name: Install tauri dependencies (WebKit, on ubuntu-only)
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y  libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev
+            - name: Update & Show
+              run: rustup update  && rustup show
+            - name: Format
+              run: cargo fmt --all -- --check --verbose
+              working-directory: src-tauri
+            - name: Clippy (linting)
+              run: cargo clippy -- -D warnings --verbose
+              working-directory: src-tauri
+            #TODO: Uncomment when we add rust test!
+            # - name: Test
+            #   run: cargo test
+            #   working-directory: src-tauri
