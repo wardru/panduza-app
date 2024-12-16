@@ -10,11 +10,15 @@ run_lint() {
     fi
 
     echo -e "\033[34m[Lint] Checking staged JavaScript and TypeScript files...\033[0m"
-    FILES=$(echo "$CACHED_FILES" | grep -E '\.(js|jsx|ts|tsx)$')
+    FILES=$(echo "$CACHED_FILES" | grep -E '\.(js|jsx|ts|tsx|mjs)$')
 
     if [ -z "$FILES" ]; then
         echo -e "\033[32m[Lint] No JavaScript or TypeScript files staged for linting.\033[0m"
         return
+    fi
+    if [ ! -f ./node_modules/.bin/eslint ]; then
+        echo -e "\033[33m[Eslint] Dependencies not installed. Installing...\033[0m"
+        npm install --legacy-peer-deps
     fi
 
     echo "$FILES" | xargs ./node_modules/.bin/eslint
@@ -70,7 +74,19 @@ run_prettier() {
         return
     fi
 
+    if [ ! -f ./node_modules/.bin/prettier ]; then
+        echo -e "\033[33m[Prettier] Dependencies not installed. Installing...\033[0m"
+        npm install --legacy-peer-deps
+    fi
+
     echo "$FILES" | xargs ./node_modules/.bin/prettier --ignore-unknown --write
+
+    if [ $? -ne 0 ]; then
+        echo -e "\033[31m[Formatting] Prettier failed,.\033[0m"
+        exit 1
+    fi
+
+
     echo "$FILES" | xargs git add
     echo -e "\033[32m[Prettier] Formatting completed. Files have been re-staged.\033[0m"
 }
