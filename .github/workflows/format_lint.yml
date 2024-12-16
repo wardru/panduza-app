@@ -33,3 +33,22 @@ jobs:
             # - name: Test
             #   run: cargo test
             #   working-directory: src-tauri
+
+    npm_checks:
+        name: NPM Checks
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  lfs: true
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: lts/*
+            - name: Install fronted dependencies
+              # todo: remove --legacy-peer-deps once allotment supports React 19
+              run: npm install --legacy-peer-deps
+            - name: Prettier
+              run: npm run format:check
+            - name: ESlint
+              run: npm run lint:check
