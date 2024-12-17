@@ -39,7 +39,7 @@ run_clippy() {
     fi
 
     echo -e "\033[34m[Clippy] Running Clippy for Rust files...\033[0m"
-    
+
     # Check if there are any staged Rust files
     RUST_FILES=$(echo "$CACHED_FILES" | grep '\.rs$')
 
