@@ -1,8 +1,6 @@
 {
     "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
     "productName": "Panduza App",
-    "mainBinaryName": "panduza-app",
-    "version": "0.0.0",
     "identifier": "com.panduza.app",
     "build": {
         "frontendDist": "../out",
