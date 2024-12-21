@@ -48,12 +48,17 @@ struct Mqtt {
 
 impl Mqtt {
     fn new(
-        address: String,
+        mut address: &str,
         port: u16,
         network_status: Arc<Mutex<ConnectionState>>,
         dispatcher_map: Arc<Mutex<HashMap<String, Channel<Bytes>>>>,
         event_sender: Channel<ConnectionState>,
     ) -> (Mqtt, oneshot::Sender<ShutdownRequest>) {
+        // Translating localhost to 127.0.0.1 due to DNS conflicts on Windows
+        if cfg!(windows) && address == "localhost" {
+            address = "127.0.0.1";
+        }
+
         let client_id = Uuid::new_v4();
         let mqtt_options = MqttOptions::new(client_id, address, port);
         let (client, event_loop) = AsyncClient::new(mqtt_options, 100);
@@ -166,7 +171,7 @@ impl ClientState {
 // User request to connect
 #[tauri::command]
 pub async fn connect_to_platform(
-    address: String,
+    address: &str,
     port: usize,
     on_connection_state: Channel<ConnectionState>,
     client: State<'_, Mutex<ClientState>>,
