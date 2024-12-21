@@ -211,7 +211,7 @@ pub async fn connect_to_platform(
 // User asked to register an attribute
 #[tauri::command]
 pub async fn register_attribute(
-    attribute_topic: String,
+    attribute_topic: &str,
     on_attribute_message: Channel<Bytes>,
     client: State<'_, Mutex<ClientState>>,
 ) -> Result<(), String> {
@@ -224,13 +224,13 @@ pub async fn register_attribute(
     println!("called register_attribute on topic: {}", attribute_topic);
 
     let mut dispatcher = client.dispatcher_map.lock().await;
-    dispatcher.insert(attribute_topic.clone(), on_attribute_message);
+    dispatcher.insert(attribute_topic.to_string(), on_attribute_message);
 
     let _ = client
         .mqtt_client
         .as_ref()
         .unwrap()
-        .subscribe(&attribute_topic, QoS::AtLeastOnce)
+        .subscribe(attribute_topic, QoS::AtLeastOnce)
         .await;
     Ok(())
 }
@@ -238,7 +238,7 @@ pub async fn register_attribute(
 // User asked to publish a value
 #[tauri::command]
 pub async fn publish(
-    command_topic: String,
+    command_topic: &str,
     value: Bytes,
     client: State<'_, Mutex<ClientState>>,
 ) -> Result<(), String> {
