@@ -3,25 +3,25 @@ repos:
       hooks:
           - id: eslint
             name: Run lint
-            entry: pre-commit.sh run_lint
+            entry: scripts/pre-commit.sh run_lint
             language: script
             verbose: true
             pass_filenames: false
           - id: clippy
             name: Run Clippy
-            entry: pre-commit.sh run_clippy
+            entry: scripts/pre-commit.sh run_clippy
             language: script
             verbose: true
             pass_filenames: false
           - id: prettier
             name: Run prettier
-            entry: pre-commit.sh run_prettier
+            entry: scripts/pre-commit.sh run_prettier
             language: script
             verbose: true
             pass_filenames: false
           - id: rust_fmt
             name: Run Rust format
-            entry: pre-commit.sh run_rust_fmt
+            entry: scripts/pre-commit.sh run_rust_fmt
             language: script
             verbose: true
             pass_filenames: false
