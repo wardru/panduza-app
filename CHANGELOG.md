@@ -1,8 +1,6 @@
 # Changelog
 
-## [0.1.0] - YYYY-MM-DD
-
-### Changed
+## [Unreleased] - YYYY-MM-DD
 
 ### Added
 
@@ -15,9 +13,3 @@
 - Add build info to app, available via command line with --version or in About menu in the UI
 - Add rust, typescript, javascript, markdown code formating and linting
 - Add translation from localhost to 127.0.0.1 to speed up connections due to Windows DNS
-
-### Removed
-
-### Fixed
-
-[0.1.0]: https://github.com/Panduza/panduza-app/releases/tag/0.1.0
