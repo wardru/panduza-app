@@ -1,21 +1,13 @@
-import { RichTreeView } from '@mui/x-tree-view';
 import { usePlatform } from './platform';
 import { useEffect, useState } from 'react';
 import { IStructure, IDriver, IClass, IAttribute } from './structure';
-import { TreeViewBaseItem, TreeViewItemId } from '@mui/x-tree-view/models';
-import { useTreeViewApiRef } from '@mui/x-tree-view/hooks';
 import { Allotment } from 'allotment';
 
 import { Attribute, AttributeString, AttributeBool, AttributeSi, AttributeType } from './attribute';
 
-type ExtendedTreeItemProps = {
-    id: string;
-    label: string;
-    type: string;
-    attributeType?: string;
-};
+import { Tree } from '../components/Tree';
 
-type TreeItemProps = TreeViewBaseItem<ExtendedTreeItemProps>;
+import TreeData from '../components/Tree/TreeData';
 
 interface TreeViewProps {
     onAttributeSelect: (itemId: string | null) => void;
@@ -23,16 +15,10 @@ interface TreeViewProps {
 
 const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
     const platform = usePlatform();
-    const [tree, setTree] = useState<TreeItemProps[]>([]);
-    const apiRef = useTreeViewApiRef();
-    const [expandedItems, setExpandedItems] = useState<string[]>([]);
+    const [tree, setTree] = useState<TreeData[]>();
 
     useEffect(() => {
-        const createAttributeTreeItem = (
-            baseId: string,
-            attributeName: string,
-            attribute: IAttribute
-        ): TreeItemProps => {
+        const createAttributeTreeItem = (baseId: string, attributeName: string, attribute: IAttribute): TreeData => {
             return {
                 label: attributeName,
                 id: baseId + '/' + attributeName,
@@ -41,12 +27,12 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
             };
         };
 
-        const fillClassTree = (baseId: string, iclass: IClass): TreeItemProps[] => {
-            const classTree: TreeItemProps[] = [];
+        const fillClassTree = (baseId: string, iclass: IClass): TreeData[] => {
+            const classTree: TreeData[] = [];
 
             for (const className in iclass.classes) {
                 const newId = baseId + '/' + className;
-                const elem: TreeItemProps = {
+                const elem: TreeData = {
                     label: className,
                     id: newId,
                     type: 'class',
@@ -63,12 +49,12 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
             return classTree;
         };
 
-        const fillDriverTree = (baseId: string, driver: IDriver): TreeItemProps[] => {
-            const driverTree: TreeItemProps[] = [];
+        const fillDriverTree = (baseId: string, driver: IDriver): TreeData[] => {
+            const driverTree: TreeData[] = [];
 
             for (const className in driver.classes) {
                 const newId = baseId + '/' + className;
-                const elem: TreeItemProps = {
+                const elem: TreeData = {
                     label: className,
                     id: newId,
                     type: 'class',
@@ -85,11 +71,11 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
             return driverTree;
         };
 
-        const createTreeFromStructure = (structure: IStructure): TreeItemProps[] => {
-            const tree: TreeItemProps[] = [];
+        const createTreeFromStructure = (structure: IStructure): TreeData[] => {
+            const tree: TreeData[] = [];
 
             for (const driverName in structure.drivers) {
-                const elem: TreeItemProps = {
+                const elem: TreeData = {
                     label: driverName,
                     id: driverName,
                     type: 'driver',
@@ -107,46 +93,15 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
         setTree(createTreeFromStructure(platform.structure));
     }, [platform.structure, onAttributeSelect]);
 
-    useEffect(() => {
-        const getAllIdsWithChildren = () => {
-            const ids: TreeViewItemId[] = [];
-
-            const registerId = (item: TreeViewBaseItem) => {
-                if (item.children?.length) {
-                    ids.push(item.id);
-                    item.children.forEach(registerId);
-                }
-            };
-
-            tree.forEach(registerId);
-            return ids;
-        };
-        setExpandedItems(getAllIdsWithChildren());
-    }, [tree]);
-
-    const handleItemSelect = (event: React.SyntheticEvent | null, itemId: string) => {
-        if (!apiRef.current) return;
-
-        const item = apiRef.current.getItem(itemId);
-
-        if (item && item.type === 'attribute') {
-            onAttributeSelect(itemId);
-        }
-    };
-
-    const handleExpandedItemsChange = (event: React.SyntheticEvent, itemIds: string[]) => {
-        setExpandedItems(itemIds);
-    };
-
     return (
         <div className='text-white bg-gray-800 h-full w-full overflow-auto'>
-            {platform.structure ? (
-                <RichTreeView
-                    apiRef={apiRef}
+            {tree && platform.structure ? (
+                <Tree
+                    openByDefault
                     items={tree}
-                    onItemFocus={handleItemSelect}
-                    expandedItems={expandedItems}
-                    onExpandedItemsChange={handleExpandedItemsChange}
+                    onSelect={(id) => {
+                        onAttributeSelect(id);
+                    }}
                 />
             ) : (
                 <div className='h-full w-full bg-neutral-900 flex items-center justify-center'>

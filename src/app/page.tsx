@@ -5,7 +5,7 @@ import 'allotment/dist/style.css';
 
 import { PlatformProvider } from './platform';
 import Header from './header';
-import TreePanel from './tree';
+import TreePanel from './tree_panel';
 import ControlPanel from './control';
 
 import { useState, useEffect } from 'react';
