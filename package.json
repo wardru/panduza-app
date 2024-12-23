@@ -11,8 +11,8 @@
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "format:changelog": "hallmark CHANGELOG.md",
-        "lint": "eslint . --fix",
-        "lint:check": "eslint . --max-warnings 0",
+        "lint": "eslint --fix",
+        "lint:check": "eslint --max-warnings 0",
         "lint:next": "next lint"
     },
     "dependencies": {

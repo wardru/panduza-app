@@ -9,6 +9,7 @@ const eslintConfig = [
         rules: {
             '@typescript-eslint/no-inferrable-types': 'error',
         },
+        ignorePatterns: ['/src-tauri', '/node_modules', '/.next', '/out'],
     }),
 ];
 export default eslintConfig;
