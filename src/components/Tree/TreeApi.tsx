@@ -70,9 +70,9 @@ export class TreeApi {
     }
 
     createNode(item: TreeData, parent: NodeData | null, level: number) {
-        const { id, label, children } = item;
+        const { id, label, type, children } = item;
 
-        const node: NodeData = { tree: this, id, label, level, parent, children: null };
+        const node: NodeData = { tree: this, id, label, level, parent, type, children: null };
 
         if (children) {
             node.children = children.map((child) => {

@@ -1,6 +1,6 @@
 import { usePlatform } from './platform';
 import { useEffect, useState } from 'react';
-import { IStructure, IDriver, IClass, IAttribute } from './structure';
+import { IStructure, IDriver, IClass } from './structure';
 import { Allotment } from 'allotment';
 
 import { Attribute, AttributeString, AttributeBool, AttributeSi, AttributeType } from './attribute';
@@ -18,12 +18,11 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
     const [tree, setTree] = useState<TreeData[]>();
 
     useEffect(() => {
-        const createAttributeTreeItem = (baseId: string, attributeName: string, attribute: IAttribute): TreeData => {
+        const createAttributeTreeItem = (baseId: string, attributeName: string): TreeData => {
             return {
                 label: attributeName,
                 id: baseId + '/' + attributeName,
                 type: 'attribute',
-                attributeType: attribute.type,
             };
         };
 
@@ -42,7 +41,7 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
             }
 
             for (const attributeName in iclass.attributes) {
-                const attributeItem = createAttributeTreeItem(baseId, attributeName, iclass.attributes[attributeName]);
+                const attributeItem = createAttributeTreeItem(baseId, attributeName);
                 classTree.push(attributeItem);
             }
 
@@ -64,7 +63,7 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
             }
 
             for (const attributeName in driver.attributes) {
-                const attributeItem = createAttributeTreeItem(baseId, attributeName, driver.attributes[attributeName]);
+                const attributeItem = createAttributeTreeItem(baseId, attributeName);
                 driverTree.push(attributeItem);
             }
 
