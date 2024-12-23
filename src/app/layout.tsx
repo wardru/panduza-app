@@ -9,7 +9,7 @@ export default function RootLayout({
     return (
         <html
             lang='en'
-            className='theme-dark'
+            className='theme-dark disable-select'
         >
             <body className={`${lato.className}`}>
                 <main>{children}</main>
