@@ -8,6 +8,7 @@ import { Attribute, AttributeString, AttributeBool, AttributeSi, AttributeType }
 import { Tree } from '../components/Tree';
 
 import TreeData from '../components/Tree/TreeData';
+import { useDndMonitor } from '@dnd-kit/core';
 
 interface TreeViewProps {
     onAttributeSelect: (itemId: string | null) => void;
@@ -16,6 +17,15 @@ interface TreeViewProps {
 const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
     const platform = usePlatform();
     const [tree, setTree] = useState<TreeData[]>();
+    const [isDragging, setIsDragging] = useState(false);
+    useDndMonitor({
+        onDragStart() {
+            setIsDragging(true);
+        },
+        onDragEnd() {
+            setIsDragging(false);
+        },
+    });
 
     useEffect(() => {
         const createAttributeTreeItem = (baseId: string, attributeName: string): TreeData => {
@@ -93,7 +103,7 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
     }, [platform.structure, onAttributeSelect]);
 
     return (
-        <div className='text-white bg-gray-800 h-full w-full overflow-auto'>
+        <div className={`text-white bg-gray-800 h-full w-full overflow-${isDragging ? 'hidden' : 'auto'}`}>
             {tree && platform.structure ? (
                 <Tree
                     openByDefault

@@ -11,7 +11,7 @@ const ControlPanel: React.FC = () => {
 
     useDndMonitor({
         onDragEnd(event) {
-            setLastDrop(event.active.data.current?.label);
+            if (isOver) setLastDrop(event.active.data.current?.label);
         },
     });
 

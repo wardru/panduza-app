@@ -69,7 +69,7 @@ const Main = () => {
 
     return (
         <PlatformProvider>
-            <div className='bg-black h-screen w-screen flex flex-col overflow-hidden'>
+            <div className='bg-black h-screen w-screen flex flex-col'>
                 <Header onAboutClick={handleAboutClick} />
 
                 <DndContext
@@ -77,6 +77,7 @@ const Main = () => {
                     onDragEnd={handleDragEnd}
                     collisionDetection={pointerWithin}
                     sensors={sensors}
+                    autoScroll={false}
                 >
                     <Allotment defaultSizes={[1, 3]}>
                         <TreePanel />
