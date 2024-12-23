@@ -13,6 +13,17 @@ import { useState, useEffect } from 'react';
 import { getName } from '@tauri-apps/api/app';
 import { invoke } from '@tauri-apps/api/core';
 
+import {
+    DndContext,
+    pointerWithin,
+    useSensors,
+    useSensor,
+    MouseSensor,
+    DragOverlay,
+    DragStartEvent,
+} from '@dnd-kit/core';
+import { snapCenterToCursor } from '@dnd-kit/modifiers';
+
 interface appInfoProps {
     name: string;
     buildInfo: string;
@@ -21,6 +32,15 @@ interface appInfoProps {
 const Main = () => {
     const [showAbout, setShowAbout] = useState(false);
     const [appInfo, setAppInfo] = useState<appInfoProps>();
+    const [draggedNode, setDraggedNode] = useState<{ id: string; label: string } | null>(null);
+
+    const mouseSensor = useSensor(MouseSensor, {
+        activationConstraint: {
+            distance: 10,
+        },
+    });
+
+    const sensors = useSensors(mouseSensor);
 
     useEffect(() => {
         const getAppInfo = async () => {
@@ -52,10 +72,24 @@ const Main = () => {
             <div className='bg-black h-screen w-screen flex flex-col overflow-hidden'>
                 <Header onAboutClick={handleAboutClick} />
 
-                <Allotment defaultSizes={[1, 3]}>
-                    <TreePanel />
-                    <ControlPanel />
-                </Allotment>
+                <DndContext
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                    collisionDetection={pointerWithin}
+                    sensors={sensors}
+                >
+                    <Allotment defaultSizes={[1, 3]}>
+                        <TreePanel />
+                        <ControlPanel />
+                    </Allotment>
+
+                    <DragOverlay
+                        modifiers={[snapCenterToCursor]}
+                        dropAnimation={null}
+                    >
+                        {draggedNode ? <label className='text-white bg-red-700'>{draggedNode.label}</label> : null}
+                    </DragOverlay>
+                </DndContext>
             </div>
 
             {showAbout && (
@@ -71,6 +105,14 @@ const Main = () => {
             )}
         </PlatformProvider>
     );
+
+    function handleDragStart(event: DragStartEvent) {
+        setDraggedNode(event.active.data.current ? (event.active.data.current as { id: string; label: string }) : null);
+    }
+
+    function handleDragEnd() {
+        setDraggedNode(null);
+    }
 };
 
 export default Main;

@@ -2,6 +2,7 @@ import NodeData from './NodeData';
 import { useTreeApi } from './TreeProvider';
 import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import { Squares2X2Icon, Square3Stack3DIcon } from '@heroicons/react/24/outline';
+import { useDraggable } from '@dnd-kit/core';
 
 interface TreeRowProps {
     node: NodeData;
@@ -9,6 +10,13 @@ interface TreeRowProps {
 
 export const TreeRow: React.FC<TreeRowProps> = ({ node }) => {
     const tree = useTreeApi();
+    const { attributes, listeners, isDragging, setNodeRef } = useDraggable({
+        id: node.id,
+        data: {
+            id: node.id,
+            label: node.label,
+        },
+    });
 
     const handleChevronClick = (event: React.MouseEvent) => {
         if (!node.children) {
@@ -24,9 +32,16 @@ export const TreeRow: React.FC<TreeRowProps> = ({ node }) => {
 
     return (
         <div
-            className='hover:bg-green-900 items-center flex rounded-md mx-2'
+            className={`hover:bg-green-900 items-center flex rounded-md mx-2 `}
             onClick={handleSelectClick}
-            style={{ paddingLeft: node.level * 18, backgroundColor: tree.isSelected(node) ? 'blue' : '' }}
+            style={{
+                paddingLeft: node.level * 18,
+                backgroundColor: tree.isSelected(node) ? 'blue' : '',
+                cursor: isDragging ? 'grabbing' : 'auto',
+            }}
+            ref={setNodeRef}
+            {...attributes}
+            {...listeners}
         >
             <span
                 className='mr-1 flex flex-shrink-0 items-center justify-center size-6'
