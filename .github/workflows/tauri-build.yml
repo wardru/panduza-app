@@ -33,12 +33,6 @@ jobs:
               with:
                   node-version: lts/*
 
-            - name: install Rust stable
-              uses: dtolnay/rust-toolchain@stable
-              with:
-                  # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
-                  targets: ${{ github.event.inputs.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
-
             - name: Install tauri dependencies (WebKit, on ubuntu-only)
               if: github.event.inputs.platform == 'ubuntu-latest' # This must match the platform value defined above.
               run: |
@@ -48,6 +42,14 @@ jobs:
             - name: install frontend dependencies
               # todo: remove --legacy-peer-deps once allotment supports React 19
               run: npm install --legacy-peer-deps
+
+            - name: Set Cargo colors
+              run: |
+                  : enable colors in Cargo output
+                  if [ -z "${CARGO_TERM_COLOR+set}" ]; then
+                    echo CARGO_TERM_COLOR=always >> $GITHUB_ENV
+                  fi
+              shell: bash
 
             # If tagName and releaseId are omitted tauri-action will only build the app and won't try to upload any assets.
             - uses: tauri-apps/tauri-action@v0
