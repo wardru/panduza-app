@@ -65,12 +65,12 @@ function parseMode(obj: any) {
 }
 
 function parseType(obj: any) {
-    const typeList = ['string', 'boolean', 'si', 'enum'];
+    const typeList = ['string', 'boolean', 'si', 'enum', 'json', 'number', 'memory_command'];
 
     if (typeof obj.type === 'string' && typeList.includes(obj.type)) {
         return obj.type;
     }
-    throw new Error(`Type field has bad type or is not a valid type ${obj.type}`);
+    throw new Error(`Type ${obj.type} has bad type or is not a valid type`);
 }
 
 async function fetchStructure() {
@@ -179,7 +179,11 @@ export async function parseStructure() {
     istructure.info = parseInfo(jsonPayload);
 
     for (const driverKey in jsonPayload.driver_instances) {
-        istructure.drivers[driverKey] = registerDriver(driverKey, jsonPayload.driver_instances[driverKey]);
+        try {
+            istructure.drivers[driverKey] = registerDriver(driverKey, jsonPayload.driver_instances[driverKey]);
+        } catch (e) {
+            console.error(`Error registering driver ${driverKey}: {}`, e);
+        }
     }
 
     return istructure;

@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased] - YYYY-MM-DD
+
+### Added
+
+- Added number, json, enum attribute support
+- Added basic widgets for enum and number
+- Added memory command attribute skeleton
+
+### Fixed
+
+- Fixed crash on unknown attributes
+
 ## [0.1.0] - 2025-01-07
 
 ### Added

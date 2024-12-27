@@ -6,6 +6,9 @@ export enum AttributeType {
     Enum = 'enum',
     Bool = 'boolean',
     Si = 'si',
+    Number = 'number',
+    Json = 'json',
+    MemoryCommand = 'memory_command',
 }
 
 export enum AttributeMode {
@@ -121,8 +124,8 @@ export class AttributeSi extends Attribute {
         };
     }
 
-    setValue(val: string) {
-        const bytes = new TextEncoder().encode(this.validateInput(val));
+    setValue(val: number) {
+        const bytes = new TextEncoder().encode(val.toString());
         invoke('publish', { commandTopic: this.cmd_topic, value: bytes });
     }
 
@@ -231,4 +234,116 @@ export class AttributeBool extends Attribute {
     }
 }
 
-export class AttributeEnum extends Attribute {}
+interface EnumProps {
+    choices: string[];
+}
+
+export class AttributeEnum extends Attribute {
+    private _value = '';
+    private _props: EnumProps = {
+        choices: [],
+    };
+    private onAttributeMessage: Channel<Uint8Array>;
+    private listeners: Array<() => void> = []; // Listeners to notify on change
+
+    constructor(name: string, parentDriver: string, parentClasses: string[], cfg: IAttribute) {
+        super(name, parentDriver, parentClasses, cfg);
+
+        if (!cfg.settings) {
+            throw new Error("Attribute Enum doesn't have settings!");
+        }
+
+        this._props.choices = cfg.settings.choices;
+
+        this.onAttributeMessage = new Channel<Uint8Array>();
+
+        invoke('register_attribute', {
+            attributeTopic: this.topic,
+            onAttributeMessage: this.onAttributeMessage,
+        });
+
+        this.onAttributeMessage.onmessage = (message) => {
+            this._value = String.fromCharCode(...message).slice(1, -1);
+            this.notifyListeners();
+        };
+    }
+
+    setValue(val: string) {
+        const bytes = new TextEncoder().encode('"' + val + '"');
+        invoke('publish', { commandTopic: this.cmd_topic, value: bytes });
+    }
+
+    get value(): string {
+        return this._value;
+    }
+
+    get choices(): string[] {
+        return this._props.choices;
+    }
+
+    subscribe(listener: () => void) {
+        this.listeners.push(listener);
+    }
+
+    unsubscribe(listener: () => void) {
+        this.listeners = this.listeners.filter((l) => l !== listener);
+    }
+
+    notifyListeners() {
+        this.listeners.forEach((listener) => listener());
+    }
+}
+
+export class AttributeNumber extends Attribute {
+    _value = 0;
+    onAttributeMessage: Channel<Uint8Array>;
+    listeners: Array<() => void> = []; // Listeners to notify on change
+
+    constructor(name: string, parentDriver: string, parentClasses: string[], cfg: IAttribute) {
+        super(name, parentDriver, parentClasses, cfg);
+        this.onAttributeMessage = new Channel<Uint8Array>();
+
+        invoke('register_attribute', {
+            attributeTopic: this.topic,
+            onAttributeMessage: this.onAttributeMessage,
+        });
+
+        this.onAttributeMessage.onmessage = (message) => {
+            this._value = Number(String.fromCharCode(...message));
+            this.notifyListeners();
+        };
+    }
+
+    validateInput(val: string): string {
+        const num = parseFloat(val);
+
+        if (isNaN(num)) {
+            throw new Error(`Invalid input for Number attribute "${this.name}": "${val}" is not a number.`);
+        }
+
+        return num.toString();
+    }
+
+    setValue(val: number) {
+        const bytes = new TextEncoder().encode(val.toString());
+        invoke('publish', { commandTopic: this.cmd_topic, value: bytes });
+    }
+
+    get value(): number {
+        return this._value;
+    }
+
+    subscribe(listener: () => void) {
+        this.listeners.push(listener);
+    }
+
+    unsubscribe(listener: () => void) {
+        this.listeners = this.listeners.filter((l) => l !== listener);
+    }
+
+    notifyListeners() {
+        this.listeners.forEach((listener) => listener());
+    }
+}
+export class AttributeJson extends Attribute {}
+export class AttributeMemoryCommand extends Attribute {}

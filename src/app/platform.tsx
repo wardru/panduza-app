@@ -3,7 +3,17 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { invoke, Channel } from '@tauri-apps/api/core';
 import { parseStructure, IStructure, IAttribute, IClass } from './structure';
-import { Attribute, AttributeString, AttributeEnum, AttributeBool, AttributeSi, AttributeType } from './attribute';
+import {
+    Attribute,
+    AttributeString,
+    AttributeEnum,
+    AttributeBool,
+    AttributeSi,
+    AttributeNumber,
+    AttributeJson,
+    AttributeType,
+    AttributeMemoryCommand,
+} from './attribute';
 
 export enum ConnectionState {
     Connected = 'Connected',
@@ -24,6 +34,10 @@ const factoryMap: Record<string, (name: string, driver: string, classes: string[
     [AttributeType.Bool]: (name, driver, classes, cfg) => new AttributeBool(name, driver, classes, cfg),
     [AttributeType.Enum]: (name, driver, classes, cfg) => new AttributeEnum(name, driver, classes, cfg),
     [AttributeType.Si]: (name, driver, classes, cfg) => new AttributeSi(name, driver, classes, cfg),
+    [AttributeType.Number]: (name, driver, classes, cfg) => new AttributeNumber(name, driver, classes, cfg),
+    [AttributeType.Json]: (name, driver, classes, cfg) => new AttributeJson(name, driver, classes, cfg),
+    [AttributeType.MemoryCommand]: (name, driver, classes, cfg) =>
+        new AttributeMemoryCommand(name, driver, classes, cfg),
 };
 
 type AttributeMap = Record<string, Attribute>;

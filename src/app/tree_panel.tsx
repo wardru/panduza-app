@@ -3,7 +3,15 @@ import { useEffect, useState } from 'react';
 import { IStructure, IDriver, IClass } from './structure';
 import { Allotment } from 'allotment';
 
-import { Attribute, AttributeString, AttributeBool, AttributeSi, AttributeType } from './attribute';
+import {
+    Attribute,
+    AttributeString,
+    AttributeBool,
+    AttributeSi,
+    AttributeEnum,
+    AttributeNumber,
+    AttributeType,
+} from './attribute';
 
 import { Tree } from '../components/Tree';
 
@@ -137,6 +145,14 @@ interface SiWidgetProps {
     attribute: AttributeSi;
 }
 
+interface EnumWidgetProps {
+    attribute: AttributeEnum;
+}
+
+interface NumberWidgetProps {
+    attribute: AttributeNumber;
+}
+
 const StringWidget: React.FC<StringWidgetProps> = ({ attribute }) => {
     const [value, setValue] = useState(attribute.value);
 
@@ -197,12 +213,11 @@ const SiWidget: React.FC<SiWidgetProps> = ({ attribute }) => {
         }
 
         try {
-            attribute.setValue(event.currentTarget.value);
+            attribute.setValue(Number(attribute.validateInput(event.currentTarget.value)));
             setError(null);
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : String(e);
             setError(errorMessage);
-            console.error(`Could not set value: {}`, e);
         }
     };
 
@@ -221,7 +236,7 @@ const SiWidget: React.FC<SiWidgetProps> = ({ attribute }) => {
             ) : null}
             {attribute.mode !== 'RO' ? (
                 <p>
-                    SetValue:{' '}
+                    Set Value:{' '}
                     <input
                         className='text-black bg-white ml-1 px-2 py-1 rounded-md'
                         onKeyDown={handleKeyDown}
@@ -283,6 +298,103 @@ const BoolWidget: React.FC<BoolWidgetProps> = ({ attribute }) => {
     );
 };
 
+const EnumWidget: React.FC<EnumWidgetProps> = ({ attribute }) => {
+    const [value, setValue] = useState(attribute.value);
+
+    useEffect(() => {
+        const updateValue = () => {
+            setValue(attribute.value);
+        };
+
+        attribute.subscribe(updateValue);
+
+        return () => {
+            attribute.unsubscribe(updateValue);
+        };
+    }, [attribute]);
+
+    const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        attribute.setValue(event.currentTarget.value);
+
+        if (attribute.mode === 'WO') {
+            setValue(event.currentTarget.value);
+        }
+    };
+
+    return (
+        <div className='space-y-3'>
+            <label> Value: </label>
+            <select
+                className='text-black placeholder:text-red-500'
+                onChange={handleSelectChange}
+                value={value}
+                disabled={attribute.mode === 'RO'}
+            >
+                {attribute.choices.map((choice) => (
+                    <option key={attribute.name + '-' + choice}> {choice} </option>
+                ))}
+            </select>
+        </div>
+    );
+};
+
+const NumberWidget: React.FC<NumberWidgetProps> = ({ attribute }) => {
+    const [value, setValue] = useState(attribute.value);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const updateValue = () => {
+            setValue(attribute.value);
+        };
+
+        attribute.subscribe(updateValue);
+
+        return () => {
+            attribute.unsubscribe(updateValue);
+        };
+    }, [attribute]);
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key !== 'Enter') {
+            return;
+        }
+
+        try {
+            attribute.setValue(Number(attribute.validateInput(event.currentTarget.value)));
+            setError(null);
+        } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            setError(errorMessage);
+            console.error(`Could not set value: {}`, e);
+        }
+    };
+
+    return (
+        <div className='space-y-3'>
+            {attribute.mode !== 'WO' ? (
+                <p>
+                    Value :{' '}
+                    <input
+                        className='text-black bg-white ml-1 px-2 py-1 rounded-md'
+                        disabled={true}
+                        value={value}
+                    />
+                </p>
+            ) : null}
+            {attribute.mode !== 'RO' ? (
+                <p>
+                    Set Value:{' '}
+                    <input
+                        className='text-black bg-white ml-1 px-2 py-1 rounded-md'
+                        onKeyDown={handleKeyDown}
+                    />
+                </p>
+            ) : null}
+            {error && <p className='text-red-500 mt-2'>{error}</p>}
+        </div>
+    );
+};
+
 const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
     const platform = usePlatform();
 
@@ -308,6 +420,22 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
                 <SiWidget
                     key={attribute.name}
                     attribute={attribute as AttributeSi}
+                />
+            );
+        },
+        [AttributeType.Enum]: (attribute) => {
+            return (
+                <EnumWidget
+                    key={attribute.name}
+                    attribute={attribute as AttributeEnum}
+                />
+            );
+        },
+        [AttributeType.Number]: (attribute) => {
+            return (
+                <NumberWidget
+                    key={attribute.name}
+                    attribute={attribute as AttributeNumber}
                 />
             );
         },

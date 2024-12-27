@@ -250,6 +250,8 @@ pub async fn publish(
 
     let mqtt_client = client.mqtt_client.as_ref().unwrap();
 
+    println!("Publishing on topic {:?} : {:?}", command_topic, value);
+
     let _ = mqtt_client
         .publish(command_topic, QoS::AtLeastOnce, false, value)
         .await;
