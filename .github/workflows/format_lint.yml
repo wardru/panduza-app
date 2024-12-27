@@ -1,6 +1,7 @@
 name: Format & Lint
 
 on:
+    workflow_call:
     pull_request:
     push:
         branches:
@@ -46,7 +47,7 @@ jobs:
               with:
                   node-version: lts/*
             - name: Install fronted dependencies
-              # todo: remove --legacy-peer-deps once allotment supports React 19
+              #TODO: remove --legacy-peer-deps once allotment supports React 19
               run: npm install --legacy-peer-deps
             - name: Prettier
               run: npm run format:check
