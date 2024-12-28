@@ -1,0 +1,98 @@
+name: Build
+run-name: Build for '${{ github.event.inputs.platform }}'
+
+env:
+    CARGO_TERM_COLOR: always
+
+on:
+    workflow_call: # Used in reusable workflows
+        inputs:
+            platform:
+                description: 'Choose the platform to build on'
+                type: string
+                required: true
+            ref:
+                description: 'Git hash, branch or tag to checkout'
+                type: string
+                required: false
+                default: ''
+            upload_artifacts:
+                description: 'Upload or not the build artifacts'
+                type: boolean
+                required: false
+                default: true
+            appimage:
+                description: 'Add AppImage Artifact (only on ubuntu builds)'
+                type: boolean
+                required: false
+                default: false
+
+    workflow_dispatch: # Used in manually triggered workflows
+        inputs:
+            platform:
+                description: 'Choose the platform to build on'
+                type: choice
+                required: true
+                default: 'windows'
+                options:
+                    - 'ubuntu'
+                    - 'macos'
+                    - 'windows'
+            appimage:
+                description: 'Add AppImage Artifact (only on ubuntu builds)'
+                type: boolean
+                required: false
+                default: false
+
+jobs:
+    build:
+        permissions:
+            contents: write
+        strategy:
+            fail-fast: true
+        name: Build for '${{ github.event.inputs.platform || inputs.platform }}'
+        runs-on: ${{ github.event.inputs.platform || inputs.platform }}-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  lfs: true
+                  ref: ${{ inputs.ref }}
+
+            - name: Get git describe information
+              id: git-describe
+              run: echo "git-describe=$(git describe --tags --dirty)" >> $GITHUB_OUTPUT
+
+            - name: Setup node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: lts/*
+
+            - name: Install tauri dependencies (WebKit, on ubuntu-only)
+              if: github.event.inputs.platform == 'ubuntu' || inputs.platform == 'ubuntu'
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y  libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev
+
+            - name: Install frontend dependencies
+              # TODO: remove --legacy-peer-deps once allotment supports React 19
+              run: npm install --legacy-peer-deps
+
+            - uses: tauri-apps/tauri-action@v0
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  args: ${{ (github.event.inputs.platform == 'macos' || inputs.platform == 'macos') && '--target universal-apple-darwin' || '' }}
+
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v4
+              if: inputs.upload_artifacts
+              with:
+                  name: build-${{ github.event.inputs.platform || inputs.platform }}-${{ steps.git-describe.outputs.git-describe }}
+                  path: |
+                      src-tauri/target/release/bundle/msi/*.msi
+                      src-tauri/target/release/bundle/nsis/*.exe
+                      src-tauri/target/release/bundle/deb/*.deb
+                      src-tauri/target/release/bundle/rpm/*.rpm
+                      src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+                      ${{ (github.event.inputs.appimage || inputs.appimage )  && 'src-tauri/target/release/bundle/appimage/*.AppImage' || '' }}
