@@ -1,0 +1,155 @@
+name: Release
+run-name: Release ${{ github.event.inputs.version }}
+
+on:
+    workflow_dispatch:
+        inputs:
+            version:
+                description: 'Choose release version desired'
+                required: true
+                default: ''
+                type: string
+
+env:
+    CARGO_TERM_COLOR: always
+
+jobs:
+    format_lint:
+        uses: ./.github/workflows/format_lint.yml
+
+    build:
+        needs: format_lint
+        strategy:
+            matrix:
+                platform: ['ubuntu', 'windows', 'macos']
+        uses: ./.github/workflows/build.yml
+        with:
+            platform: ${{ matrix.platform }}
+            upload_artifacts: false
+
+    bump_commit:
+        name: Bump & Commit Changelog Cargo and NPM version
+        runs-on: ubuntu-latest
+        needs: build
+        strategy:
+            fail-fast: true
+        permissions:
+            contents: write
+        outputs:
+            commit-hash: ${{ steps.commit.outputs.commit-hash }}
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  lfs: true
+            - name: Bump cargo crate version
+              working-directory: src-tauri
+              run: |
+                  # Update version in Cargo.toml
+                  sed -i 's/^version = ".*"/version = "${{ github.event.inputs.version }}"/' Cargo.toml
+
+                  # Loop through Cargo.lock and replace version for the correct package name
+                  sed -i '/name = "panduza-app"/,/version = "/s/version = ".*"/version = "${{ github.event.inputs.version }}"/' Cargo.lock
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: lts/*
+            - name: Install fronted dependencies
+              #TODO: remove --legacy-peer-deps once allotment supports React 19
+              run: npm install --legacy-peer-deps
+
+            - name: Bump npm package version
+              run: npm version --no-git-tag-version ${{ github.event.inputs.version }}
+
+            - name: Bump CHANGELOG.md
+              run: ./scripts/changelog_set.sh ${{ github.event.inputs.version }} CHANGELOG.md
+            - name: Format/Lint CHANGELOG.md with Hallmark
+              run: npm run format:changelog
+
+              # FIXME: fix the need for these git calls for the ghcommit action to work
+            - name: RM DEBUG next step fails on git lfs without this debug ???
+              run: |
+                  git status && git diff
+
+            - uses: planetscale/ghcommit-action@v0.2.0
+              id: commit
+              with:
+                  commit_message: 'release: ${{ github.event.inputs.version }}'
+                  repo: ${{ github.repository }}
+                  branch: ${{ github.ref_name }}
+              env:
+                  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+    tag:
+        name: Tag
+        runs-on: ubuntu-latest
+        needs: bump_commit
+        strategy:
+            fail-fast: true
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/checkout@v4
+            - name: Delete tag if it exists
+              run: git push --delete origin ${{ github.event.inputs.version }} || true
+            - name: Tag and Push
+              uses: mathieudutour/github-tag-action@v6.2
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  custom_tag: ${{ github.event.inputs.version }}
+                  commit_sha: ${{ needs.bump_commit.outputs.commit-hash }}
+                  tag_prefix: ''
+                  #   create_annotated_tag: true #TODO: annotated tags aren't signed and seems to be github missing API issue not an issue from this action
+
+    build_tag:
+        needs: [tag, bump_commit]
+        strategy:
+            fail-fast: true
+            matrix:
+                platform: ['ubuntu', 'windows', 'macos']
+        uses: ./.github/workflows/build.yml
+        with:
+            platform: ${{ matrix.platform }}
+            ref: ${{ github.event.inputs.version }}
+            appimage: true
+
+    push_release:
+        name: Push Release
+        runs-on: ubuntu-latest
+        needs: [build_tag]
+        strategy:
+            fail-fast: true
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  lfs: true
+                  ref: ${{ github.event.inputs.version }}
+
+            - name: Download all workflow run artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  merge-multiple: true
+
+            - name: Generate Release Notes from CHANGELOG.md
+              run: |
+                  ./scripts/changelog_extract.sh ${{ github.event.inputs.version }} CHANGELOG.md > RELEASE_NOTES.md
+
+            - name: Generate Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: ${{ github.event.inputs.version }}
+                  name: 'Panduza App ${{ github.event.inputs.version }}'
+                  body_path: RELEASE_NOTES.md
+                  draft: false
+                  prerelease: false
+                  fail_on_unmatched_files: true
+                  files: |
+                      release/bundle/msi/*.msi
+                      release/bundle/nsis/*.exe
+                      release/bundle/deb/*.deb
+                      release/bundle/rpm/*.rpm
+                      release/bundle/appimage/*.AppImage
+                      universal-apple-darwin/release/bundle/dmg/*.dmg
+                  token: ${{ secrets.GITHUB_TOKEN }}
