@@ -86,7 +86,7 @@ jobs:
 
             - name: Upload build artifacts
               uses: actions/upload-artifact@v4
-              if: inputs.upload_artifacts
+              if: inputs.upload_artifacts || github.event_name == 'workflow_dispatch'
               with:
                   name: build-${{ github.event.inputs.platform || inputs.platform }}-${{ steps.git-describe.outputs.git-describe }}
                   path: |
