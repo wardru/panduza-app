@@ -61,6 +61,7 @@ jobs:
 
             - name: Get git describe information
               id: git-describe
+              shell: bash
               run: echo "git-describe=$(git describe --tags --dirty)" >> $GITHUB_OUTPUT
 
             - name: Setup node.js
