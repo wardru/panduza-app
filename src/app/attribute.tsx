@@ -54,7 +54,9 @@ export class AttributeString extends Attribute {
         });
 
         this.onAttributeMessage.onmessage = (message) => {
-            this._value = String.fromCharCode(...message).slice(1, -1);
+            const decoder = new TextDecoder('utf-8');
+            const str = decoder.decode(new Uint8Array(message));
+            this._value = str.slice(1, -1);
             this.notifyListeners();
         };
     }

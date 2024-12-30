@@ -320,7 +320,6 @@ const EnumWidget: React.FC<EnumWidgetProps> = ({ attribute }) => {
             setValue(event.currentTarget.value);
         }
     };
-
     return (
         <div className='space-y-3'>
             <label> Value: </label>
@@ -331,7 +330,7 @@ const EnumWidget: React.FC<EnumWidgetProps> = ({ attribute }) => {
                 disabled={attribute.mode === 'RO'}
             >
                 {attribute.choices.map((choice) => (
-                    <option key={attribute.name + '-' + choice}> {choice} </option>
+                    <option key={attribute.topic + '-' + choice}> {choice} </option>
                 ))}
             </select>
         </div>
@@ -402,7 +401,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
         [AttributeType.Bool]: (attribute) => {
             return (
                 <BoolWidget
-                    key={attribute.name}
+                    key={attribute.topic}
                     attribute={attribute as AttributeBool}
                 />
             );
@@ -410,7 +409,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
         [AttributeType.String]: (attribute) => {
             return (
                 <StringWidget
-                    key={attribute.name}
+                    key={attribute.topic}
                     attribute={attribute as AttributeString}
                 />
             );
@@ -418,7 +417,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
         [AttributeType.Si]: (attribute) => {
             return (
                 <SiWidget
-                    key={attribute.name}
+                    key={attribute.topic}
                     attribute={attribute as AttributeSi}
                 />
             );
@@ -426,7 +425,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
         [AttributeType.Enum]: (attribute) => {
             return (
                 <EnumWidget
-                    key={attribute.name}
+                    key={attribute.topic}
                     attribute={attribute as AttributeEnum}
                 />
             );
@@ -434,7 +433,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
         [AttributeType.Number]: (attribute) => {
             return (
                 <NumberWidget
-                    key={attribute.name}
+                    key={attribute.topic}
                     attribute={attribute as AttributeNumber}
                 />
             );

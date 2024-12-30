@@ -4,6 +4,7 @@
 
 ### Added
 
+- UTF-8 support
 - Added number, json, enum attribute support
 - Added basic widgets for enum and number
 - Added memory command attribute skeleton
@@ -11,6 +12,7 @@
 ### Fixed
 
 - Fixed crash on unknown attributes
+- Fixed key identifier issue on info panel widgets
 
 ## [0.1.0] - 2025-01-07
 

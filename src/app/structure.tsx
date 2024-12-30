@@ -96,7 +96,9 @@ async function fetchStructure() {
     });
 
     const payload = await waitForStructure();
-    const structure_json = JSON.parse(String.fromCharCode(...payload));
+    const decoder = new TextDecoder('utf-8');
+    const jsonString = decoder.decode(new Uint8Array(payload));
+    const structure_json = JSON.parse(jsonString);
 
     return structure_json;
 }
