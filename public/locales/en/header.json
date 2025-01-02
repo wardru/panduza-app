@@ -4,5 +4,6 @@
     "connect": "Connect",
     "disconnect": "Disconnect",
     "reconnecting": "Reconnecting",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "scanner": "Scanner"
 }

@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { usePlatform, ConnectionState } from './platform';
 import { useTranslation } from 'react-i18next';
 import { LanguageIcon } from '@heroicons/react/24/outline';
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 
 const statusColorMap: Record<ConnectionState, string> = {
     [ConnectionState.Connected]: 'bg-green-500',
@@ -41,7 +42,6 @@ const LanguageSelector = () => {
     const languageMap: Record<string, string> = {
         ['en']: 'English',
         ['fr']: 'Français',
-        ['pt']: 'Português',
     };
 
     const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -65,6 +65,29 @@ const LanguageSelector = () => {
                 ))}
             </select>
         </div>
+    );
+};
+
+const Scanner = () => {
+    const { t } = useTranslation('header');
+
+    const handleScanner = () => {
+        const scannerWebview = new WebviewWindow('scannerWebview', {
+            url: '/scanner',
+        });
+
+        scannerWebview.once('tauri://created', () => {
+            scannerWebview.setTitle(t('scanner')).catch(console.error);
+        });
+    };
+
+    return (
+        <button
+            className='hover:bg-slate-600 px-4 rounded-lg text-primary mr-5'
+            onClick={handleScanner}
+        >
+            {t('scanner')}
+        </button>
     );
 };
 
@@ -152,6 +175,7 @@ const Header: React.FC<HeaderProps> = ({ onAboutClick }) => {
                     </div>
                 ) : null}
             </div>
+            {connectionState == ConnectionState.Connected ? <Scanner /> : null}
             <LanguageSelector />
             <button
                 className='hover:bg-slate-600 px-4 rounded-lg text-primary mr-5'
