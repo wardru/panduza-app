@@ -18,6 +18,8 @@ import { Tree } from '../components/Tree';
 import TreeData from '../components/Tree/TreeData';
 import { useDndMonitor } from '@dnd-kit/core';
 
+import { useTranslation } from 'react-i18next';
+
 interface TreeViewProps {
     onAttributeSelect: (itemId: string | null) => void;
 }
@@ -26,6 +28,8 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
     const platform = usePlatform();
     const [tree, setTree] = useState<TreeData[]>();
     const [isDragging, setIsDragging] = useState(false);
+    const { t } = useTranslation('explorer');
+
     useDndMonitor({
         onDragStart() {
             setIsDragging(true);
@@ -122,7 +126,7 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
                 />
             ) : (
                 <div className='h-full w-full bg-neutral-900 flex items-center justify-center'>
-                    No platform connected..
+                    {t('no-platform')}..
                 </div>
             )}
         </div>
@@ -396,6 +400,7 @@ const NumberWidget: React.FC<NumberWidgetProps> = ({ attribute }) => {
 
 const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
     const platform = usePlatform();
+    const { t } = useTranslation('explorer');
 
     const widgetFactoryMap: Record<string, (attribute: Attribute) => React.ReactElement> = {
         [AttributeType.Bool]: (attribute) => {
@@ -472,7 +477,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
 
     return (
         <div className='h-full w-full text-white bg-neutral-800 overflow-auto'>
-            <p>Info panel</p>
+            <p>{t('info-panel')}</p>
             <p>------------------------</p>
             <br />
             {item ? setNewWidget(item) : null}
@@ -480,7 +485,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
     );
 };
 
-const TreePanel: React.FC = () => {
+const Explorer: React.FC = () => {
     const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
     return (
@@ -491,4 +496,4 @@ const TreePanel: React.FC = () => {
     );
 };
 
-export default TreePanel;
+export default Explorer;

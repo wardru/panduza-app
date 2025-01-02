@@ -5,13 +5,17 @@ import 'allotment/dist/style.css';
 
 import { PlatformProvider } from './platform';
 import Header from './header';
-import TreePanel from './tree_panel';
+import Explorer from './explorer';
 import ControlPanel from './control';
 
 import { useState, useEffect } from 'react';
 
 import { getName } from '@tauri-apps/api/app';
 import { invoke } from '@tauri-apps/api/core';
+
+import './i18n';
+
+import { useTranslation } from 'react-i18next';
 
 import {
     DndContext,
@@ -33,6 +37,7 @@ const Main = () => {
     const [showAbout, setShowAbout] = useState(false);
     const [appInfo, setAppInfo] = useState<appInfoProps>();
     const [draggedNode, setDraggedNode] = useState<{ id: string; label: string } | null>(null);
+    const { t } = useTranslation('about');
 
     const mouseSensor = useSensor(MouseSensor, {
         activationConstraint: {
@@ -80,7 +85,7 @@ const Main = () => {
                     autoScroll={false}
                 >
                     <Allotment defaultSizes={[1, 3]}>
-                        <TreePanel />
+                        <Explorer />
                         <ControlPanel />
                     </Allotment>
 
@@ -100,7 +105,10 @@ const Main = () => {
                 >
                     <div className='bg-white rounded-lg shadow-lg p-6 w-96 text-center '>
                         <h2 className='text-2xl font-bold mb-4'>{appInfo?.name}</h2>
-                        <p className='text-gray-700 mb-6'> Version: {appInfo?.buildInfo}</p>
+                        <p className='text-gray-700 mb-6'>
+                            {' '}
+                            {t('version')}: {appInfo?.buildInfo}
+                        </p>
                     </div>
                 </div>
             )}

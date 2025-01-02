@@ -4,6 +4,8 @@ import Image from 'next/image';
 import PanduzaLogo from '../images/logo/logo_circle_black_blue_256.png';
 import { useState } from 'react';
 import { usePlatform, ConnectionState } from './platform';
+import { useTranslation } from 'react-i18next';
+import { LanguageIcon } from '@heroicons/react/24/outline';
 
 const statusColorMap: Record<ConnectionState, string> = {
     [ConnectionState.Connected]: 'bg-green-500',
@@ -12,9 +14,9 @@ const statusColorMap: Record<ConnectionState, string> = {
 };
 
 const buttonContentMap: Record<ConnectionState, string> = {
-    [ConnectionState.Connected]: 'Disconnect',
-    [ConnectionState.Disconnected]: 'Connect',
-    [ConnectionState.Reconnecting]: 'Cancel',
+    [ConnectionState.Connected]: 'disconnect',
+    [ConnectionState.Disconnected]: 'connect',
+    [ConnectionState.Reconnecting]: 'cancel',
 };
 
 const defaultAddress = 'localhost';
@@ -33,6 +35,39 @@ const Logo = () => {
     );
 };
 
+const LanguageSelector = () => {
+    const { i18n } = useTranslation();
+
+    const languageMap: Record<string, string> = {
+        ['en']: 'English',
+        ['fr']: 'Français',
+        ['pt']: 'Português',
+    };
+
+    const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        i18n.changeLanguage(event.currentTarget.value);
+    };
+
+    return (
+        <div className='flex space-x-2 items-center'>
+            <LanguageIcon className='text-white size-4' />
+            <select
+                className='bg-transparent text-white border border-white rounded-md px-2 appearance-none'
+                onChange={handleChange}
+            >
+                {Object.entries(languageMap).map(([key, value]) => (
+                    <option
+                        key={key}
+                        value={key}
+                    >
+                        {value}
+                    </option>
+                ))}
+            </select>
+        </div>
+    );
+};
+
 interface HeaderProps {
     onAboutClick: () => void;
 }
@@ -42,6 +77,7 @@ const Header: React.FC<HeaderProps> = ({ onAboutClick }) => {
     const [address, setAddress] = useState(defaultAddress);
     const [portAsString, setPortAsString] = useState(defaultPort.toString());
     const [error, setError] = useState<string | null>(null);
+    const { t } = useTranslation('header');
 
     const getStatusColor = () => {
         const color = statusColorMap[connectionState];
@@ -70,7 +106,7 @@ const Header: React.FC<HeaderProps> = ({ onAboutClick }) => {
             case ConnectionState.Disconnected:
                 const port = Number(portAsString);
                 if (isNaN(port) || port < 0 || port > 65535) {
-                    setError(`Port ${port} is invalid! Must be a number between 0 and 65535`);
+                    setError('invalid-port');
                 } else {
                     try {
                         await connect(address, port);
@@ -88,12 +124,12 @@ const Header: React.FC<HeaderProps> = ({ onAboutClick }) => {
         <div className='bg-header sticky top-0 flex py-1 items-center'>
             <Logo />
             <div className='text-primary flex space-x-2 items-center flex-1'>
-                {connectionState == ConnectionState.Reconnecting ? <p>Reconnecting...</p> : null}
+                {connectionState == ConnectionState.Reconnecting ? <p>{t('reconnecting')}...</p> : null}
                 <button
                     className='hover:bg-slate-600 px-4 rounded-lg'
                     onClick={onButtonAction}
                 >
-                    {getButtonContent()}
+                    {t(getButtonContent())}
                 </button>
                 <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
                 {connectionState === ConnectionState.Disconnected ? (
@@ -112,17 +148,18 @@ const Header: React.FC<HeaderProps> = ({ onAboutClick }) => {
                                 )
                             }
                         />
-                        {error && <p className='text-red-500 mt-2'>{error}</p>}
+                        {error && <p className='text-red-500 mt-2'>{t(error)}</p>}
                     </div>
                 ) : null}
             </div>
+            <LanguageSelector />
             <button
                 className='hover:bg-slate-600 px-4 rounded-lg text-primary mr-5'
                 onClick={() => {
                     onAboutClick();
                 }}
             >
-                About
+                {t('about')}
             </button>
         </div>
     );

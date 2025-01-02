@@ -1,0 +1,8 @@
+{
+    "invalid-port": "Port is invalid! Must be a number between 0 and 65535",
+    "about": "About",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "reconnecting": "Reconnecting",
+    "cancel": "Cancel"
+}

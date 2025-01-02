@@ -4,6 +4,8 @@
 
 ### Added
 
+- Added i18n dependency
+- Added translation files for english and french
 - UTF-8 support
 - Added number, json, enum attribute support
 - Added basic widgets for enum and number
@@ -13,6 +15,10 @@
 
 - Fixed crash on unknown attributes
 - Fixed key identifier issue on info panel widgets
+
+### Changed
+
+- Renamed tree_panel to explorer
 
 ## [0.1.0] - 2025-01-07
 
