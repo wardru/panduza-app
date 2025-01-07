@@ -74,7 +74,7 @@ jobs:
             - uses: planetscale/ghcommit-action@v0.2.0
               id: commit
               with:
-                  commit_message: 'release: ${{ github.event.inputs.version }}'
+                  commit_message: 'bump: Release date and version ${{ github.event.inputs.version }}'
                   repo: ${{ github.repository }}
                   branch: ${{ github.ref_name }}
               env:
