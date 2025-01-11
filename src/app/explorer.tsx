@@ -242,6 +242,7 @@ const SiWidget: React.FC<SiWidgetProps> = ({ attribute }) => {
                 <p>
                     Set Value:{' '}
                     <input
+                        type='number'
                         className='text-black bg-white ml-1 px-2 py-1 rounded-md'
                         onKeyDown={handleKeyDown}
                     />
