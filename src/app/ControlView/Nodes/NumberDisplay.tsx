@@ -23,7 +23,10 @@ const SiDisplayNode: React.FC<NodeProps<NumberDisplayNode>> = (props) => {
     }, [props.data.attribute]);
 
     return (
-        <AttributeContainer attribute={props.data.attribute}>
+        <AttributeContainer
+            attribute={props.data.attribute}
+            nodeProps={props}
+        >
             <div className='text-center text-white'>
                 <span className='font-semibold'>{value}</span>
             </div>

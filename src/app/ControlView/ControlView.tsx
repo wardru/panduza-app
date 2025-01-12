@@ -2,7 +2,15 @@ import { useDroppable, useDndMonitor } from '@dnd-kit/core';
 
 import { v4 as uuidv4 } from 'uuid';
 
-import { ReactFlow, Controls, MiniMap, Background, useReactFlow, ReactFlowProvider } from '@xyflow/react';
+import {
+    ReactFlow,
+    ReactFlowProvider,
+    Controls,
+    MiniMap,
+    SelectionMode,
+    Background,
+    useReactFlow,
+} from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import { useCallback, useState, useEffect } from 'react';
@@ -104,10 +112,6 @@ const ControlView: React.FC = () => {
         },
     });
 
-    //const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    //    setMousePosition({ x: event.clientX, y: event.clientY });
-    //};
-
     const onNodesChange: OnNodesChange = useCallback(
         (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
         [setNodes]
@@ -123,6 +127,11 @@ const ControlView: React.FC = () => {
                 onNodesChange={onNodesChange}
                 nodeTypes={nodeTypes}
                 nodes={nodes}
+                deleteKeyCode={['Backspace', 'Delete']}
+                selectionKeyCode={''}
+                panOnDrag={[2]}
+                selectionOnDrag={true}
+                selectionMode={SelectionMode.Partial}
             >
                 <Background />
                 <Controls />

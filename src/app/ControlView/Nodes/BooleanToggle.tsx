@@ -32,7 +32,10 @@ const BooleanToggleNode: React.FC<NodeProps<BooleanToggleNode>> = (props) => {
     };
 
     return (
-        <AttributeContainer attribute={props.data.attribute}>
+        <AttributeContainer
+            attribute={props.data.attribute}
+            nodeProps={props}
+        >
             <div className='flex justify-center items-center'>
                 <label className='inline-flex items-center cursor-pointer'>
                     <input

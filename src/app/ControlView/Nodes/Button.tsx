@@ -10,7 +10,10 @@ export type ButtonNode = Node<{
 
 const ButtonNode: React.FC<NodeProps<ButtonNode>> = (props) => {
     return (
-        <AttributeContainer attribute={props.data.attribute}>
+        <AttributeContainer
+            attribute={props.data.attribute}
+            nodeProps={props}
+        >
             <div className='flex items-center'>
                 <input
                     type='button'

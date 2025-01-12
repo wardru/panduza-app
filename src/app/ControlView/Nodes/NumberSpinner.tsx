@@ -140,7 +140,10 @@ const NumberSpinnerNode: React.FC<NodeProps<NumberSpinnerNode>> = (props) => {
     };
 
     return (
-        <AttributeContainer attribute={props.data.attribute}>
+        <AttributeContainer
+            attribute={props.data.attribute}
+            nodeProps={props}
+        >
             <div className='relative flex items-center'>
                 <input
                     className='nodrag nopan nowheel w-full px-2 py-1 text-center text-lg font-medium text-black rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500'
@@ -152,6 +155,7 @@ const NumberSpinnerNode: React.FC<NodeProps<NumberSpinnerNode>> = (props) => {
                     onChange={handleOnChange}
                     onKeyDown={handleKeyDown}
                     onBlur={handleOnBlur}
+                    onClick={(e) => e.stopPropagation()}
                 />
                 <button
                     className='nodrag nopan nowheel absolute right-0 top-0 bg-gray-200 text-gray-600 hover:bg-gray-300 w-8 h-1/2 rounded-tr-md flex items-center justify-center'
