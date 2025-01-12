@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Node, NodeProps } from '@xyflow/react';
 
-import ContainerNode from './AttributeContainer';
+import AttributeContainer from './AttributeContainer';
 import { AttributeSi } from '@/app/attribute';
 
 export type SiSpinnerNode = Node<{
@@ -10,11 +10,55 @@ export type SiSpinnerNode = Node<{
 }>;
 
 const SiSpinnerNode: React.FC<NodeProps<SiSpinnerNode>> = (props) => {
-    const [value, setValue] = useState(props.data.attribute.value);
-    //     const [error, setError] = useState<string | null>(null);
+    const INITIAL_DELAY = 800; //ms
+    const FINAL_DELAY = 80; //ms
+
+    const [value, setValue] = useState<string | number>(props.data.attribute.value);
+    const [prevPubSub, setPrevPubSub] = useState<string | number>(value);
+    const [isPressingUp, setIsPressingUp] = useState(false);
+    const [isPressingDown, setIsPressingDown] = useState(false);
+    const [delay, setDelay] = useState(INITIAL_DELAY);
+    //TODO: Implement error handling https://github.com/Panduza/panduza-app/issues/65
+    //const [error, setError] = useState<string | null>(null);
+
+    // Ref to the input element
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    function pub(val: string): void {
+        // cache the previous value to prevent unnecessary publishes
+        if (val === prevPubSub) {
+            return;
+        }
+
+        try {
+            props.data.attribute.publish(Number(props.data.attribute.validateInput(val)));
+            //setError(null);
+            setPrevPubSub(val);
+        } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            console.error(errorMessage);
+            //setError(errorMessage);
+        }
+    }
+
+    const clamp = useCallback(
+        (val: number): number => {
+            if (val > props.data.attribute.max) {
+                return props.data.attribute.max;
+            }
+            if (val < props.data.attribute.min) {
+                return props.data.attribute.min;
+            }
+            return val;
+        },
+        [props.data.attribute.max, props.data.attribute.min]
+    );
 
     useEffect(() => {
-        const updateValue = () => setValue(props.data.attribute.value);
+        const updateValue = () => {
+            setValue(props.data.attribute.value);
+            setPrevPubSub(props.data.attribute.value);
+        };
 
         props.data.attribute.subscribe(updateValue);
 
@@ -23,54 +67,125 @@ const SiSpinnerNode: React.FC<NodeProps<SiSpinnerNode>> = (props) => {
         };
     }, [props.data.attribute]);
 
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key !== 'Enter') {
-            return;
+    // Continuous increment logic with dynamic delay
+    useEffect(() => {
+        if (isPressingUp) {
+            const interval = setInterval(() => {
+                setValue((prevCount) => clamp(Number(prevCount) + 1));
+                setDelay(FINAL_DELAY);
+            }, delay);
+
+            return () => clearInterval(interval);
         }
 
-        event.currentTarget.blur();
+        if (isPressingDown) {
+            const interval = setInterval(() => {
+                setValue((prevCount) => clamp(Number(prevCount) - 1));
+                setDelay(FINAL_DELAY);
+            }, delay);
+
+            return () => clearInterval(interval);
+        }
+    }, [isPressingUp, isPressingDown, delay, clamp]);
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter') {
+            // number can never be empty by definition
+            //TODO: do this inside pub function
+            if (event.currentTarget.value === '') {
+                setValue(prevPubSub);
+                return;
+            }
+
+            setValue(clamp(Number(event.currentTarget.value)));
+            pub(String(clamp(Number(event.currentTarget.value))));
+        }
     };
 
     const handleOnBlur = (event: React.FocusEvent<HTMLInputElement>) => {
         if (event.relatedTarget === event.target) {
             return;
         }
-        // Clamping
-        if (Number(event.currentTarget.value) > props.data.attribute.max) {
-            event.target.value = String(props.data.attribute.max);
-        }
-        if (Number(event.currentTarget.value) < props.data.attribute.min) {
-            event.target.value = String(props.data.attribute.min);
+        // number can never be empty by definition
+        //TODO: do this inside pub function
+        if (event.currentTarget.value === '') {
+            setValue(prevPubSub);
+            return;
         }
 
-        try {
-            props.data.attribute.publish(Number(props.data.attribute.validateInput(event.currentTarget.value)));
-            //setError(null);
-        } catch (e) {
-            const errorMessage = e instanceof Error ? e.message : String(e);
-            console.error(errorMessage);
-            //setError(errorMessage);
+        setValue(clamp(Number(event.currentTarget.value)));
+        pub(String(clamp(Number(event.currentTarget.value))));
+    };
+
+    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = event.target.value;
+
+        // Accept only digits, decimal points, negative sign at the start, and exponent notation
+        if (/^[-+]?\d*\.?\d*([eE][+-]?\d*)?$/.test(newValue) && /^(?![+-]?[eE])/.test(newValue)) {
+            setValue(newValue);
         }
     };
 
+    // Immediate increment on mouse down
+    const handleMouseDownInc = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault(); // Prevent button from gaining focus
+        inputRef.current?.focus();
+        setValue((prevCount) => clamp(Number(prevCount) + 1)); // Immediate increment
+        setDelay(INITIAL_DELAY); // Reset the delay on every new press
+        setIsPressingUp(true); // Start continuous increment
+    };
+
+    const handleMouseUpInc = () => {
+        setIsPressingUp(false); // Stop continuous increment
+    };
+
+    // Immediate decrement on mouse down
+    const handleMouseDownDec = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault(); // Prevent button from gaining focus
+        inputRef.current?.focus();
+        setValue((prevCount) => clamp(Number(prevCount) - 1)); // Immediate decrement
+        setIsPressingDown(true); // Start continuous decrement
+        setDelay(INITIAL_DELAY); // Reset the delay on every new press
+    };
+
+    const handleMouseUpDec = () => {
+        setIsPressingDown(false); // Stop continuous decrement
+    };
+
     return (
-        <ContainerNode attribute={props.data.attribute}>
-            <div className='flex items-center'>
+        <AttributeContainer attribute={props.data.attribute}>
+            <div className='relative flex items-center'>
                 <input
-                    className={`text-black bg-white px-2 py-1 rounded-md flex-1 text-center nodrag`}
-                    type='number'
-                    defaultValue={value}
-                    //value={value} //FIXME: This is a bug, the value should be set to the value of the attribute and defaultValue should be removed
+                    className='nodrag nopan nowheel w-full px-2 py-1 text-center text-lg font-medium text-black rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500'
+                    type='text'
+                    value={value}
+                    ref={inputRef}
+                    placeholder='Enter number'
                     //TODO: take care of decimal values
-                    placeholder='Enter value'
-                    max={props.data.attribute.max}
-                    min={props.data.attribute.min}
-                    onBlur={handleOnBlur}
+                    onChange={handleOnChange}
                     onKeyDown={handleKeyDown}
+                    onBlur={handleOnBlur}
                 />
-                <span className={`ml-2 text-white font-bold`}>{props.data.attribute.unit}</span>
+                <button
+                    className='nodrag nopan nowheel absolute right-0 top-0 bg-gray-200 text-gray-600 hover:bg-gray-300 w-8 h-1/2 rounded-tr-md flex items-center justify-center'
+                    onMouseDown={handleMouseDownInc}
+                    onMouseUp={handleMouseUpInc}
+                    onMouseLeave={handleMouseUpInc}
+                >
+                    {' '}
+                    ▲{' '}
+                </button>
+                <button
+                    className='nodrag nopan nowheel absolute right-0 bottom-0 bg-gray-200 text-gray-600 hover:bg-gray-300 w-8 h-1/2 rounded-br-md flex items-center justify-center'
+                    onMouseDown={handleMouseDownDec}
+                    onMouseUp={handleMouseUpDec}
+                    onMouseLeave={handleMouseUpDec}
+                >
+                    {' '}
+                    ▼{' '}
+                </button>
             </div>
-        </ContainerNode>
+        </AttributeContainer>
     );
 };
 

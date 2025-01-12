@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { Node, NodeProps } from '@xyflow/react';
 
-import ContainerNode from './AttributeContainer';
+import AttributeContainer from './AttributeContainer';
 import { AttributeString } from '@/app/attribute';
 
 export type StringDisplayNode = Node<{
@@ -23,11 +23,13 @@ const StringDisplayNode: React.FC<NodeProps<StringDisplayNode>> = (props) => {
     }, [props.data.attribute]);
 
     return (
-        <ContainerNode attribute={props.data.attribute}>
-            <div className='text-center text-white'>
-                <span className='font-semibold'>&apos;{value}&apos;</span>
+        <AttributeContainer attribute={props.data.attribute}>
+            <div className='flex items-center justify-center'>
+                <label className='text-center text-white font-semibold px-1 py-0.5 text-lg rounded-md bg-gray-700'>
+                    {value}
+                </label>
             </div>
-        </ContainerNode>
+        </AttributeContainer>
     );
 };
 

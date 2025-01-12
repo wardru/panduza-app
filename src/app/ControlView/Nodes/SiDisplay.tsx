@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { Node, NodeProps } from '@xyflow/react';
 
-import ContainerNode from './AttributeContainer';
+import AttributeContainer from './AttributeContainer';
 import { AttributeSi } from '@/app/attribute';
 
 export type SiDisplayNode = Node<{
@@ -23,12 +23,12 @@ const SiDisplayNode: React.FC<NodeProps<SiDisplayNode>> = (props) => {
     }, [props.data.attribute]);
 
     return (
-        <ContainerNode attribute={props.data.attribute}>
+        <AttributeContainer attribute={props.data.attribute}>
             <div className='text-center text-white'>
                 <span className='font-semibold'>{value}</span>
-                <span className={`ml-2 font-bold`}>{props.data.attribute.unit}</span>
+                <span className='ml-2 font-bold'>{props.data.attribute.unit}</span>
             </div>
-        </ContainerNode>
+        </AttributeContainer>
     );
 };
 

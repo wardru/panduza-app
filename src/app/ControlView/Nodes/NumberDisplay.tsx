@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { Node, NodeProps } from '@xyflow/react';
 
-import ContainerNode from './AttributeContainer';
+import AttributeContainer from './AttributeContainer';
 import { AttributeNumber } from '@/app/attribute';
 
 export type NumberDisplayNode = Node<{
@@ -23,11 +23,11 @@ const SiDisplayNode: React.FC<NodeProps<NumberDisplayNode>> = (props) => {
     }, [props.data.attribute]);
 
     return (
-        <ContainerNode attribute={props.data.attribute}>
+        <AttributeContainer attribute={props.data.attribute}>
             <div className='text-center text-white'>
                 <span className='font-semibold'>{value}</span>
             </div>
-        </ContainerNode>
+        </AttributeContainer>
     );
 };
 

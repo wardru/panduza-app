@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { Node, NodeProps } from '@xyflow/react';
 
-import ContainerNode from './AttributeContainer';
+import AttributeContainer from './AttributeContainer';
 import { AttributeEnum } from '@/app/attribute';
 
 export type EnumInputNode = Node<{
@@ -11,7 +11,8 @@ export type EnumInputNode = Node<{
 
 const EnumInputNode: React.FC<NodeProps<EnumInputNode>> = (props) => {
     const [value, setValue] = useState(props.data.attribute.value);
-    //     const [error, setError] = useState<string | null>(null);
+    //TODO: Implement error handling https://github.com/Panduza/panduza-app/issues/65
+    //const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const updateValue = () => setValue(props.data.attribute.value);
@@ -32,10 +33,10 @@ const EnumInputNode: React.FC<NodeProps<EnumInputNode>> = (props) => {
     };
 
     return (
-        <ContainerNode attribute={props.data.attribute}>
+        <AttributeContainer attribute={props.data.attribute}>
             <div className='flex items-center justify-center'>
                 <select
-                    className='text-black placeholder:text-red-500'
+                    className='nodrag nopan nowheel w-full px-2 py-1 text-center text-lg font-medium text-black rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500'
                     onChange={handleSelectChange}
                     value={value}
                 >
@@ -44,7 +45,7 @@ const EnumInputNode: React.FC<NodeProps<EnumInputNode>> = (props) => {
                     ))}
                 </select>
             </div>
-        </ContainerNode>
+        </AttributeContainer>
     );
 };
 

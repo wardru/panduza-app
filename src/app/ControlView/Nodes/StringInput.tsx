@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { Node, NodeProps } from '@xyflow/react';
 
-import ContainerNode from './AttributeContainer';
+import AttributeContainer from './AttributeContainer';
 import { AttributeString } from '@/app/attribute';
 
 export type StringInputNode = Node<{
@@ -11,7 +11,9 @@ export type StringInputNode = Node<{
 
 const StringInputNode: React.FC<NodeProps<StringInputNode>> = (props) => {
     const [value, setValue] = useState(props.data.attribute.value);
-    //     const [error, setError] = useState<string | null>(null);
+    const [prevPub, setPrevPub] = useState(value);
+    //TODO: Implement error handling https://github.com/Panduza/panduza-app/issues/65
+    //const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const updateValue = () => setValue(props.data.attribute.value);
@@ -24,9 +26,9 @@ const StringInputNode: React.FC<NodeProps<StringInputNode>> = (props) => {
     }, [props.data.attribute]);
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === 'Enter') {
-            console.log(event.currentTarget.value);
-            event.currentTarget.blur();
+        if (event.key === 'Enter' && event.currentTarget.value !== prevPub) {
+            props.data.attribute.publish(event.currentTarget.value);
+            setPrevPub(event.currentTarget.value);
         }
     };
 
@@ -37,11 +39,12 @@ const StringInputNode: React.FC<NodeProps<StringInputNode>> = (props) => {
 
         const str = event.currentTarget.value;
 
-        if (str === '') {
+        if (str === '' || str === prevPub) {
             return;
         }
 
         props.data.attribute.publish(event.currentTarget.value);
+        setPrevPub(event.currentTarget.value);
     };
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,10 +54,10 @@ const StringInputNode: React.FC<NodeProps<StringInputNode>> = (props) => {
     };
 
     return (
-        <ContainerNode attribute={props.data.attribute}>
+        <AttributeContainer attribute={props.data.attribute}>
             <div className='flex items-center'>
                 <input
-                    className={`text-black bg-white px-2 py-1 rounded-md flex-1 text-center nodrag`}
+                    className='nodrag nopan nowheel w-full px-2 py-1 text-center text-lg font-medium text-black rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500'
                     type='text'
                     value={value}
                     placeholder='Enter string'
@@ -63,7 +66,7 @@ const StringInputNode: React.FC<NodeProps<StringInputNode>> = (props) => {
                     onChange={handleOnChange}
                 />
             </div>
-        </ContainerNode>
+        </AttributeContainer>
     );
 };
 
