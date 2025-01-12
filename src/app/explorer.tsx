@@ -37,6 +37,9 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
         onDragEnd() {
             setIsDragging(false);
         },
+        onDragCancel() {
+            setIsDragging(false);
+        },
     });
 
     useEffect(() => {
@@ -115,7 +118,12 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
     }, [platform.structure, onAttributeSelect]);
 
     return (
-        <div className={`text-white bg-gray-800 h-full w-full overflow-${isDragging ? 'hidden' : 'auto'}`}>
+        <div
+            className={`text-white bg-gray-800 h-full w-full`}
+            style={{
+                overflow: isDragging ? 'hidden' : 'auto',
+            }}
+        >
             {tree && platform.structure ? (
                 <Tree
                     openByDefault

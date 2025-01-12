@@ -12,6 +12,7 @@ import {
     useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import '../../styles/globals.css';
 
 import { useCallback, useState, useEffect } from 'react';
 import { Node, applyNodeChanges, OnNodesChange } from '@xyflow/react';
@@ -46,6 +47,7 @@ const ControlView: React.FC = () => {
     });
     const [nodes, setNodes] = useState<Node[]>([]);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [isUnlocked, setIsUnlocked] = useState(true);
     const flow = useReactFlow();
     const platform = usePlatform();
 
@@ -55,7 +57,6 @@ const ControlView: React.FC = () => {
         };
 
         document.addEventListener('mousemove', handleMouseMove);
-
         // Cleanup on component unmount
         return () => {
             document.removeEventListener('mousemove', handleMouseMove);
@@ -129,17 +130,36 @@ const ControlView: React.FC = () => {
                 nodes={nodes}
                 deleteKeyCode={['Backspace', 'Delete']}
                 selectionKeyCode={''}
-                panOnDrag={[2]}
                 selectionOnDrag={true}
                 selectionMode={SelectionMode.Partial}
+                panOnDrag={[1]}
+                //
+                //TODO: move this to user preference settings
+
+                // Figma Style
+                // panOnScroll={true}
+                // zoomOnScroll={false}
+
+                //Blender Style
+                panOnScroll={false}
+                zoomOnScroll
+                //
+                zoomOnDoubleClick={false}
+                className={` border ${isUnlocked ? 'border-transparent' : ' border-lime-500'} `}
             >
-                <Background />
-                <Controls />
-                <MiniMap
-                    nodeStrokeWidth={3}
-                    zoomable
-                    pannable
+                {isUnlocked ? <Background /> : null}
+                <Controls
+                    onInteractiveChange={(status) => {
+                        setIsUnlocked(status);
+                    }}
                 />
+                {isUnlocked ? (
+                    <MiniMap
+                        nodeStrokeWidth={3}
+                        zoomable
+                        pannable
+                    />
+                ) : null}
             </ReactFlow>
         </div>
     );

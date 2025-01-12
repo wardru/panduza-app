@@ -54,8 +54,14 @@ const StringInputNode: React.FC<NodeProps<StringInputNode>> = (props) => {
     };
 
     return (
-        <AttributeContainer attribute={props.data.attribute}>
-            <div className='flex items-center'>
+        <AttributeContainer
+            attribute={props.data.attribute}
+            nodeProps={props}
+        >
+            <div
+                className='flex items-center'
+                onClick={(e) => e.stopPropagation()}
+            >
                 <input
                     className='nodrag nopan nowheel w-full px-2 py-1 text-center text-lg font-medium text-black rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500'
                     type='text'

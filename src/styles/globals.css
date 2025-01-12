@@ -20,3 +20,9 @@
     -ms-user-select: none;
     user-select: none;
 }
+
+.react-flow__selection {
+    border-width: 2px;
+    border-style: dashed;
+    box-sizing: border-box;
+}

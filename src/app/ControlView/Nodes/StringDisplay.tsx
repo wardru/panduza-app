@@ -23,7 +23,10 @@ const StringDisplayNode: React.FC<NodeProps<StringDisplayNode>> = (props) => {
     }, [props.data.attribute]);
 
     return (
-        <AttributeContainer attribute={props.data.attribute}>
+        <AttributeContainer
+            attribute={props.data.attribute}
+            nodeProps={props}
+        >
             <div className='flex items-center justify-center'>
                 <label className='text-center text-white font-semibold px-1 py-0.5 text-lg rounded-md bg-gray-700'>
                     {value}
