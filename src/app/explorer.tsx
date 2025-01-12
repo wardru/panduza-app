@@ -178,7 +178,7 @@ const StringWidget: React.FC<StringWidgetProps> = ({ attribute }) => {
         if (str === '') {
             return;
         }
-        attribute.setValue(str);
+        attribute.publish(str);
     };
 
     return (
@@ -217,7 +217,7 @@ const SiWidget: React.FC<SiWidgetProps> = ({ attribute }) => {
         }
 
         try {
-            attribute.setValue(Number(attribute.validateInput(event.currentTarget.value)));
+            attribute.publish(Number(attribute.validateInput(event.currentTarget.value)));
             setError(null);
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : String(e);
@@ -276,13 +276,13 @@ const BoolWidget: React.FC<BoolWidgetProps> = ({ attribute }) => {
 
                     <button
                         className='text-white hover:bg-neutral-900 bg-black ml-1 px-6 py-1 rounded-md'
-                        onClick={() => attribute.setValue(true)}
+                        onClick={() => attribute.publish(true)}
                     >
                         True
                     </button>
                     <button
                         className='text-white hover:bg-neutral-900 bg-black ml-1 px-6 py-1 rounded-md'
-                        onClick={() => attribute.setValue(false)}
+                        onClick={() => attribute.publish(false)}
                     >
                         False
                     </button>
@@ -292,7 +292,7 @@ const BoolWidget: React.FC<BoolWidgetProps> = ({ attribute }) => {
                     Value:{' '}
                     <button
                         className='text-white hover:bg-neutral-900 bg-black ml-1 px-6 py-1 rounded-md'
-                        onClick={() => attribute.setValue(!value)}
+                        onClick={() => attribute.publish(!value)}
                         disabled={attribute.mode === 'RO'}
                     >
                         {value ? 'true' : 'false'}
@@ -319,7 +319,7 @@ const EnumWidget: React.FC<EnumWidgetProps> = ({ attribute }) => {
     }, [attribute]);
 
     const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        attribute.setValue(event.currentTarget.value);
+        attribute.publish(event.currentTarget.value);
 
         if (attribute.mode === 'WO') {
             setValue(event.currentTarget.value);
@@ -364,7 +364,7 @@ const NumberWidget: React.FC<NumberWidgetProps> = ({ attribute }) => {
         }
 
         try {
-            attribute.setValue(Number(attribute.validateInput(event.currentTarget.value)));
+            attribute.publish(Number(attribute.validateInput(event.currentTarget.value)));
             setError(null);
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : String(e);

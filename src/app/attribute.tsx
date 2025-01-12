@@ -65,7 +65,7 @@ export class AttributeString extends Attribute {
         return this._value;
     }
 
-    setValue(val: string) {
+    publish(val: string) {
         const bytes = new TextEncoder().encode('"' + val + '"');
         invoke('publish', { commandTopic: this.cmd_topic, value: bytes });
     }
@@ -126,7 +126,7 @@ export class AttributeSi extends Attribute {
         };
     }
 
-    setValue(val: number) {
+    publish(val: number) {
         const bytes = new TextEncoder().encode(val.toString());
         invoke('publish', { commandTopic: this.cmd_topic, value: bytes });
     }
@@ -210,7 +210,7 @@ export class AttributeBool extends Attribute {
         };
     }
 
-    setValue(val: boolean) {
+    publish(val: boolean) {
         const bytes = new TextEncoder().encode(val === false ? 'false' : 'true');
         invoke('publish', { commandTopic: this.cmd_topic, value: bytes });
     }
@@ -220,7 +220,7 @@ export class AttributeBool extends Attribute {
     }
 
     toggleValue() {
-        this.setValue(!this._value);
+        this.publish(!this._value);
     }
 
     subscribe(listener: () => void) {
@@ -270,7 +270,7 @@ export class AttributeEnum extends Attribute {
         };
     }
 
-    setValue(val: string) {
+    publish(val: string) {
         const bytes = new TextEncoder().encode('"' + val + '"');
         invoke('publish', { commandTopic: this.cmd_topic, value: bytes });
     }
@@ -326,7 +326,7 @@ export class AttributeNumber extends Attribute {
         return num.toString();
     }
 
-    setValue(val: number) {
+    publish(val: number) {
         const bytes = new TextEncoder().encode(val.toString());
         invoke('publish', { commandTopic: this.cmd_topic, value: bytes });
     }
