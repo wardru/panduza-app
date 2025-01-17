@@ -1,0 +1,71 @@
+import React, { useState, useEffect } from 'react';
+import { CloudArrowUpIcon } from '@heroicons/react/24/solid';
+
+import { invoke } from '@tauri-apps/api/core';
+import { open } from '@tauri-apps/plugin-dialog';
+
+import { NodeProps } from '@xyflow/react';
+
+import NodeShell from '../NodeShell';
+
+import { usePlatform, ConnectionState } from '@/app/platform';
+
+const FileUploader: React.FC<NodeProps> = (props) => {
+    //TODO: refactor with useAttributeListener once file uploader attribute is defined
+
+    const [lastFileUploaded, setLastFileUploaded] = useState<string | null>(null);
+    const [disabled, setIsDisabled] = useState(false);
+    const platform = usePlatform();
+
+    useEffect(() => {
+        setIsDisabled(platform.connectionState === ConnectionState.Connected ? false : true);
+    }, [platform.connectionState]);
+
+    const openFileAndSendToBackend = async () => {
+        try {
+            // Open file dialog
+            const filePath = await open({
+                multiple: false, // Only allow one file selection
+                directory: false, // And no directories
+            });
+
+            if (filePath) {
+                console.log('Selected file:', filePath);
+
+                // Send file path to backend for processing
+                await invoke('publish_file', {
+                    commandTopic: 'TBD',
+                    path: filePath,
+                });
+
+                const fileName = filePath.split(/[\\/]/).pop() ?? null; //Simpler path.basename() didn't work on windows
+                setLastFileUploaded(fileName);
+            } else {
+                console.log('No file selected');
+            }
+        } catch (error) {
+            setLastFileUploaded(null);
+            console.error('Error:', error);
+        }
+    };
+
+    return (
+        <NodeShell
+            topLeft={'File uploader'}
+            topRight={'TBD'}
+            bottomRight={'TBD'}
+            selected={props.selected || false}
+            disabled={disabled}
+        >
+            <div
+                className='flex flex-col justify-center items-center text-white hover:text-gray-300 text-lg'
+                onClick={openFileAndSendToBackend}
+            >
+                <CloudArrowUpIcon className='size-12' />
+                {lastFileUploaded ? <label>{lastFileUploaded}</label> : <label>Select a file</label>}
+            </div>
+        </NodeShell>
+    );
+};
+
+export default FileUploader;

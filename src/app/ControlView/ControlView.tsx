@@ -32,6 +32,7 @@ import StringDisplay from './Nodes/StringDisplay';
 import EnumInput from './Nodes/EnumInput';
 import EnumDisplay from './Nodes/EnumDisplay';
 import ReplNode from './Nodes/Repl';
+import FileUploader from './Nodes/FileUploader';
 
 const nodeTypes = {
     booleantoggle: BooleanToggleNode,
@@ -45,6 +46,7 @@ const nodeTypes = {
     enuminput: EnumInput,
     enuminput_ro: EnumDisplay,
     repl: ReplNode,
+    fileuploader: FileUploader,
 };
 const proOptions = { hideAttribution: true };
 
@@ -83,6 +85,7 @@ const ControlView: React.FC = () => {
             ['number']: 'numberspinner',
             ['string']: 'stringinput',
             ['enum']: 'enuminput',
+            ['json']: 'fileuploader',
         };
         let type = nodeTypeFactory[att.type];
         if (!type) {

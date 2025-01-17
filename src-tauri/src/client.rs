@@ -259,6 +259,28 @@ pub async fn publish(
     Ok(())
 }
 
+#[tauri::command]
+pub async fn publish_file(
+    command_topic: &str,
+    path: String,
+    _client: State<'_, Mutex<ClientState>>,
+) -> Result<(), String> {
+    use std::fs;
+
+    println!("Publishing on file topic {:?} : {:?}", command_topic, path);
+
+    //TODO: Binary file read
+    //TODO: File chunking
+    //TODO: Call publish with on platform file attribute topic (to be defined)
+    match fs::read_to_string(&path) {
+        Ok(contents) => {
+            println!("{}", contents); // Just for debugging purposes
+            Ok(())
+        }
+        Err(e) => Err(format!("Failed to read file: {}", e)),
+    }
+}
+
 // User request to disconnect
 #[tauri::command]
 pub async fn disconnect_from_platform(client: State<'_, Mutex<ClientState>>) -> Result<(), ()> {

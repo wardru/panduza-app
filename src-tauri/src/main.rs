@@ -23,11 +23,10 @@ fn get_build_info() -> String {
 
 #[tokio::main]
 async fn main() {
-    let version = get_build_info();
-
     let args = Args::parse();
 
     if args.version {
+        let version = get_build_info();
         println!("{}", version);
         return;
     }
@@ -44,6 +43,7 @@ async fn main() {
             app_lib::client::connect_to_platform,
             app_lib::client::register_attribute,
             app_lib::client::publish,
+            app_lib::client::publish_file,
             app_lib::client::disconnect_from_platform
         ])
         .run(tauri::generate_context!())
