@@ -13,8 +13,9 @@
 - Added i18n dependency
 - Added translation files for english and french
 - Added UTF-8 support to platform payloads (units, accents, ...)
-- Added number, json, enum attribute support
-- Added basic widgets for enum and number
+- Added tree view representation of attributes of type si, number, enum, string and json
+- Added basic widgets for attributes of type si, number, bolean, enum and string
+- Added basic premliminary widget for future attribute of type file
 - Added memory command attribute skeleton
 
 ### Fixed
