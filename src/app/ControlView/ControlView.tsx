@@ -27,6 +27,7 @@ import NumberDisplay from './Nodes/NumberDisplay';
 import StringInput from './Nodes/StringInput';
 import StringDisplay from './Nodes/StringDisplay';
 import EnumInput from './Nodes/EnumInput';
+import EnumDisplay from './Nodes/EnumDisplay';
 
 const nodeTypes = {
     booleantoggle: BooleanToggleNode,
@@ -37,7 +38,7 @@ const nodeTypes = {
     stringinput: StringInput,
     stringinput_ro: StringDisplay,
     enuminput: EnumInput,
-    enuminput_ro: StringDisplay,
+    enuminput_ro: EnumDisplay,
 };
 const proOptions = { hideAttribution: true };
 

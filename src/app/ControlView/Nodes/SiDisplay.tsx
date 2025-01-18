@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState, useCallback } from 'react';
 
 import { Node, NodeProps } from '@xyflow/react';
 
-import AttributeContainer from './AttributeContainer';
-import { AttributeSi } from '@/app/attribute';
+import AttributeShell from '../AttributeShell';
+import { AttributeSi, SiSettings } from '@/app/attribute';
+
+import { useAttributeSiListener } from '../AttributeListener';
+import NumberDisplayWidget from './Components/NumberDisplayWidget';
 
 export type SiDisplayNode = Node<{
     attribute: AttributeSi;
@@ -11,27 +14,37 @@ export type SiDisplayNode = Node<{
 
 const SiDisplayNode: React.FC<NodeProps<SiDisplayNode>> = (props) => {
     const [value, setValue] = useState(props.data.attribute.value);
+    const [siSettings, setSiSettings] = useState<SiSettings>({
+        min: props.data?.attribute.min,
+        max: props.data?.attribute.max,
+        decimals: props.data?.attribute.decimals,
+        unit: props.data?.attribute.unit,
+    });
 
-    useEffect(() => {
-        const updateValue = () => setValue(props.data.attribute.value);
-
-        props.data.attribute.subscribe(updateValue);
-
-        return () => {
-            props.data.attribute.unsubscribe(updateValue);
-        };
-    }, [props.data.attribute]);
+    const { disabled } = useAttributeSiListener({
+        attribute: props.data.attribute,
+        onDisconnect: useCallback(() => {
+            setValue(0);
+        }, []),
+        onNewData: useCallback((value: number, settings: SiSettings) => {
+            setValue(value);
+            setSiSettings(settings);
+        }, []),
+    });
 
     return (
-        <AttributeContainer
-            attribute={props.data.attribute}
-            nodeProps={props}
+        <AttributeShell
+            attributeName={props.data?.attribute.name}
+            classPath={props.data?.attribute.classPath}
+            driverName={props.data?.attribute.parentDriver}
+            selected={props.selected || false}
+            disabled={disabled}
         >
-            <div className='text-center text-white'>
-                <span className='font-semibold'>{value}</span>
-                <span className='ml-2 font-bold'>{props.data.attribute.unit}</span>
-            </div>
-        </AttributeContainer>
+            <NumberDisplayWidget
+                value={value}
+                unit={siSettings?.unit || ''}
+            />
+        </AttributeShell>
     );
 };
 

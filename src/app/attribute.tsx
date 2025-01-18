@@ -19,10 +19,12 @@ export enum AttributeMode {
 
 export abstract class Attribute {
     readonly name: string;
+    readonly path: string;
     readonly topic: string;
     readonly cmd_topic: string;
     readonly type: string;
     readonly parentClasses: string[];
+    readonly classPath: string;
     readonly parentDriver: string;
     readonly mode: string;
     readonly info: string | null;
@@ -31,7 +33,9 @@ export abstract class Attribute {
         this.name = name;
         this.topic = ['pza', parentDriver, ...parentClasses, name, 'att'].join('/');
         this.cmd_topic = ['pza', parentDriver, ...parentClasses, name, 'cmd'].join('/');
+        this.path = [parentDriver, ...parentClasses, name].join('/');
         this.parentClasses = parentClasses;
+        this.classPath = parentClasses.join('/');
         this.parentDriver = parentDriver;
         this.type = cfg.type;
         this.mode = cfg.mode;
@@ -83,7 +87,7 @@ export class AttributeString extends Attribute {
     }
 }
 
-interface SiProps {
+export interface SiSettings {
     min: number;
     max: number;
     decimals: number;
@@ -92,7 +96,7 @@ interface SiProps {
 
 export class AttributeSi extends Attribute {
     private _value = 0;
-    private _props: SiProps = {
+    private _props: SiSettings = {
         min: 0,
         max: 0,
         decimals: 0,

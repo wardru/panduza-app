@@ -1,9 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useState, useCallback } from 'react';
 
 import { Node, NodeProps } from '@xyflow/react';
 
-import AttributeContainer from './AttributeContainer';
+import AttributeShell from '../AttributeShell';
 import { AttributeEnum } from '@/app/attribute';
+
+import { useAttributeEnumListener } from '../AttributeListener';
+
+import EnumInputWidget from './Components/EnumInputWidget';
 
 export type EnumInputNode = Node<{
     attribute: AttributeEnum;
@@ -14,44 +18,29 @@ const EnumInputNode: React.FC<NodeProps<EnumInputNode>> = (props) => {
     //TODO: Implement error handling https://github.com/Panduza/panduza-app/issues/65
     //const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const updateValue = () => setValue(props.data.attribute.value);
-
-        props.data.attribute.subscribe(updateValue);
-
-        return () => {
-            props.data.attribute.unsubscribe(updateValue);
-        };
-    }, [props.data.attribute]);
-
-    const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        props.data.attribute.publish(event.currentTarget.value);
-
-        if (props.data.attribute.mode === 'WO') {
-            setValue(event.currentTarget.value);
-        }
-    };
+    const { publish, disabled } = useAttributeEnumListener({
+        attribute: props.data.attribute,
+        onDisconnect: useCallback(() => {
+            setValue('');
+        }, []),
+        onNewValue: useCallback((value: string) => setValue(value), []),
+    });
 
     return (
-        <AttributeContainer
-            attribute={props.data.attribute}
-            nodeProps={props}
+        <AttributeShell
+            attributeName={props.data?.attribute.name}
+            classPath={props.data?.attribute.classPath}
+            driverName={props.data?.attribute.parentDriver}
+            selected={props.selected || false}
+            disabled={disabled}
         >
-            <div
-                className='flex items-center justify-center'
-                onClick={(e) => e.stopPropagation()}
-            >
-                <select
-                    className='nodrag nopan nowheel w-full px-2 py-1 text-center text-lg font-medium text-black rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500'
-                    onChange={handleSelectChange}
-                    value={value}
-                >
-                    {props.data.attribute.choices.map((choice) => (
-                        <option key={props.data.attribute.topic + '-' + choice}> {choice} </option>
-                    ))}
-                </select>
-            </div>
-        </AttributeContainer>
+            <EnumInputWidget
+                value={value}
+                disabled={disabled}
+                onNewValue={publish}
+                choices={props.data?.attribute.choices}
+            />
+        </AttributeShell>
     );
 };
 

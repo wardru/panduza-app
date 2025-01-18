@@ -4,6 +4,8 @@
 
 ### Added
 
+- Added generic widgets for control view nodes
+- Added connection state management for control view nodes
 - Added control view with node visualization, minimap, basic controls
 - Added i18n dependency
 - Added translation files for english and french

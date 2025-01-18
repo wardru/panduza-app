@@ -1,0 +1,32 @@
+interface EnumInputWidgetProps {
+    value: string;
+    disabled: boolean;
+    choices: string[];
+    onNewValue: (value: string) => void;
+}
+
+const EnumInputWidget: React.FC<EnumInputWidgetProps> = (props) => {
+    const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        props.onNewValue(event.currentTarget.value);
+    };
+
+    return (
+        <div
+            className='flex items-center justify-center'
+            onClick={(e) => e.stopPropagation()}
+        >
+            <select
+                className='nodrag nopan nowheel w-full px-2 py-1 text-center text-lg font-medium text-black rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500'
+                onChange={handleSelectChange}
+                value={props.value}
+                disabled={props.disabled}
+            >
+                {props.choices.map((choice) => (
+                    <option key={choice}> {choice} </option>
+                ))}
+            </select>
+        </div>
+    );
+};
+
+export default EnumInputWidget;

@@ -2,27 +2,27 @@ import { useState, useCallback } from 'react';
 
 import { Node, NodeProps } from '@xyflow/react';
 
-import { AttributeNumber } from '@/app/attribute';
-
-import { useAttributeNumberListener } from '../AttributeListener';
+import { AttributeEnum } from '@/app/attribute';
 
 import AttributeShell from '../AttributeShell';
 
-import NumberDisplayWidget from './Components/NumberDisplayWidget';
+import { useAttributeEnumListener } from '../AttributeListener';
 
-export type NumberDisplayNode = Node<{
-    attribute: AttributeNumber;
+import StringDisplayWidget from './Components/StringDisplayWidget';
+
+export type EnumDisplayNode = Node<{
+    attribute: AttributeEnum;
 }>;
 
-const NumberDisplayNode: React.FC<NodeProps<NumberDisplayNode>> = (props) => {
+const EnumDisplayNode: React.FC<NodeProps<EnumDisplayNode>> = (props) => {
     const [value, setValue] = useState(props.data.attribute.value);
 
-    const { disabled } = useAttributeNumberListener({
+    const { disabled } = useAttributeEnumListener({
         attribute: props.data.attribute,
         onDisconnect: useCallback(() => {
-            setValue(0);
+            setValue('');
         }, []),
-        onNewValue: useCallback((value: number) => setValue(value), []),
+        onNewValue: useCallback((value: string) => setValue(value), []),
     });
 
     return (
@@ -33,9 +33,9 @@ const NumberDisplayNode: React.FC<NodeProps<NumberDisplayNode>> = (props) => {
             selected={props.selected || false}
             disabled={disabled}
         >
-            <NumberDisplayWidget value={value} />
+            <StringDisplayWidget value={value} />
         </AttributeShell>
     );
 };
 
-export default NumberDisplayNode;
+export default EnumDisplayNode;

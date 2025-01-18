@@ -1,9 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState, useCallback } from 'react';
 
 import { Node, NodeProps } from '@xyflow/react';
 
-import AttributeContainer from './AttributeContainer';
 import { AttributeString } from '@/app/attribute';
+
+import AttributeShell from '../AttributeShell';
+
+import { useAttributeStringListener } from '../AttributeListener';
+
+import StringDisplayWidget from './Components/StringDisplayWidget';
 
 export type StringDisplayNode = Node<{
     attribute: AttributeString;
@@ -12,27 +17,24 @@ export type StringDisplayNode = Node<{
 const StringDisplayNode: React.FC<NodeProps<StringDisplayNode>> = (props) => {
     const [value, setValue] = useState(props.data.attribute.value);
 
-    useEffect(() => {
-        const updateValue = () => setValue(props.data.attribute.value);
-
-        props.data.attribute.subscribe(updateValue);
-
-        return () => {
-            props.data.attribute.unsubscribe(updateValue);
-        };
-    }, [props.data.attribute]);
+    const { disabled } = useAttributeStringListener({
+        attribute: props.data.attribute,
+        onDisconnect: useCallback(() => {
+            setValue('');
+        }, []),
+        onNewValue: useCallback((value: string) => setValue(value), []),
+    });
 
     return (
-        <AttributeContainer
-            attribute={props.data.attribute}
-            nodeProps={props}
+        <AttributeShell
+            attributeName={props.data?.attribute.name}
+            classPath={props.data?.attribute.classPath}
+            driverName={props.data?.attribute.parentDriver}
+            selected={props.selected || false}
+            disabled={disabled}
         >
-            <div className='flex items-center justify-center'>
-                <label className='text-center text-white font-semibold px-1 py-0.5 text-lg rounded-md bg-gray-700'>
-                    {value}
-                </label>
-            </div>
-        </AttributeContainer>
+            <StringDisplayWidget value={value} />
+        </AttributeShell>
     );
 };
 
