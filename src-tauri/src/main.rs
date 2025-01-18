@@ -29,6 +29,7 @@ async fn main() {
     }
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             app.manage(Mutex::new(ClientState::new()));

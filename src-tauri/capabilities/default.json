@@ -9,6 +9,7 @@
         "core:webview:allow-create-webview",
         "core:window:allow-create",
         "core:window:allow-set-title",
-        "dialog:default"
+        "dialog:default",
+        "store:default"
     ]
 }
