@@ -1,13 +1,10 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::Manager;
-
-use tokio::sync::Mutex;
-
 use app_lib::client::ClientState;
-
 use clap::Parser;
+use tauri::Manager;
+use tokio::sync::Mutex;
 
 #[derive(Parser, Debug)]
 #[command(about, long_about = None)]

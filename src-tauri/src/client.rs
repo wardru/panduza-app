@@ -1,23 +1,16 @@
-use std::time::Duration;
-
 use bytes::Bytes;
+use futures::future;
+use futures::future::FutureExt;
 use rumqttc::{AsyncClient, Event, EventLoop, Incoming, MqttOptions, QoS};
-use uuid::Uuid;
-
+use serde::Serialize;
+use std::collections::HashMap;
+use std::sync::Arc;
+use std::time::Duration;
+use tauri::{ipc::Channel, State};
 use tokio::sync::oneshot;
 use tokio::sync::Mutex;
 use tokio::time;
-
-use futures::future;
-
-use futures::future::FutureExt;
-
-use std::sync::Arc;
-
-use std::collections::HashMap;
-
-use serde::Serialize;
-use tauri::{ipc::Channel, State};
+use uuid::Uuid;
 
 pub struct ShutdownRequest;
 
