@@ -4,6 +4,7 @@
 
 ### Added
 
+- Added REPL custom widget in control view
 - Added generic widgets for control view nodes
 - Added connection state management for control view nodes
 - Added control view with node visualization, minimap, basic controls

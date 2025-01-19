@@ -41,7 +41,7 @@ const StringInputNode: React.FC<NodeProps<StringInputNode>> = (props) => {
                 <StringInputWidget
                     value={value}
                     disabled={disabled}
-                    placeholder='Enter string'
+                    placeholder='Enter a string'
                     onNewValue={publish}
                 />
             </div>

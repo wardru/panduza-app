@@ -13,7 +13,8 @@ export const TreeRow: React.FC<TreeRowProps> = ({ node }) => {
     const { attributes, listeners, isDragging, setNodeRef } = useDraggable({
         id: node.id,
         data: {
-            id: node.id,
+            path: node.id,
+            type: node.type,
             label: node.label,
         },
     });

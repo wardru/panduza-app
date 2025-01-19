@@ -28,6 +28,7 @@ import StringInput from './Nodes/StringInput';
 import StringDisplay from './Nodes/StringDisplay';
 import EnumInput from './Nodes/EnumInput';
 import EnumDisplay from './Nodes/EnumDisplay';
+import ReplNode from './Nodes/Repl';
 
 const nodeTypes = {
     booleantoggle: BooleanToggleNode,
@@ -39,6 +40,7 @@ const nodeTypes = {
     stringinput_ro: StringDisplay,
     enuminput: EnumInput,
     enuminput_ro: EnumDisplay,
+    repl: ReplNode,
 };
 const proOptions = { hideAttribution: true };
 
@@ -64,52 +66,122 @@ const ControlView: React.FC = () => {
         };
     }, []); // Empty dependency array ensures this runs only once
 
+    const createAttributeNode = (attributePath: string) => {
+        const att = platform.attributes?.[attributePath];
+        if (!att) {
+            console.error(`attribute ${attributePath} not found`);
+            return;
+        }
+
+        const nodeTypeFactory: Record<string, string> = {
+            ['boolean']: 'booleantoggle',
+            ['si']: 'sispinner',
+            ['number']: 'numberspinner',
+            ['string']: 'stringinput',
+            ['enum']: 'enuminput',
+        };
+        let type = nodeTypeFactory[att.type];
+        if (!type) {
+            console.error(`Attribute type ${att.type} not supported by control view`);
+            return;
+        }
+        if (
+            (att.type === 'si' || att.type === 'number' || att.type === 'string' || att.type === 'enum') &&
+            att.mode === 'RO'
+        ) {
+            type = type + '_ro';
+        }
+
+        const position = flow.screenToFlowPosition({
+            x: mousePosition.x,
+            y: mousePosition.y,
+        });
+        setNodes([
+            {
+                id: uuidv4(),
+                type,
+                position: { x: position.x, y: position.y },
+                data: { attribute: att },
+            },
+            ...nodes,
+        ]);
+    };
+
+    const createClassNode = (path: string) => {
+        const iclass = platform.getClassData(path);
+
+        if (!iclass) {
+            console.error(`class ${path} not found`);
+            return;
+        }
+
+        //TODO: taking the first tag for now, need to implement tag selection in a context menu probably
+
+        if (iclass.tags.length === 0) {
+            //TODO: create individual attribute nodes in this case
+            return;
+        }
+
+        const tag = iclass.tags[0];
+
+        const nodeTypeFactory: Record<string, string> = {
+            ['REPL']: 'repl',
+        };
+
+        const nodeType = nodeTypeFactory[tag];
+
+        if (!nodeType) {
+            console.error(`Class tag ${tag} not supported by control view`);
+            return;
+        }
+
+        let data = {};
+
+        if (tag === 'REPL') {
+            const commandAttribute = platform.attributes?.[path + '/command'];
+            if (!commandAttribute) {
+                console.error(`REPL class does not have a command attribute`);
+                return;
+            }
+            const responseAttribute = platform.attributes?.[path + '/response'];
+            if (!responseAttribute) {
+                console.error(`REPL class does not have a response attribute`);
+                return;
+            }
+
+            data = {
+                commandAttribute,
+                responseAttribute,
+            };
+        }
+
+        const position = flow.screenToFlowPosition({
+            x: mousePosition.x,
+            y: mousePosition.y,
+        });
+
+        setNodes([
+            {
+                id: uuidv4(),
+                type: nodeType,
+                position: { x: position.x, y: position.y },
+                data,
+            },
+            ...nodes,
+        ]);
+    };
+
     useDndMonitor({
         onDragEnd() {
             if (isOver) {
-                //TODO: probably want to check if dragged is an attribute or else, for tags etc..
+                const path = active?.data?.current?.path;
+                const type = active?.data?.current?.type;
 
-                const att = platform.attributes?.[active?.id as string];
-                if (!att) {
-                    console.error(`attribute ${active?.id} not found`);
-                    return;
+                if (type === 'attribute') {
+                    createAttributeNode(path);
+                } else if (type === 'class') {
+                    createClassNode(path);
                 }
-
-                const nodeTypeFactory: Record<string, string> = {
-                    ['boolean']: 'booleantoggle',
-                    ['si']: 'sispinner',
-                    ['number']: 'numberspinner',
-                    ['string']: 'stringinput',
-                    ['enum']: 'enuminput',
-                };
-                let type = nodeTypeFactory[att.type];
-
-                // TODO: Impprove the usage of attribute modes{RO, RW, W} to the creation of the nodes
-                if (
-                    (att.type === 'si' || att.type === 'number' || att.type === 'string' || att.type === 'enum') &&
-                    att.mode === 'RO'
-                ) {
-                    type = type + '_ro';
-                }
-
-                if (!type) {
-                    console.error(`Type ${att.type} not supported by control view`);
-                    return;
-                }
-
-                const position = flow.screenToFlowPosition({
-                    x: mousePosition.x,
-                    y: mousePosition.y,
-                });
-                setNodes([
-                    {
-                        id: uuidv4(),
-                        type,
-                        position: { x: position.x, y: position.y },
-                        data: { attribute: att },
-                    },
-                    ...nodes,
-                ]);
             }
         },
     });

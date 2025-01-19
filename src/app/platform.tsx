@@ -27,6 +27,7 @@ export interface PlatformContextType {
     attributes: AttributeMap | undefined;
     connect: (address: string, port: number) => void;
     disconnect: () => void;
+    getClassData: (classPath: string) => IClass | undefined;
 }
 
 const factoryMap: Record<string, (name: string, driver: string, classes: string[], cfg: IAttribute) => Attribute> = {
@@ -48,6 +49,26 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const [connectionState, setConnectionState] = useState<ConnectionState>(ConnectionState.Disconnected);
     const [structure, setStructure] = useState<IStructure | undefined>(undefined);
     const [attributes, setAttributes] = useState<AttributeMap | undefined>(undefined);
+
+    const getClassData = (classPath: string): IClass | undefined => {
+        const path = classPath.split('/');
+        const driver = path[0];
+
+        if (structure) {
+            const driverData = structure.drivers[driver];
+            if (driverData) {
+                let classes = driverData.classes;
+                for (let i = 1; i < path.length; i++) {
+                    const currentClass = classes[path[i]];
+                    if (currentClass && i === path.length - 1) {
+                        return currentClass;
+                    }
+                    classes = classes[path[i]].classes;
+                }
+            }
+        }
+        return undefined;
+    };
 
     const createNewAttribute = (name: string, driver: string, classes: string[], cfg: IAttribute): Attribute => {
         const factory = factoryMap[cfg.type];
@@ -158,6 +179,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 structure,
                 connect,
                 disconnect,
+                getClassData,
             }}
         >
             {children}

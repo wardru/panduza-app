@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 interface StringInputWidgetProps {
     value: string;
-    placeholder: string;
+    placeholder?: string;
     disabled: boolean;
     onNewValue: (value: string) => void;
 }
@@ -51,6 +51,7 @@ const StringInputWidget: React.FC<StringInputWidgetProps> = (props) => {
             onBlur={handleOnBlur}
             onKeyDown={handleKeyDown}
             onChange={handleOnChange}
+            onClick={(e) => e.stopPropagation()}
         />
     );
 };
