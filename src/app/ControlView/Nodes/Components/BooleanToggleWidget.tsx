@@ -7,7 +7,7 @@ interface BooleanWidgetProps {
 
 const BooleanToggleWidget: React.FC<BooleanWidgetProps> = (props) => {
     return (
-        <div className='nodrag nopan nowheel flex justify-center items-center'>
+        <div className='nodrag nopan flex justify-center items-center'>
             <label
                 className='inline-flex items-center cursor-pointer'
                 onClick={(e) => e.stopPropagation()}

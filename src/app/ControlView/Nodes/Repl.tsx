@@ -46,7 +46,7 @@ const ReplNode: React.FC<NodeProps<ReplNode>> = (props) => {
                 selected={props.selected || false}
                 disabled={commandListener.disabled}
             >
-                <div className='flex flex-col space-y-3 text-white'>
+                <div className='flex flex-col space-y-3 text-white w-full'>
                     <div className='flex flex-col items-center space-y-1'>
                         <label>Command</label>
                         <StringInputWidget
@@ -56,10 +56,10 @@ const ReplNode: React.FC<NodeProps<ReplNode>> = (props) => {
                             placeholder='Enter a command'
                         />
                     </div>
-                    <div className='flex flex-col items-center space-y-1'>
+                    <div className='flex flex-col items-center space-y-1 w-full'>
                         <label>Response</label>
                         <textarea
-                            className='nodrag nopan nowheel text-black rounded-md p-0.5 w-full'
+                            className='nodrag nowheel nopan text-black rounded-md p-0.5 w-full'
                             readOnly
                             value={responseValue}
                             onClick={(e) => e.stopPropagation()}

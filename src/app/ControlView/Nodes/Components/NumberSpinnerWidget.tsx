@@ -126,7 +126,7 @@ const NumberSpinnerWidget: React.FC<NumberSpinnerWidgetProps> = (props) => {
                 onClick={(e) => e.stopPropagation()}
             >
                 <input
-                    className='nodrag nopan nowheel w-full px-2 py-1 text-center text-lg font-medium text-black rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500'
+                    className='nodrag nopan w-full px-2 py-1 text-center text-lg font-medium text-black rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500'
                     type='text'
                     value={value}
                     ref={inputRef}
@@ -137,7 +137,7 @@ const NumberSpinnerWidget: React.FC<NumberSpinnerWidgetProps> = (props) => {
                     onBlur={handleOnBlur}
                 />
                 <button
-                    className='nodrag nopan nowheel absolute right-0 top-0 bg-gray-200 text-gray-600 hover:bg-gray-300 w-8 h-1/2 rounded-tr-md flex items-center justify-center'
+                    className='nodrag nopan absolute right-0 top-0 bg-gray-200 text-gray-600 hover:bg-gray-300 w-8 h-1/2 rounded-tr-md flex items-center justify-center'
                     onMouseDown={handleMouseDownInc}
                     onMouseUp={handleMouseUpInc}
                     onMouseLeave={handleMouseUpInc}
@@ -146,7 +146,7 @@ const NumberSpinnerWidget: React.FC<NumberSpinnerWidgetProps> = (props) => {
                     ▲{' '}
                 </button>
                 <button
-                    className='nodrag nopan nowheel absolute right-0 bottom-0 bg-gray-200 text-gray-600 hover:bg-gray-300 w-8 h-1/2 rounded-br-md flex items-center justify-center'
+                    className='nodrag nopan absolute right-0 bottom-0 bg-gray-200 text-gray-600 hover:bg-gray-300 w-8 h-1/2 rounded-br-md flex items-center justify-center'
                     onMouseDown={handleMouseDownDec}
                     onMouseUp={handleMouseUpDec}
                     onMouseLeave={handleMouseUpDec}

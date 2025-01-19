@@ -14,15 +14,16 @@ const AttributeShell: React.FC<AttributeShellProps> = (props) => {
                 ${props.selected ? ' border-blue-500' : 'border-transparent'}
                 ${props.disabled ? '  opacity-60' : ''}
                 `}
+            style={{ pointerEvents: 'all' }}
         >
             {/* Header */}
             <div className='flex justify-between rounded-t-md px-2 py-1 bg-opacity-75 mb-4 bg-orange-500'>
-                <span className='text-white font-bold'>{props.attributeName}</span>
+                <p className=' text-white font-bold'>{props.attributeName}</p>
                 <span className='text-white italic'>{props.classPath}</span>
             </div>
 
             {/* Custom Content */}
-            <div className='p-2 flex-grow'>{props.children}</div>
+            <div className='p-2 flex items-center justify-center'>{props.children}</div>
 
             {/* Footer */}
             <div className='flex justify-between items-center px-2 text-right'>

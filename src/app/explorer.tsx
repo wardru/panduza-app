@@ -486,7 +486,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
 
     return (
         <div className='h-full w-full text-white bg-neutral-800 overflow-auto'>
-            <p>{t('info-panel')}</p>
+            <label>{t('info-panel')}</label>
             <p>------------------------</p>
             <br />
             {item ? setNewWidget(item) : null}

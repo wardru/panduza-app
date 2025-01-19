@@ -101,11 +101,16 @@ const ControlView: React.FC = () => {
                 y: mousePosition.y,
             });
 
+        flow.getNodes().map((node) => {
+            flow.updateNode(node.id, { selected: false });
+        });
+
         flow.addNodes([
             {
                 id: uuidv4(),
                 type,
                 position,
+                selected: isUnlocked,
                 data: { attribute: att },
             },
         ]);
@@ -205,6 +210,7 @@ const ControlView: React.FC = () => {
             {
                 id: uuidv4(),
                 type: nodeType,
+                selected: isUnlocked,
                 position: { x: position.x, y: position.y },
                 data,
             },
@@ -262,6 +268,7 @@ const ControlView: React.FC = () => {
                 nodeTypes={nodeTypes}
                 nodes={nodes}
                 deleteKeyCode={['Backspace', 'Delete']}
+                elevateNodesOnSelect={false}
                 selectionKeyCode={''}
                 selectionOnDrag={true}
                 selectionMode={SelectionMode.Partial}
@@ -284,6 +291,13 @@ const ControlView: React.FC = () => {
                 <Controls
                     onInteractiveChange={(status) => {
                         setIsUnlocked(status);
+
+                        // disable nodes when lock
+                        if (status == false) {
+                            flow.getNodes().map((node) => {
+                                flow.updateNode(node.id, { selected: false });
+                            });
+                        }
                     }}
                 />
                 {isUnlocked ? (

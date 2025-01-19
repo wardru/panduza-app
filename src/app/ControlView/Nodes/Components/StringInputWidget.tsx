@@ -43,7 +43,7 @@ const StringInputWidget: React.FC<StringInputWidgetProps> = (props) => {
     };
     return (
         <input
-            className='nodrag nopan nowheel w-full px-2 py-1 text-center text-lg font-medium text-black rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500'
+            className='nodrag nopan w-full px-2 py-1 text-center text-lg font-medium text-black rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500'
             type='text'
             value={value}
             disabled={props.disabled}

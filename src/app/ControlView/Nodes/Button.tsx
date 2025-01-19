@@ -16,7 +16,7 @@ const ButtonNode: React.FC<NodeProps<ButtonNode>> = () => {
         //        <div className='flex items-center'>
         //            <input
         //                type='button'
-        //                className='nodrag nopan nowheel text-black bg-white px-2 py-1 rounded-xl flex-1 text-center'
+        //                className='nodrag nopan text-black bg-white px-2 py-1 rounded-xl flex-1 text-center'
         //                value={props.data.attribute.name}
         //                onClick={(e) => e.stopPropagation()}
         //            />
