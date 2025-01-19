@@ -2,6 +2,8 @@ import { useDroppable, useDndMonitor } from '@dnd-kit/core';
 
 import { v4 as uuidv4 } from 'uuid';
 
+import { IClass } from '../structure';
+
 import {
     ReactFlow,
     ReactFlowProvider,
@@ -66,11 +68,11 @@ const ControlView: React.FC = () => {
         };
     }, []); // Empty dependency array ensures this runs only once
 
-    const createAttributeNode = (attributePath: string) => {
+    const createAttributeNode = (attributePath: string, customPosition?: { x: number; y: number }): boolean => {
         const att = platform.attributes?.[attributePath];
         if (!att) {
             console.error(`attribute ${attributePath} not found`);
-            return;
+            return false;
         }
 
         const nodeTypeFactory: Record<string, string> = {
@@ -83,7 +85,7 @@ const ControlView: React.FC = () => {
         let type = nodeTypeFactory[att.type];
         if (!type) {
             console.error(`Attribute type ${att.type} not supported by control view`);
-            return;
+            return false;
         }
         if (
             (att.type === 'si' || att.type === 'number' || att.type === 'string' || att.type === 'enum') &&
@@ -92,22 +94,29 @@ const ControlView: React.FC = () => {
             type = type + '_ro';
         }
 
-        const position = flow.screenToFlowPosition({
-            x: mousePosition.x,
-            y: mousePosition.y,
-        });
-        setNodes([
+        const position =
+            customPosition ||
+            flow.screenToFlowPosition({
+                x: mousePosition.x,
+                y: mousePosition.y,
+            });
+
+        flow.addNodes([
             {
                 id: uuidv4(),
                 type,
-                position: { x: position.x, y: position.y },
+                position,
                 data: { attribute: att },
             },
-            ...nodes,
         ]);
+
+        return true;
     };
 
-    const createClassNode = (path: string) => {
+    const createClassNode = (
+        path: string,
+        customPosition?: { x: number; y: number }
+    ): { x: number; y: number } | undefined => {
         const iclass = platform.getClassData(path);
 
         if (!iclass) {
@@ -119,7 +128,39 @@ const ControlView: React.FC = () => {
 
         if (iclass.tags.length === 0) {
             //TODO: create individual attribute nodes in this case
-            return;
+            const position =
+                customPosition ||
+                flow.screenToFlowPosition({
+                    x: mousePosition.x,
+                    y: mousePosition.y,
+                });
+
+            const instantiateAttributesInClass = (
+                classPath: string,
+                iclass: IClass,
+                position: { x: number; y: number }
+            ) => {
+                for (const childClass in iclass.classes) {
+                    classPath = classPath + '/' + childClass;
+                    instantiateAttributesInClass(classPath, iclass.classes[childClass], position);
+                }
+                for (const attribute in iclass.attributes) {
+                    const attributePath = classPath + '/' + attribute;
+
+                    const newPosition = {
+                        x: position.x,
+                        y: position.y,
+                    };
+
+                    if (createAttributeNode(attributePath, newPosition)) {
+                        position.x += 40;
+                        position.y += 40;
+                    }
+                }
+            };
+
+            instantiateAttributesInClass(path, iclass, position);
+            return position;
         }
 
         const tag = iclass.tags[0];
@@ -160,15 +201,32 @@ const ControlView: React.FC = () => {
             y: mousePosition.y,
         });
 
-        setNodes([
+        flow.addNodes([
             {
                 id: uuidv4(),
                 type: nodeType,
                 position: { x: position.x, y: position.y },
                 data,
             },
-            ...nodes,
         ]);
+    };
+
+    const createDriverNode = (path: string) => {
+        const driver = platform.structure?.drivers[path];
+
+        if (!driver) {
+            console.error(`error. driver ${driver} not found`);
+            return;
+        }
+
+        let position = flow.screenToFlowPosition({
+            x: mousePosition.x,
+            y: mousePosition.y,
+        });
+
+        for (const iclass in driver.classes) {
+            position = createClassNode(path + '/' + iclass, position) || position;
+        }
     };
 
     useDndMonitor({
@@ -181,6 +239,8 @@ const ControlView: React.FC = () => {
                     createAttributeNode(path);
                 } else if (type === 'class') {
                     createClassNode(path);
+                } else if (type === 'driver') {
+                    createDriverNode(path);
                 }
             }
         },

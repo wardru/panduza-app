@@ -56,7 +56,7 @@ const ReplNode: React.FC<NodeProps<ReplNode>> = (props) => {
                             placeholder='Enter a command'
                         />
                     </div>
-                    <div className='flex flex-col items-center space-y-3'>
+                    <div className='flex flex-col items-center space-y-1'>
                         <label>Response</label>
                         <textarea
                             className='nodrag nopan nowheel text-black rounded-md p-0.5 w-full'
