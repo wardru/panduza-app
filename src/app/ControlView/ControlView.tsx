@@ -262,6 +262,7 @@ const ControlView: React.FC = () => {
         <div
             className='w-full h-full bg-neutral-900 relative'
             ref={setNodeRef}
+            onContextMenu={(e) => e.preventDefault()}
         >
             <ReactFlow
                 proOptions={proOptions}
