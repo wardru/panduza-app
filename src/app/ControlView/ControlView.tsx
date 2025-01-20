@@ -22,6 +22,7 @@ import { Node, applyNodeChanges, OnNodesChange } from '@xyflow/react';
 import { usePlatform } from '../platform';
 
 import BooleanToggleNode from './Nodes/BooleanToggle';
+import BooleanButtonsNode from './Nodes/BooleanButtons';
 import SiSpinnerNode from './Nodes/SiSpinner';
 import NumberSpinnerNode from './Nodes/NumberSpinner';
 import SiDisplay from './Nodes/SiDisplay';
@@ -34,6 +35,7 @@ import ReplNode from './Nodes/Repl';
 
 const nodeTypes = {
     booleantoggle: BooleanToggleNode,
+    booleanbuttons: BooleanButtonsNode,
     sispinner: SiSpinnerNode,
     sispinner_ro: SiDisplay,
     numberspinner: NumberSpinnerNode,
@@ -87,11 +89,10 @@ const ControlView: React.FC = () => {
             console.error(`Attribute type ${att.type} not supported by control view`);
             return false;
         }
-        if (
-            (att.type === 'si' || att.type === 'number' || att.type === 'string' || att.type === 'enum') &&
-            att.mode === 'RO'
-        ) {
+        if (['si', 'number', 'string', 'enum'].includes(att.type) && att.mode === 'RO') {
             type = type + '_ro';
+        } else if (att.type == 'boolean' && att.mode == 'WO') {
+            type = 'booleanbuttons';
         }
 
         const position =
