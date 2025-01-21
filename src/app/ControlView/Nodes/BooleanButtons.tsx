@@ -13,7 +13,7 @@ export type BooleanButtonsNode = Node<{
 }>;
 
 const BooleanButtonsNode: React.FC<NodeProps<BooleanButtonsNode>> = (props) => {
-    const { publish, disabled } = useAttributeBoolListener({
+    const { publish, connected } = useAttributeBoolListener({
         attribute: props.data.attribute,
     });
 
@@ -23,17 +23,15 @@ const BooleanButtonsNode: React.FC<NodeProps<BooleanButtonsNode>> = (props) => {
             classPath={props.data?.attribute.classPath}
             driverName={props.data?.attribute.parentDriver}
             selected={props.selected || false}
-            disabled={disabled}
+            disabled={!connected}
         >
             <div className='flex space-x-4'>
                 <BooleanButtonWidget
                     text={'True'}
-                    disabled={disabled}
                     onClick={() => publish(true)}
                 />
                 <BooleanButtonWidget
                     text={'False'}
-                    disabled={disabled}
                     onClick={() => publish(false)}
                 />
             </div>

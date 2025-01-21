@@ -121,7 +121,7 @@ impl Mqtt {
 
                 _ = &mut shutdown_rx => {
                     *self.network_status.lock().await = ConnectionState::Disconnected;
-                    println!("Shutting down!");
+                    println!("Disconnected!");
                     break ;
                 }
 

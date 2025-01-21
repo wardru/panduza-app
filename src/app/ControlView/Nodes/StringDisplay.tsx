@@ -1,5 +1,3 @@
-import { useState, useCallback } from 'react';
-
 import { Node, NodeProps } from '@xyflow/react';
 
 import { AttributeString } from '@/app/attribute';
@@ -15,14 +13,8 @@ export type StringDisplayNode = Node<{
 }>;
 
 const StringDisplayNode: React.FC<NodeProps<StringDisplayNode>> = (props) => {
-    const [value, setValue] = useState(props.data.attribute.value);
-
-    const { disabled } = useAttributeStringListener({
+    const { value, connected, isFreshValue } = useAttributeStringListener({
         attribute: props.data.attribute,
-        onDisconnect: useCallback(() => {
-            setValue('');
-        }, []),
-        onNewValue: useCallback((value: string) => setValue(value), []),
     });
 
     return (
@@ -31,7 +23,8 @@ const StringDisplayNode: React.FC<NodeProps<StringDisplayNode>> = (props) => {
             classPath={props.data?.attribute.classPath}
             driverName={props.data?.attribute.parentDriver}
             selected={props.selected || false}
-            disabled={disabled}
+            disabled={!connected}
+            animateBorder={isFreshValue}
         >
             <StringDisplayWidget value={value} />
         </AttributeShell>

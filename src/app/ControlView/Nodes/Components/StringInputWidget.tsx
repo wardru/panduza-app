@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 interface StringInputWidgetProps {
     value: string;
     placeholder?: string;
-    disabled: boolean;
+    disabled?: boolean;
     onNewValue: (value: string) => void;
 }
 

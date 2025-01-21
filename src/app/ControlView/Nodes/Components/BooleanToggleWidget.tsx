@@ -1,7 +1,7 @@
 interface BooleanWidgetProps {
     value: boolean;
     readOnly: boolean;
-    disabled: boolean;
+    disabled?: boolean;
     onNewValue: (value: boolean) => void;
 }
 

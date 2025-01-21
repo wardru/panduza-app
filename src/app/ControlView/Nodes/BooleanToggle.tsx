@@ -1,5 +1,3 @@
-import { useState, useCallback } from 'react';
-
 import { Node, NodeProps } from '@xyflow/react';
 
 import AttributeShell from '../AttributeShell';
@@ -13,14 +11,8 @@ export type BooleanToggleNode = Node<{
 }>;
 
 const BooleanToggleNode: React.FC<NodeProps<BooleanToggleNode>> = (props) => {
-    const [value, setValue] = useState<boolean>(props.data.attribute.value);
-
-    const { publish, disabled } = useAttributeBoolListener({
+    const { value, publish, connected, isFreshValue } = useAttributeBoolListener({
         attribute: props.data.attribute,
-        onDisconnect: useCallback(() => {
-            setValue(false);
-        }, []),
-        onNewValue: useCallback((value: boolean) => setValue(value), []),
     });
 
     return (
@@ -29,11 +21,11 @@ const BooleanToggleNode: React.FC<NodeProps<BooleanToggleNode>> = (props) => {
             classPath={props.data?.attribute.classPath}
             driverName={props.data?.attribute.parentDriver}
             selected={props.selected || false}
-            disabled={disabled}
+            disabled={!connected}
+            animateBorder={isFreshValue}
         >
             <BooleanToggleWidget
                 value={value}
-                disabled={disabled}
                 readOnly={props.data?.attribute.mode === 'RO'}
                 onNewValue={publish}
             />

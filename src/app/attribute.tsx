@@ -240,13 +240,13 @@ export class AttributeBool extends Attribute {
     }
 }
 
-interface EnumProps {
+export interface EnumSettings {
     choices: string[];
 }
 
 export class AttributeEnum extends Attribute {
     private _value = '';
-    private _props: EnumProps = {
+    private _props: EnumSettings = {
         choices: [],
     };
     private onAttributeMessage: Channel<Uint8Array>;

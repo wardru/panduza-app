@@ -16,6 +16,14 @@ const config: Config = {
                 primary: 'rgb(var(--color-primary))',
                 secondary: 'rgb(var(--color-secondary))',
             },
+            keyframes: {
+                'border-spin': {
+                    '100%': { transform: 'rotate(-360deg)' },
+                },
+            },
+            animation: {
+                'border-spin': 'border-spin 1.2s infinite ',
+            },
         },
     },
     plugins: [],

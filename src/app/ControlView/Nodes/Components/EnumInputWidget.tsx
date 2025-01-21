@@ -1,6 +1,6 @@
 interface EnumInputWidgetProps {
     value: string;
-    disabled: boolean;
+    disabled?: boolean;
     choices: string[];
     onNewValue: (value: string) => void;
 }

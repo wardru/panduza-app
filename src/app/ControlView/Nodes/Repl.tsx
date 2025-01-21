@@ -1,5 +1,3 @@
-import { useState, useCallback } from 'react';
-
 import { Node, NodeProps } from '@xyflow/react';
 
 import { AttributeString } from '@/app/attribute';
@@ -18,23 +16,16 @@ export type ReplNode = Node<{
 }>;
 
 const ReplNode: React.FC<NodeProps<ReplNode>> = (props) => {
-    const [commandValue, setCommandValue] = useState(props.data.commandAttribute.value);
-    const [responseValue, setResponseValue] = useState(props.data.responseAttribute.value);
-
-    const commandListener = useAttributeStringListener({
+    const { value: commandValue, publish } = useAttributeStringListener({
         attribute: props.data.commandAttribute,
-        onDisconnect: useCallback(() => {
-            setCommandValue('');
-        }, []),
-        onNewValue: useCallback((value: string) => setCommandValue(value), []),
     });
 
-    useAttributeStringListener({
+    const {
+        value: responseValue,
+        isFreshValue,
+        connected,
+    } = useAttributeStringListener({
         attribute: props.data.responseAttribute,
-        onDisconnect: useCallback(() => {
-            setResponseValue('');
-        }, []),
-        onNewValue: useCallback((value: string) => setResponseValue(value), []),
     });
 
     return (
@@ -44,15 +35,15 @@ const ReplNode: React.FC<NodeProps<ReplNode>> = (props) => {
                 classPath={props.data?.commandAttribute.classPath}
                 driverName={props.data?.commandAttribute.parentDriver}
                 selected={props.selected || false}
-                disabled={commandListener.disabled}
+                disabled={!connected}
+                animateBorder={isFreshValue}
             >
                 <div className='flex flex-col space-y-3 text-white w-full'>
                     <div className='flex flex-col items-center space-y-1'>
                         <label>Command</label>
                         <StringInputWidget
                             value={commandValue}
-                            disabled={commandListener.disabled}
-                            onNewValue={commandListener.publish}
+                            onNewValue={publish}
                             placeholder='Enter a command'
                         />
                     </div>

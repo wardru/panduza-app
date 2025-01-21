@@ -1,6 +1,6 @@
 import { ConnectionState, usePlatform } from '../platform';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 
 import { AttributeBool, AttributeString, AttributeEnum, AttributeNumber, AttributeSi } from '@/app/attribute';
 
@@ -8,13 +8,33 @@ interface AttributeBoolListenerProps {
     attribute: AttributeBool;
     onConnect?: () => void;
     onDisconnect?: () => void;
-    onNewValue?: (value: boolean) => void;
 }
 
+const useFreshValue = (duration = 1500) => {
+    const timeoutId = useRef<number | null>(null);
+    const [isFreshValue, setIsFreshValue] = useState(false);
+
+    const triggerFresh = () => {
+        if (timeoutId.current) {
+            clearTimeout(timeoutId.current);
+        }
+
+        setIsFreshValue(true);
+
+        timeoutId.current = window.setTimeout(() => {
+            setIsFreshValue(false);
+        }, duration);
+    };
+
+    return { triggerFresh, isFreshValue };
+};
+
 export const useAttributeBoolListener = (props: AttributeBoolListenerProps) => {
-    const { attribute, onConnect, onDisconnect, onNewValue } = props;
+    const { attribute, onConnect, onDisconnect } = props;
     const [localAttribute, setLocalAttribute] = useState<AttributeBool | null>(attribute);
-    const [disabled, setDisabled] = useState(false);
+    const [connected, setConnected] = useState(false);
+    const [value, setValue] = useState(props.attribute.value);
+    const { triggerFresh, isFreshValue } = useFreshValue();
     const initialAttributeData = useMemo(() => {
         return {
             path: attribute.path,
@@ -27,7 +47,7 @@ export const useAttributeBoolListener = (props: AttributeBoolListenerProps) => {
         if (!localAttribute) return;
 
         if (localAttribute.mode === 'WO') {
-            onNewValue?.(value);
+            setValue(value);
         }
         localAttribute.publish(value);
     };
@@ -49,12 +69,15 @@ export const useAttributeBoolListener = (props: AttributeBoolListenerProps) => {
     useEffect(() => {
         if (!localAttribute) {
             onDisconnect?.();
-            setDisabled(true);
+            setConnected(false);
         } else {
             onConnect?.();
-            setDisabled(false);
+            setConnected(true);
             if (localAttribute.mode !== 'WO') {
-                const updateValue = () => onNewValue?.(localAttribute.value);
+                const updateValue = () => {
+                    setValue(localAttribute.value);
+                    triggerFresh();
+                };
 
                 localAttribute.subscribe(updateValue);
 
@@ -63,22 +86,23 @@ export const useAttributeBoolListener = (props: AttributeBoolListenerProps) => {
                 };
             }
         }
-    }, [localAttribute, onNewValue, onConnect, onDisconnect]);
+    }, [localAttribute, triggerFresh, onConnect, onDisconnect]);
 
-    return { publish, disabled };
+    return { value, publish, connected, isFreshValue };
 };
 
 interface AttributeStringListenerProps {
     attribute: AttributeString;
     onConnect?: () => void;
     onDisconnect?: () => void;
-    onNewValue?: (value: string) => void;
 }
 
 export const useAttributeStringListener = (props: AttributeStringListenerProps) => {
-    const { attribute, onConnect, onDisconnect, onNewValue } = props;
+    const { attribute, onConnect, onDisconnect } = props;
+    const [value, setValue] = useState(props.attribute.value);
     const [localAttribute, setLocalAttribute] = useState<AttributeString | null>(attribute);
-    const [disabled, setDisabled] = useState(false);
+    const [connected, setConnected] = useState(false);
+    const { triggerFresh, isFreshValue } = useFreshValue();
     const initialAttributeData = useMemo(() => {
         return {
             path: attribute.path,
@@ -91,7 +115,7 @@ export const useAttributeStringListener = (props: AttributeStringListenerProps) 
         if (!localAttribute) return;
 
         if (localAttribute.mode === 'WO') {
-            onNewValue?.(value);
+            setValue(value);
         }
         localAttribute.publish(value);
     };
@@ -113,12 +137,15 @@ export const useAttributeStringListener = (props: AttributeStringListenerProps) 
     useEffect(() => {
         if (!localAttribute) {
             onDisconnect?.();
-            setDisabled(true);
+            setConnected(false);
         } else {
             onConnect?.();
-            setDisabled(false);
+            setConnected(true);
             if (localAttribute.mode !== 'WO') {
-                const updateValue = () => onNewValue?.(localAttribute.value);
+                const updateValue = () => {
+                    setValue(localAttribute.value);
+                    triggerFresh();
+                };
 
                 localAttribute.subscribe(updateValue);
 
@@ -127,22 +154,28 @@ export const useAttributeStringListener = (props: AttributeStringListenerProps) 
                 };
             }
         }
-    }, [localAttribute, onNewValue, onConnect, onDisconnect]);
+    }, [localAttribute, triggerFresh, onConnect, onDisconnect]);
 
-    return { publish, disabled };
+    return { value, publish, connected, isFreshValue };
 };
 
 interface AttributeEnumListenerProps {
     attribute: AttributeEnum;
     onConnect?: () => void;
     onDisconnect?: () => void;
-    onNewValue?: (value: string) => void;
 }
 
+import { EnumSettings } from '@/app/attribute';
+
 export const useAttributeEnumListener = (props: AttributeEnumListenerProps) => {
-    const { attribute, onConnect, onDisconnect, onNewValue } = props;
+    const { attribute, onConnect, onDisconnect } = props;
+    const [value, setValue] = useState(props.attribute.value);
+    const [settings, setSettings] = useState<EnumSettings>({
+        choices: props.attribute.choices,
+    });
+    const { triggerFresh, isFreshValue } = useFreshValue();
     const [localAttribute, setLocalAttribute] = useState<AttributeEnum | null>(attribute);
-    const [disabled, setDisabled] = useState(false);
+    const [connected, setConnected] = useState(false);
     const initialAttributeData = useMemo(() => {
         return {
             path: attribute.path,
@@ -155,7 +188,7 @@ export const useAttributeEnumListener = (props: AttributeEnumListenerProps) => {
         if (!localAttribute) return;
 
         if (localAttribute.mode === 'WO') {
-            onNewValue?.(value);
+            setValue(value);
         }
         localAttribute.publish(value);
     };
@@ -177,12 +210,18 @@ export const useAttributeEnumListener = (props: AttributeEnumListenerProps) => {
     useEffect(() => {
         if (!localAttribute) {
             onDisconnect?.();
-            setDisabled(true);
+            setConnected(false);
         } else {
             onConnect?.();
-            setDisabled(false);
+            setConnected(true);
             if (localAttribute.mode !== 'WO') {
-                const updateValue = () => onNewValue?.(localAttribute.value);
+                const updateValue = () => {
+                    setValue(localAttribute.value);
+                    setSettings({
+                        choices: localAttribute.choices,
+                    });
+                    triggerFresh();
+                };
 
                 localAttribute.subscribe(updateValue);
 
@@ -191,22 +230,23 @@ export const useAttributeEnumListener = (props: AttributeEnumListenerProps) => {
                 };
             }
         }
-    }, [localAttribute, onNewValue, onConnect, onDisconnect]);
+    }, [localAttribute, triggerFresh, onConnect, onDisconnect]);
 
-    return { publish, disabled };
+    return { value, settings, publish, connected, isFreshValue };
 };
 
 interface AttributeNumberListenerProps {
     attribute: AttributeNumber;
     onConnect?: () => void;
     onDisconnect?: () => void;
-    onNewValue?: (value: number) => void;
 }
 
 export const useAttributeNumberListener = (props: AttributeNumberListenerProps) => {
-    const { attribute, onConnect, onDisconnect, onNewValue } = props;
+    const { attribute, onConnect, onDisconnect } = props;
     const [localAttribute, setLocalAttribute] = useState<AttributeNumber | null>(attribute);
-    const [disabled, setDisabled] = useState(false);
+    const [connected, setConnected] = useState(false);
+    const [value, setValue] = useState(props.attribute.value);
+    const { triggerFresh, isFreshValue } = useFreshValue();
     const initialAttributeData = useMemo(() => {
         return {
             path: attribute.path,
@@ -219,7 +259,7 @@ export const useAttributeNumberListener = (props: AttributeNumberListenerProps) 
         if (!localAttribute) return;
 
         if (localAttribute.mode === 'WO') {
-            onNewValue?.(value);
+            setValue(value);
         }
         localAttribute.publish(value);
     };
@@ -241,12 +281,15 @@ export const useAttributeNumberListener = (props: AttributeNumberListenerProps) 
     useEffect(() => {
         if (!localAttribute) {
             onDisconnect?.();
-            setDisabled(true);
+            setConnected(false);
         } else {
             onConnect?.();
-            setDisabled(false);
+            setConnected(true);
             if (localAttribute.mode !== 'WO') {
-                const updateValue = () => onNewValue?.(localAttribute.value);
+                const updateValue = () => {
+                    setValue(localAttribute.value);
+                    triggerFresh();
+                };
 
                 localAttribute.subscribe(updateValue);
 
@@ -255,9 +298,9 @@ export const useAttributeNumberListener = (props: AttributeNumberListenerProps) 
                 };
             }
         }
-    }, [localAttribute, onNewValue, onConnect, onDisconnect]);
+    }, [localAttribute, triggerFresh, onConnect, onDisconnect]);
 
-    return { disabled, publish };
+    return { value, isFreshValue, connected, publish };
 };
 
 import { SiSettings } from '@/app/attribute';
@@ -266,12 +309,19 @@ interface AttributeSiListenerProps {
     attribute: AttributeSi;
     onConnect?: () => void;
     onDisconnect?: () => void;
-    onNewData?: (value: number, settings: SiSettings) => void;
 }
 
 export const useAttributeSiListener = (props: AttributeSiListenerProps) => {
-    const { attribute, onConnect, onDisconnect, onNewData } = props;
+    const { attribute, onConnect, onDisconnect } = props;
     const [localAttribute, setLocalAttribute] = useState<AttributeSi | null>(attribute);
+    const [settings, setSettings] = useState<SiSettings>({
+        min: props.attribute.min,
+        max: props.attribute.max,
+        decimals: props.attribute.decimals,
+        unit: props.attribute.unit,
+    });
+    const [value, setValue] = useState(props.attribute.value);
+    const { triggerFresh, isFreshValue } = useFreshValue();
     const initialAttributeData = useMemo(() => {
         return {
             path: attribute.path,
@@ -279,7 +329,7 @@ export const useAttributeSiListener = (props: AttributeSiListenerProps) => {
         };
     }, [attribute]);
 
-    const [disabled, setDisabled] = useState(false);
+    const [connected, setConnected] = useState(false);
 
     const platform = usePlatform();
 
@@ -287,12 +337,7 @@ export const useAttributeSiListener = (props: AttributeSiListenerProps) => {
         if (!localAttribute) return;
 
         if (localAttribute.mode === 'WO') {
-            onNewData?.(value, {
-                min: localAttribute.min,
-                max: localAttribute.max,
-                unit: localAttribute.unit,
-                decimals: localAttribute.decimals,
-            });
+            setValue(value);
         }
         localAttribute.publish(value);
     };
@@ -314,19 +359,21 @@ export const useAttributeSiListener = (props: AttributeSiListenerProps) => {
     useEffect(() => {
         if (!localAttribute) {
             onDisconnect?.();
-            setDisabled(true);
+            setConnected(false);
         } else {
             onConnect?.();
-            setDisabled(false);
+            setConnected(true);
             if (localAttribute.mode !== 'WO') {
-                const updateValue = () =>
-                    onNewData?.(localAttribute.value, {
+                const updateValue = () => {
+                    setValue(localAttribute.value);
+                    setSettings({
                         min: localAttribute.min,
                         max: localAttribute.max,
                         unit: localAttribute.unit,
                         decimals: localAttribute.decimals,
                     });
-
+                    triggerFresh();
+                };
                 localAttribute.subscribe(updateValue);
 
                 return () => {
@@ -334,7 +381,7 @@ export const useAttributeSiListener = (props: AttributeSiListenerProps) => {
                 };
             }
         }
-    }, [localAttribute, onNewData, onConnect, onDisconnect]);
+    }, [localAttribute, onConnect, triggerFresh, onDisconnect]);
 
-    return { disabled, publish };
+    return { value, settings, isFreshValue, connected, publish };
 };

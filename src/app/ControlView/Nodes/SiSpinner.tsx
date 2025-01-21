@@ -1,8 +1,6 @@
-import { useCallback, useState } from 'react';
-
 import { Node, NodeProps } from '@xyflow/react';
 
-import { AttributeSi, SiSettings } from '@/app/attribute';
+import { AttributeSi } from '@/app/attribute';
 
 import NumberSpinnerWidget from './Components/NumberSpinnerWidget';
 
@@ -15,23 +13,8 @@ export type SiSpinnerNode = Node<{
 }>;
 
 const SiSpinnerNode: React.FC<NodeProps<SiSpinnerNode>> = (props) => {
-    const [value, setValue] = useState(props.data.attribute.value);
-    const [siSettings, setSiSettings] = useState<SiSettings>({
-        min: props.data?.attribute.min,
-        max: props.data?.attribute.max,
-        decimals: props.data?.attribute.decimals,
-        unit: props.data?.attribute.unit,
-    });
-
-    const { disabled, publish } = useAttributeSiListener({
+    const { value, settings, isFreshValue, connected, publish } = useAttributeSiListener({
         attribute: props.data.attribute,
-        onDisconnect: useCallback(() => {
-            setValue(0);
-        }, []),
-        onNewData: useCallback((value: number, settings: SiSettings) => {
-            setValue(value);
-            setSiSettings(settings);
-        }, []),
     });
 
     return (
@@ -40,15 +23,15 @@ const SiSpinnerNode: React.FC<NodeProps<SiSpinnerNode>> = (props) => {
             classPath={props.data?.attribute.classPath}
             driverName={props.data?.attribute.parentDriver}
             selected={props.selected || false}
-            disabled={disabled}
+            disabled={!connected}
+            animateBorder={isFreshValue}
         >
             <NumberSpinnerWidget
                 value={value}
-                disabled={disabled}
                 onNewValue={publish}
-                min={siSettings.min}
-                max={siSettings.max}
-                unit={siSettings.unit}
+                min={settings.min}
+                max={settings.max}
+                unit={settings.unit}
             />
         </AttributeShell>
     );

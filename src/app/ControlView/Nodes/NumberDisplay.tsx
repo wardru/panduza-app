@@ -1,5 +1,3 @@
-import { useState, useCallback } from 'react';
-
 import { Node, NodeProps } from '@xyflow/react';
 
 import { AttributeNumber } from '@/app/attribute';
@@ -15,14 +13,8 @@ export type NumberDisplayNode = Node<{
 }>;
 
 const NumberDisplayNode: React.FC<NodeProps<NumberDisplayNode>> = (props) => {
-    const [value, setValue] = useState(props.data.attribute.value);
-
-    const { disabled } = useAttributeNumberListener({
+    const { value, isFreshValue, connected } = useAttributeNumberListener({
         attribute: props.data.attribute,
-        onDisconnect: useCallback(() => {
-            setValue(0);
-        }, []),
-        onNewValue: useCallback((value: number) => setValue(value), []),
     });
 
     return (
@@ -31,7 +23,8 @@ const NumberDisplayNode: React.FC<NodeProps<NumberDisplayNode>> = (props) => {
             classPath={props.data?.attribute.classPath}
             driverName={props.data?.attribute.parentDriver}
             selected={props.selected || false}
-            disabled={disabled}
+            disabled={!connected}
+            animateBorder={isFreshValue}
         >
             <NumberDisplayWidget value={value} />
         </AttributeShell>

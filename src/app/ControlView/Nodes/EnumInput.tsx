@@ -1,5 +1,3 @@
-import { useState, useCallback } from 'react';
-
 import { Node, NodeProps } from '@xyflow/react';
 
 import AttributeShell from '../AttributeShell';
@@ -14,16 +12,11 @@ export type EnumInputNode = Node<{
 }>;
 
 const EnumInputNode: React.FC<NodeProps<EnumInputNode>> = (props) => {
-    const [value, setValue] = useState(props.data.attribute.value);
     //TODO: Implement error handling https://github.com/Panduza/panduza-app/issues/65
     //const [error, setError] = useState<string | null>(null);
 
-    const { publish, disabled } = useAttributeEnumListener({
+    const { value, settings, isFreshValue, publish, connected } = useAttributeEnumListener({
         attribute: props.data.attribute,
-        onDisconnect: useCallback(() => {
-            setValue('');
-        }, []),
-        onNewValue: useCallback((value: string) => setValue(value), []),
     });
 
     return (
@@ -32,13 +25,13 @@ const EnumInputNode: React.FC<NodeProps<EnumInputNode>> = (props) => {
             classPath={props.data?.attribute.classPath}
             driverName={props.data?.attribute.parentDriver}
             selected={props.selected || false}
-            disabled={disabled}
+            disabled={!connected}
+            animateBorder={isFreshValue}
         >
             <EnumInputWidget
                 value={value}
-                disabled={disabled}
                 onNewValue={publish}
-                choices={props.data?.attribute.choices}
+                choices={settings.choices}
             />
         </AttributeShell>
     );

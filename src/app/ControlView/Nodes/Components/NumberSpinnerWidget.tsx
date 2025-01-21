@@ -5,7 +5,7 @@ interface NumberSpinnerWidgetProps {
     min?: number;
     max?: number;
     unit?: string;
-    disabled: boolean;
+    disabled?: boolean;
     onNewValue: (value: number) => void;
 }
 
