@@ -5,7 +5,7 @@ import { AttributeNumber } from '@/app/attribute';
 
 import { useAttributeNumberListener } from '../AttributeListener';
 
-import NumberSpinnerWidget from './Components/NumberSpinnerWidget';
+import NumberSpinner from './Widgets/NumberSpinner';
 
 export type NumberSpinnerNode = Node<{
     attribute: AttributeNumber;
@@ -28,7 +28,7 @@ const NumberSpinnerNode: React.FC<NodeProps<NumberSpinnerNode>> = (props) => {
             disabled={!connected}
             animateBorder={isFreshValue}
         >
-            <NumberSpinnerWidget
+            <NumberSpinner
                 value={value}
                 onNewValue={publish}
             />

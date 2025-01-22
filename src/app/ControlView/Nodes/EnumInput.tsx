@@ -5,7 +5,7 @@ import { AttributeEnum } from '@/app/attribute';
 
 import { useAttributeEnumListener } from '../AttributeListener';
 
-import EnumInputWidget from './Components/EnumInputWidget';
+import EnumInput from './Widgets/EnumInput';
 
 export type EnumInputNode = Node<{
     attribute: AttributeEnum;
@@ -28,7 +28,7 @@ const EnumInputNode: React.FC<NodeProps<EnumInputNode>> = (props) => {
             disabled={!connected}
             animateBorder={isFreshValue}
         >
-            <EnumInputWidget
+            <EnumInput
                 value={value}
                 onNewValue={publish}
                 choices={settings.choices}

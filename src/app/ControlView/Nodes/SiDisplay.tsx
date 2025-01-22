@@ -4,7 +4,7 @@ import NodeShell from '../NodeShell';
 import { AttributeSi } from '@/app/attribute';
 
 import { useAttributeSiListener } from '../AttributeListener';
-import NumberDisplayWidget from './Components/NumberDisplayWidget';
+import NumberDisplay from './Widgets/NumberDisplay';
 
 export type SiDisplayNode = Node<{
     attribute: AttributeSi;
@@ -24,7 +24,7 @@ const SiDisplayNode: React.FC<NodeProps<SiDisplayNode>> = (props) => {
             disabled={!connected}
             animateBorder={isFreshValue}
         >
-            <NumberDisplayWidget
+            <NumberDisplay
                 value={value}
                 unit={settings.unit || ''}
             />

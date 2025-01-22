@@ -136,7 +136,6 @@ const ControlView: React.FC = () => {
         //TODO: taking the first tag for now, need to implement tag selection in a context menu probably
 
         if (iclass.tags.length === 0) {
-            //TODO: create individual attribute nodes in this case
             const position =
                 customPosition ||
                 flow.screenToFlowPosition({

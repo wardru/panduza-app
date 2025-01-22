@@ -2,7 +2,7 @@ import { Node, NodeProps } from '@xyflow/react';
 
 import { AttributeSi } from '@/app/attribute';
 
-import NumberSpinnerWidget from './Components/NumberSpinnerWidget';
+import NumberSpinner from './Widgets/NumberSpinner';
 
 import NodeShell from '../NodeShell';
 
@@ -26,7 +26,7 @@ const SiSpinnerNode: React.FC<NodeProps<SiSpinnerNode>> = (props) => {
             disabled={!connected}
             animateBorder={isFreshValue}
         >
-            <NumberSpinnerWidget
+            <NumberSpinner
                 value={value}
                 onNewValue={publish}
                 min={settings.min}

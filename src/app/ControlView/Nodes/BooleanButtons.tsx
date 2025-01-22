@@ -6,7 +6,7 @@ import { useAttributeBoolListener } from '../AttributeListener';
 
 import NodeShell from '@/app/ControlView/NodeShell';
 
-import BooleanButtonWidget from './Components/BooleanButtonWidget';
+import BooleanButton from './Widgets/BooleanButton';
 
 export type BooleanButtonsNode = Node<{
     attribute: AttributeBool;
@@ -26,11 +26,11 @@ const BooleanButtonsNode: React.FC<NodeProps<BooleanButtonsNode>> = (props) => {
             disabled={!connected}
         >
             <div className='flex space-x-4'>
-                <BooleanButtonWidget
+                <BooleanButton
                     text={'True'}
                     onClick={() => publish(true)}
                 />
-                <BooleanButtonWidget
+                <BooleanButton
                     text={'False'}
                     onClick={() => publish(false)}
                 />

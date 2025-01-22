@@ -6,7 +6,7 @@ import { useAttributeNumberListener } from '../AttributeListener';
 
 import NodeShell from '../NodeShell';
 
-import NumberDisplayWidget from './Components/NumberDisplayWidget';
+import NumberDisplay from './Widgets/NumberDisplay';
 
 export type NumberDisplayNode = Node<{
     attribute: AttributeNumber;
@@ -26,7 +26,7 @@ const NumberDisplayNode: React.FC<NodeProps<NumberDisplayNode>> = (props) => {
             disabled={!connected}
             animateBorder={isFreshValue}
         >
-            <NumberDisplayWidget value={value} />
+            <NumberDisplay value={value} />
         </NodeShell>
     );
 };

@@ -1,10 +1,10 @@
-interface BooleanButtonWidgetProps {
+interface BooleanButtonProps {
     text: string;
     disabled?: boolean;
     onClick: () => void;
 }
 
-const BooleanButtonWidget: React.FC<BooleanButtonWidgetProps> = (props) => {
+const BooleanButton: React.FC<BooleanButtonProps> = (props) => {
     return (
         <button
             className='nodrag nopan px-4 py-2 bg-green-800 text-white rounded-lg active:scale-95'
@@ -19,4 +19,4 @@ const BooleanButtonWidget: React.FC<BooleanButtonWidgetProps> = (props) => {
     );
 };
 
-export default BooleanButtonWidget;
+export default BooleanButton;

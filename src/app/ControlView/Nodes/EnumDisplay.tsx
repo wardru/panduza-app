@@ -6,7 +6,7 @@ import NodeShell from '../NodeShell';
 
 import { useAttributeEnumListener } from '../AttributeListener';
 
-import StringDisplayWidget from './Components/StringDisplayWidget';
+import StringDisplay from './Widgets/StringDisplay';
 
 export type EnumDisplayNode = Node<{
     attribute: AttributeEnum;
@@ -26,7 +26,7 @@ const EnumDisplayNode: React.FC<NodeProps<EnumDisplayNode>> = (props) => {
             disabled={!connected}
             animateBorder={isFreshValue}
         >
-            <StringDisplayWidget value={value} />
+            <StringDisplay value={value} />
         </NodeShell>
     );
 };

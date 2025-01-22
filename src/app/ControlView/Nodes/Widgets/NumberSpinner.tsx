@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-interface NumberSpinnerWidgetProps {
+interface NumberSpinnerProps {
     value: number;
     min?: number;
     max?: number;
@@ -15,7 +15,7 @@ function clamp(value: number, min: number, max: number): number {
     return value;
 }
 
-const NumberSpinnerWidget: React.FC<NumberSpinnerWidgetProps> = (props) => {
+const NumberSpinner: React.FC<NumberSpinnerProps> = (props) => {
     const INITIAL_DELAY = 800; //ms
     const FINAL_DELAY = 80; //ms
 
@@ -160,4 +160,4 @@ const NumberSpinnerWidget: React.FC<NumberSpinnerWidgetProps> = (props) => {
     );
 };
 
-export default NumberSpinnerWidget;
+export default NumberSpinner;

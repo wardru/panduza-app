@@ -1,8 +1,8 @@
-interface StringDisplayWidgetProps {
+interface StringDisplayProps {
     value: string;
 }
 
-const StringDisplayWidget: React.FC<StringDisplayWidgetProps> = (props) => {
+const StringDisplay: React.FC<StringDisplayProps> = (props) => {
     return (
         <textarea
             onClick={(e) => e.stopPropagation()}
@@ -14,4 +14,4 @@ const StringDisplayWidget: React.FC<StringDisplayWidgetProps> = (props) => {
     );
 };
 
-export default StringDisplayWidget;
+export default StringDisplay;

@@ -1,11 +1,11 @@
-interface EnumInputWidgetProps {
+interface EnumInputProps {
     value: string;
     disabled?: boolean;
     choices: string[];
     onNewValue: (value: string) => void;
 }
 
-const EnumInputWidget: React.FC<EnumInputWidgetProps> = (props) => {
+const EnumInput: React.FC<EnumInputProps> = (props) => {
     const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         props.onNewValue(event.currentTarget.value);
     };
@@ -24,4 +24,4 @@ const EnumInputWidget: React.FC<EnumInputWidgetProps> = (props) => {
     );
 };
 
-export default EnumInputWidget;
+export default EnumInput;

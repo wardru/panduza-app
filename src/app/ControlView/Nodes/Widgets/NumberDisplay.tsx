@@ -1,9 +1,9 @@
-interface NumberDisplayWidgetProps {
+interface NumberDisplayProps {
     value: number;
     unit?: string;
 }
 
-const NumberDisplayWidget: React.FC<NumberDisplayWidgetProps> = (props) => {
+const NumberDisplay: React.FC<NumberDisplayProps> = (props) => {
     return (
         <div
             onClick={(e) => e.stopPropagation()}
@@ -15,4 +15,4 @@ const NumberDisplayWidget: React.FC<NumberDisplayWidgetProps> = (props) => {
     );
 };
 
-export default NumberDisplayWidget;
+export default NumberDisplay;

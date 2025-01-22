@@ -4,7 +4,7 @@ import NodeShell from '../NodeShell';
 import { AttributeBool } from '@/app/attribute';
 import { useAttributeBoolListener } from '../AttributeListener';
 
-import BooleanToggleWidget from './Components/BooleanToggleWidget';
+import BooleanToggle from './Widgets/BooleanToggle';
 
 export type BooleanToggleNode = Node<{
     attribute: AttributeBool;
@@ -24,7 +24,7 @@ const BooleanToggleNode: React.FC<NodeProps<BooleanToggleNode>> = (props) => {
             disabled={!connected}
             animateBorder={isFreshValue}
         >
-            <BooleanToggleWidget
+            <BooleanToggle
                 value={value}
                 readOnly={props.data?.attribute.mode === 'RO'}
                 onNewValue={publish}

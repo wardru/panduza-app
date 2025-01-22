@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 
-interface StringInputWidgetProps {
+interface StringInputProps {
     value: string;
     placeholder?: string;
     disabled?: boolean;
     onNewValue: (value: string) => void;
 }
 
-const StringInputWidget: React.FC<StringInputWidgetProps> = (props) => {
+const StringInput: React.FC<StringInputProps> = (props) => {
     const [value, setValue] = useState(props.value);
 
     useEffect(() => {
@@ -56,4 +56,4 @@ const StringInputWidget: React.FC<StringInputWidgetProps> = (props) => {
     );
 };
 
-export default StringInputWidget;
+export default StringInput;

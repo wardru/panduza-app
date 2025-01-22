@@ -6,7 +6,7 @@ import { useAttributeStringListener } from '../AttributeListener';
 
 import NodeShell from '../NodeShell';
 
-import StringInputWidget from './Components/StringInputWidget';
+import StringInput from './Widgets/StringInput';
 
 import '@xyflow/react/dist/style.css';
 
@@ -41,7 +41,7 @@ const ReplNode: React.FC<NodeProps<ReplNode>> = (props) => {
                 <div className='flex flex-col space-y-3 text-white w-full'>
                     <div className='flex flex-col items-center space-y-1'>
                         <label>Command</label>
-                        <StringInputWidget
+                        <StringInput
                             value={commandValue}
                             onNewValue={publish}
                             placeholder='Enter a command'

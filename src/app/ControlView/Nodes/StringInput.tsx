@@ -5,7 +5,7 @@ import { AttributeString } from '@/app/attribute';
 
 import { useAttributeStringListener } from '../AttributeListener';
 
-import StringInputWidget from './Components/StringInputWidget';
+import StringInput from './Widgets/StringInput';
 
 export type StringInputNode = Node<{
     attribute: AttributeString;
@@ -32,7 +32,7 @@ const StringInputNode: React.FC<NodeProps<StringInputNode>> = (props) => {
                 className='flex items-center'
                 onClick={(e) => e.stopPropagation()}
             >
-                <StringInputWidget
+                <StringInput
                     value={value}
                     placeholder='Enter a string'
                     onNewValue={publish}

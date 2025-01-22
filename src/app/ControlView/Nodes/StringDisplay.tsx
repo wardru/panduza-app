@@ -6,7 +6,7 @@ import NodeShell from '../NodeShell';
 
 import { useAttributeStringListener } from '../AttributeListener';
 
-import StringDisplayWidget from './Components/StringDisplayWidget';
+import StringDisplay from './Widgets/StringDisplay';
 
 export type StringDisplayNode = Node<{
     attribute: AttributeString;
@@ -26,7 +26,7 @@ const StringDisplayNode: React.FC<NodeProps<StringDisplayNode>> = (props) => {
             disabled={!connected}
             animateBorder={isFreshValue}
         >
-            <StringDisplayWidget value={value} />
+            <StringDisplay value={value} />
         </NodeShell>
     );
 };

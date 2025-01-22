@@ -5,7 +5,7 @@ interface BooleanWidgetProps {
     onNewValue: (value: boolean) => void;
 }
 
-const BooleanToggleWidget: React.FC<BooleanWidgetProps> = (props) => {
+const BooleanToggle: React.FC<BooleanWidgetProps> = (props) => {
     return (
         <div className='nodrag nopan flex justify-center items-center'>
             <label
@@ -30,4 +30,4 @@ const BooleanToggleWidget: React.FC<BooleanWidgetProps> = (props) => {
     );
 };
 
-export default BooleanToggleWidget;
+export default BooleanToggle;

@@ -18,7 +18,7 @@ const FileUploader: React.FC<NodeProps> = (props) => {
     const platform = usePlatform();
 
     useEffect(() => {
-        setIsDisabled(platform.connectionState === ConnectionState.Connected ? false : true);
+        setIsDisabled(platform.connectionState !== ConnectionState.Connected);
     }, [platform.connectionState]);
 
     const openFileAndSendToBackend = async () => {
