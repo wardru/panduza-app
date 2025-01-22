@@ -1,6 +1,6 @@
 import { Node, NodeProps } from '@xyflow/react';
 
-import AttributeShell from '../AttributeShell';
+import NodeShell from '../NodeShell';
 import { AttributeEnum } from '@/app/attribute';
 
 import { useAttributeEnumListener } from '../AttributeListener';
@@ -20,10 +20,10 @@ const EnumInputNode: React.FC<NodeProps<EnumInputNode>> = (props) => {
     });
 
     return (
-        <AttributeShell
-            attributeName={props.data?.attribute.name}
-            classPath={props.data?.attribute.classPath}
-            driverName={props.data?.attribute.parentDriver}
+        <NodeShell
+            topLeft={props.data?.attribute.name}
+            topRight={props.data?.attribute.classPath}
+            bottomRight={props.data?.attribute.parentDriver}
             selected={props.selected || false}
             disabled={!connected}
             animateBorder={isFreshValue}
@@ -33,7 +33,7 @@ const EnumInputNode: React.FC<NodeProps<EnumInputNode>> = (props) => {
                 onNewValue={publish}
                 choices={settings.choices}
             />
-        </AttributeShell>
+        </NodeShell>
     );
 };
 

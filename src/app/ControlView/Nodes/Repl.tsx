@@ -4,7 +4,7 @@ import { AttributeString } from '@/app/attribute';
 
 import { useAttributeStringListener } from '../AttributeListener';
 
-import AttributeShell from '../AttributeShell';
+import NodeShell from '../NodeShell';
 
 import StringInputWidget from './Components/StringInputWidget';
 
@@ -30,10 +30,10 @@ const ReplNode: React.FC<NodeProps<ReplNode>> = (props) => {
 
     return (
         <>
-            <AttributeShell
-                attributeName={'REPL'}
-                classPath={props.data?.commandAttribute.classPath}
-                driverName={props.data?.commandAttribute.parentDriver}
+            <NodeShell
+                topLeft={'REPL'}
+                topRight={props.data?.commandAttribute.classPath}
+                bottomRight={props.data?.commandAttribute.parentDriver}
                 selected={props.selected || false}
                 disabled={!connected}
                 animateBorder={isFreshValue}
@@ -57,7 +57,7 @@ const ReplNode: React.FC<NodeProps<ReplNode>> = (props) => {
                         />
                     </div>
                 </div>
-            </AttributeShell>
+            </NodeShell>
         </>
     );
 };

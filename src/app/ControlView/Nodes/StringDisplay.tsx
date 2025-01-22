@@ -2,7 +2,7 @@ import { Node, NodeProps } from '@xyflow/react';
 
 import { AttributeString } from '@/app/attribute';
 
-import AttributeShell from '../AttributeShell';
+import NodeShell from '../NodeShell';
 
 import { useAttributeStringListener } from '../AttributeListener';
 
@@ -18,16 +18,16 @@ const StringDisplayNode: React.FC<NodeProps<StringDisplayNode>> = (props) => {
     });
 
     return (
-        <AttributeShell
-            attributeName={props.data?.attribute.name}
-            classPath={props.data?.attribute.classPath}
-            driverName={props.data?.attribute.parentDriver}
+        <NodeShell
+            topLeft={props.data?.attribute.name}
+            topRight={props.data?.attribute.classPath}
+            bottomRight={props.data?.attribute.parentDriver}
             selected={props.selected || false}
             disabled={!connected}
             animateBorder={isFreshValue}
         >
             <StringDisplayWidget value={value} />
-        </AttributeShell>
+        </NodeShell>
     );
 };
 

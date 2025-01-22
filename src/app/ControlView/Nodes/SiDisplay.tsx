@@ -1,6 +1,6 @@
 import { Node, NodeProps } from '@xyflow/react';
 
-import AttributeShell from '../AttributeShell';
+import NodeShell from '../NodeShell';
 import { AttributeSi } from '@/app/attribute';
 
 import { useAttributeSiListener } from '../AttributeListener';
@@ -16,10 +16,10 @@ const SiDisplayNode: React.FC<NodeProps<SiDisplayNode>> = (props) => {
     });
 
     return (
-        <AttributeShell
-            attributeName={props.data?.attribute.name}
-            classPath={props.data?.attribute.classPath}
-            driverName={props.data?.attribute.parentDriver}
+        <NodeShell
+            topLeft={props.data?.attribute.name}
+            topRight={props.data?.attribute.classPath}
+            bottomRight={props.data?.attribute.parentDriver}
             selected={props.selected || false}
             disabled={!connected}
             animateBorder={isFreshValue}
@@ -28,7 +28,7 @@ const SiDisplayNode: React.FC<NodeProps<SiDisplayNode>> = (props) => {
                 value={value}
                 unit={settings.unit || ''}
             />
-        </AttributeShell>
+        </NodeShell>
     );
 };
 

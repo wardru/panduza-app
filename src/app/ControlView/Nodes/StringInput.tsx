@@ -1,6 +1,6 @@
 import { Node, NodeProps } from '@xyflow/react';
 
-import AttributeShell from '../AttributeShell';
+import NodeShell from '../NodeShell';
 import { AttributeString } from '@/app/attribute';
 
 import { useAttributeStringListener } from '../AttributeListener';
@@ -20,10 +20,10 @@ const StringInputNode: React.FC<NodeProps<StringInputNode>> = (props) => {
     });
 
     return (
-        <AttributeShell
-            attributeName={props.data?.attribute.name}
-            classPath={props.data?.attribute.classPath}
-            driverName={props.data?.attribute.parentDriver}
+        <NodeShell
+            topLeft={props.data?.attribute.name}
+            topRight={props.data?.attribute.classPath}
+            bottomRight={props.data?.attribute.parentDriver}
             selected={props.selected || false}
             disabled={!connected}
             animateBorder={isFreshValue}
@@ -38,7 +38,7 @@ const StringInputNode: React.FC<NodeProps<StringInputNode>> = (props) => {
                     onNewValue={publish}
                 />
             </div>
-        </AttributeShell>
+        </NodeShell>
     );
 };
 

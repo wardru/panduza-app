@@ -1,6 +1,6 @@
 import { Node, NodeProps } from '@xyflow/react';
 
-import AttributeShell from '../AttributeShell';
+import NodeShell from '../NodeShell';
 import { AttributeNumber } from '@/app/attribute';
 
 import { useAttributeNumberListener } from '../AttributeListener';
@@ -20,10 +20,10 @@ const NumberSpinnerNode: React.FC<NodeProps<NumberSpinnerNode>> = (props) => {
     //const [error, setError] = useState<string | null>(null);
 
     return (
-        <AttributeShell
-            attributeName={props.data?.attribute.name}
-            classPath={props.data?.attribute.classPath}
-            driverName={props.data?.attribute.parentDriver}
+        <NodeShell
+            topLeft={props.data?.attribute.name}
+            topRight={props.data?.attribute.classPath}
+            bottomRight={props.data?.attribute.parentDriver}
             selected={props.selected || false}
             disabled={!connected}
             animateBorder={isFreshValue}
@@ -32,7 +32,7 @@ const NumberSpinnerNode: React.FC<NodeProps<NumberSpinnerNode>> = (props) => {
                 value={value}
                 onNewValue={publish}
             />
-        </AttributeShell>
+        </NodeShell>
     );
 };
 

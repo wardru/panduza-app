@@ -4,7 +4,7 @@ import { AttributeNumber } from '@/app/attribute';
 
 import { useAttributeNumberListener } from '../AttributeListener';
 
-import AttributeShell from '../AttributeShell';
+import NodeShell from '../NodeShell';
 
 import NumberDisplayWidget from './Components/NumberDisplayWidget';
 
@@ -18,16 +18,16 @@ const NumberDisplayNode: React.FC<NodeProps<NumberDisplayNode>> = (props) => {
     });
 
     return (
-        <AttributeShell
-            attributeName={props.data?.attribute.name}
-            classPath={props.data?.attribute.classPath}
-            driverName={props.data?.attribute.parentDriver}
+        <NodeShell
+            topLeft={props.data?.attribute.name}
+            topRight={props.data?.attribute.classPath}
+            bottomRight={props.data?.attribute.parentDriver}
             selected={props.selected || false}
             disabled={!connected}
             animateBorder={isFreshValue}
         >
             <NumberDisplayWidget value={value} />
-        </AttributeShell>
+        </NodeShell>
     );
 };
 

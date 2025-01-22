@@ -4,7 +4,7 @@ import { AttributeBool } from '@/app/attribute';
 
 import { useAttributeBoolListener } from '../AttributeListener';
 
-import AttributeShell from '@/app/ControlView/AttributeShell';
+import NodeShell from '@/app/ControlView/NodeShell';
 
 import BooleanButtonWidget from './Components/BooleanButtonWidget';
 
@@ -18,10 +18,10 @@ const BooleanButtonsNode: React.FC<NodeProps<BooleanButtonsNode>> = (props) => {
     });
 
     return (
-        <AttributeShell
-            attributeName={props.data?.attribute.name}
-            classPath={props.data?.attribute.classPath}
-            driverName={props.data?.attribute.parentDriver}
+        <NodeShell
+            topLeft={props.data?.attribute.name}
+            topRight={props.data?.attribute.classPath}
+            bottomRight={props.data?.attribute.parentDriver}
             selected={props.selected || false}
             disabled={!connected}
         >
@@ -35,7 +35,7 @@ const BooleanButtonsNode: React.FC<NodeProps<BooleanButtonsNode>> = (props) => {
                     onClick={() => publish(false)}
                 />
             </div>
-        </AttributeShell>
+        </NodeShell>
     );
 };
 

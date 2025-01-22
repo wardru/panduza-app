@@ -4,7 +4,7 @@ import { AttributeSi } from '@/app/attribute';
 
 import NumberSpinnerWidget from './Components/NumberSpinnerWidget';
 
-import AttributeShell from '../AttributeShell';
+import NodeShell from '../NodeShell';
 
 import { useAttributeSiListener } from '../AttributeListener';
 
@@ -18,10 +18,10 @@ const SiSpinnerNode: React.FC<NodeProps<SiSpinnerNode>> = (props) => {
     });
 
     return (
-        <AttributeShell
-            attributeName={props.data?.attribute.name}
-            classPath={props.data?.attribute.classPath}
-            driverName={props.data?.attribute.parentDriver}
+        <NodeShell
+            topLeft={props.data?.attribute.name}
+            topRight={props.data?.attribute.classPath}
+            bottomRight={props.data?.attribute.parentDriver}
             selected={props.selected || false}
             disabled={!connected}
             animateBorder={isFreshValue}
@@ -33,7 +33,7 @@ const SiSpinnerNode: React.FC<NodeProps<SiSpinnerNode>> = (props) => {
                 max={settings.max}
                 unit={settings.unit}
             />
-        </AttributeShell>
+        </NodeShell>
     );
 };
 
