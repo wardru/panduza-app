@@ -3,6 +3,7 @@ import { useDroppable, useDndMonitor } from '@dnd-kit/core';
 import { v4 as uuidv4 } from 'uuid';
 
 import { IClass } from '../structure';
+import { useUndoRedo } from './UndoRedo';
 
 import {
     ReactFlow,
@@ -12,6 +13,9 @@ import {
     SelectionMode,
     Background,
     useReactFlow,
+    OnNodesDelete,
+    OnNodeDrag,
+    SelectionDragHandler,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import '../../styles/globals.css';
@@ -54,9 +58,12 @@ const ControlView: React.FC = () => {
     const { active, setNodeRef, isOver } = useDroppable({
         id: 'controlview',
     });
+
     const [nodes, setNodes] = useState<Node[]>([]);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isUnlocked, setIsUnlocked] = useState(true);
+    const { takeSnapshot } = useUndoRedo();
+
     const flow = useReactFlow();
     const platform = usePlatform();
 
@@ -251,6 +258,7 @@ const ControlView: React.FC = () => {
                 } else if (type === 'driver') {
                     createDriverNode(path);
                 }
+                takeSnapshot();
             }
         },
     });
@@ -260,6 +268,18 @@ const ControlView: React.FC = () => {
         [setNodes]
     );
 
+    const onNodesDelete: OnNodesDelete = useCallback(() => {
+        takeSnapshot();
+    }, [takeSnapshot]);
+
+    const onNodeDragStart: OnNodeDrag = useCallback(() => {
+        takeSnapshot();
+    }, [takeSnapshot]);
+
+    const onSelectionDragStart: SelectionDragHandler = useCallback(() => {
+        takeSnapshot();
+    }, [takeSnapshot]);
+
     return (
         <div
             className='w-full h-full bg-neutral-900 relative'
@@ -267,10 +287,13 @@ const ControlView: React.FC = () => {
             onContextMenu={(e) => e.preventDefault()}
         >
             <ReactFlow
+                nodes={nodes}
+                nodeTypes={nodeTypes}
                 proOptions={proOptions}
                 onNodesChange={onNodesChange}
-                nodeTypes={nodeTypes}
-                nodes={nodes}
+                onNodesDelete={onNodesDelete}
+                onNodeDragStart={onNodeDragStart}
+                onSelectionDragStart={onSelectionDragStart}
                 deleteKeyCode={['Backspace', 'Delete']}
                 elevateNodesOnSelect
                 selectionKeyCode={''}
