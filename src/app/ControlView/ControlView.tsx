@@ -272,9 +272,9 @@ const ControlView: React.FC = () => {
                 nodeTypes={nodeTypes}
                 nodes={nodes}
                 deleteKeyCode={['Backspace', 'Delete']}
-                elevateNodesOnSelect={false}
+                elevateNodesOnSelect
                 selectionKeyCode={''}
-                selectionOnDrag={true}
+                selectionOnDrag
                 selectionMode={SelectionMode.Partial}
                 panOnDrag={[1]}
                 //

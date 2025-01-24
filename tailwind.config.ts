@@ -17,12 +17,12 @@ const config: Config = {
                 secondary: 'rgb(var(--color-secondary))',
             },
             keyframes: {
-                'border-spin': {
+                spin: {
                     '100%': { transform: 'rotate(-360deg)' },
                 },
             },
             animation: {
-                'border-spin': 'border-spin 1.2s infinite ',
+                spin: 'spin 1.2s infinite ',
             },
         },
     },

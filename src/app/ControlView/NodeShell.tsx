@@ -16,8 +16,10 @@ const NodeShell = (props: NodeShellProps) => {
                 ${props.disabled ? '  opacity-60 pointer-events-none' : 'pointer-events-auto'}
                 `}
         >
-            <div className={` ${props.animateBorder ? 'animated-wrapper' : 'animated-wrapper fade-out'}`}>
-                <div className='flex-grow toto'>
+            <div
+                className={` ${props.animateBorder ? 'nodeshell-animated-wrapper' : 'nodeshell-animated-wrapper fade-out'}`}
+            >
+                <div className='flex-grow nodeshell-wrapper-content'>
                     {/* Header */}
                     {}{' '}
                     <div className='flex justify-between rounded-t-md px-2 py-1 bg-opacity-75 mb-4 bg-orange-500'>

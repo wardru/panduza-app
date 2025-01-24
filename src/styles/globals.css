@@ -28,23 +28,23 @@
 }
 
 @layer utilities {
-    .animated-wrapper {
+    .nodeshell-animated-wrapper {
         @apply relative rounded-md flex items-center justify-center overflow-hidden;
     }
 
-    .animated-wrapper::before {
+    .nodeshell-animated-wrapper::before {
         background: conic-gradient(rgba(233, 121, 255, 0.763) 0deg 90deg, transparent 180deg);
 
         @apply absolute content-[''] rounded-md
             h-[200%] w-[200%] 
-            animate-border-spin transition-opacity duration-1000;
+            animate-spin transition-opacity duration-1000;
     }
 
-    .animated-wrapper.fade-out::before {
+    .nodeshell-animated-wrapper.fade-out::before {
         @apply opacity-0;
     }
 
-    .toto {
+    .nodeshell-wrapper-content {
         @apply relative bg-gray-800 rounded-md m-0.5;
     }
 }
