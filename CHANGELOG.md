@@ -2,6 +2,12 @@
 
 ## [Unreleased] - YYYY-MM-DD
 
+### Changed
+
+- Renamed attribute method setValue() to more descriptive publish()
+- Renamed tree_panel to explorer
+- Renamed Info Panel to Properties to express that these are attribute properties
+
 ### Added
 
 - Added node animation on new platform data
@@ -18,16 +24,15 @@
 - Added basic premliminary widget for future attribute of type file
 - Added memory command attribute skeleton
 
+### Removed
+
+- Removed attribute instantiation on the Info Panel, since it's available via ControlView
+
 ### Fixed
 
 - Fixed treeview drag and drop #18
 - Fixed crash on unknown attributes
 - Fixed key identifier issue on info panel widgets
-
-### Changed
-
-- Renamed attribute method setValue() to more descriptive publish()
-- Renamed tree_panel to explorer
 
 ## [0.1.0] - 2025-01-07
 
