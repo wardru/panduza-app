@@ -1,14 +1,13 @@
-import { usePlatform } from './platform';
 import { useEffect, useState } from 'react';
-import { IStructure, IDriver, IClass } from './structure';
+import { useTranslation } from 'react-i18next';
+
+import { useDndMonitor } from '@dnd-kit/core';
 import { Allotment } from 'allotment';
 
+import { usePlatform } from './platform';
+import { IStructure, IDriver, IClass } from './structure';
 import { Tree } from '../components/Tree';
-
 import TreeData from '../components/Tree/TreeData';
-import { useDndMonitor } from '@dnd-kit/core';
-
-import { useTranslation } from 'react-i18next';
 
 interface TreeViewProps {
     onAttributeSelect: (itemId: string | null) => void;
@@ -137,35 +136,24 @@ interface InfoPanelProps {
 
 const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
     const platform = usePlatform();
+    const attribute = item ? platform.attributes?.[item] : null;
     const { t } = useTranslation('explorer');
-
-    const setNewWidget = (item: string) => {
-        if (!platform.attributes) return null;
-
-        const attribute = platform.attributes[item];
-
-        if (!attribute) {
-            return null;
-        }
-
-        return (
-            <div>
-                <p>Attribute: {attribute.name}</p>
-                <p>Classes: {attribute.parentClasses.join('/')}</p>
-                <p>Driver: {attribute.parentDriver}</p>
-                <p>Type: {attribute.type}</p>
-                <p>Mode: {attribute.mode}</p>
-                {attribute.info ? <p>Info: {attribute.info}</p> : null}
-            </div>
-        );
-    };
 
     return (
         <div className='h-full w-full text-white bg-neutral-800 overflow-auto'>
             <label>{t('properties')}</label>
             <p>------------------------</p>
             <br />
-            {item ? setNewWidget(item) : null}
+            {attribute ? (
+                <div>
+                    <p>Attribute: {attribute.name}</p>
+                    <p>Classes: {attribute.parentClasses.join('/')}</p>
+                    <p>Driver: {attribute.parentDriver}</p>
+                    <p>Type: {attribute.type}</p>
+                    <p>Mode: {attribute.mode}</p>
+                    {attribute.info ? <p>Info: {attribute.info}</p> : null}
+                </div>
+            ) : null}
         </div>
     );
 };
