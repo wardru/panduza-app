@@ -15,10 +15,6 @@ const StringInput: React.FC<StringInputProps> = (props) => {
     }, [props.value]);
 
     const handleNewValue = (value: string) => {
-        if (value === props.value) {
-            return;
-        }
-
         props.onNewValue(value);
     };
 
