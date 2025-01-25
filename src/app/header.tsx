@@ -9,6 +9,7 @@ import { LanguageIcon } from '@heroicons/react/24/outline';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { useShallow } from 'zustand/shallow';
 import { useHeaderStore } from './HeaderStore';
+import { useLanguageStore } from './LanguageStore';
 
 const statusColorMap: Record<ConnectionState, string> = {
     [ConnectionState.Connected]: 'bg-green-500',
@@ -36,7 +37,7 @@ const Logo = () => {
 };
 
 const LanguageSelector = () => {
-    const { i18n } = useTranslation();
+    const [language, setLanguage] = useLanguageStore(useShallow((state) => [state.language, state.setLanguage]));
 
     const languageMap: Record<string, string> = {
         ['en']: 'English',
@@ -44,7 +45,7 @@ const LanguageSelector = () => {
     };
 
     const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        i18n.changeLanguage(event.currentTarget.value);
+        setLanguage(event.currentTarget.value);
     };
 
     return (
@@ -53,6 +54,7 @@ const LanguageSelector = () => {
             <select
                 className='bg-transparent text-white border border-white rounded-md px-2 appearance-none'
                 onChange={handleChange}
+                value={language}
             >
                 {Object.entries(languageMap).map(([key, value]) => (
                     <option

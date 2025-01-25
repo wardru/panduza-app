@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { LazyStore } from '@tauri-apps/plugin-store';
 
 import { useHeaderStore } from '@/app/HeaderStore';
+import { useLanguageStore } from './LanguageStore';
 
 export interface StoreActions {
     save: () => unknown;
@@ -26,6 +27,10 @@ export const useGlobalStore = create<GlobalStore>((set, get) => ({
         {
             store: useHeaderStore.getState(),
             key: 'header',
+        },
+        {
+            store: useLanguageStore.getState(),
+            key: 'language',
         },
     ],
 
