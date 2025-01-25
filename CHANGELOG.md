@@ -10,6 +10,7 @@
 
 ### Added
 
+- Added Undo/Redo functionality for the last 100 node actions (create, delete, move) with shortcuts (Ctrl+Z / Ctrl+Shift+Z)
 - Added node animation on new platform data
 - Added class and driver nodes instanciation
 - Added REPL custom widget in control view
