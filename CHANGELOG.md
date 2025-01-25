@@ -5,13 +5,15 @@
 ### Changed
 
 - Renamed attribute method setValue() to more descriptive publish()
-- Renamed tree_panel to explorer
-- Renamed Info Panel to Properties to express that these are attribute properties
+- Renamed tree panel to explorer
+- Renamed info panel to Properties to express that these are attribute properties
 
 ### Added
 
-- Added Save/Load functionality for the connection data, control view, and language
-- Added Undo/Redo functionality for the last 100 node actions (create, delete, move) with shortcuts (Ctrl+Z / Ctrl+Shift+Z)
+- Added copy/paste/cut functionality for nodes with shortcuts (Ctrl+C / Ctrl+V / Ctrl+X)
+- Added select/unselect functionality for nodes with shortcuts (Ctrl+A / Esc)
+- Added save/load functionality for the connection data, control view, and language
+- Added undo/redo functionality for the last 100 node actions (create, delete, move) with shortcuts (Ctrl+Z / Ctrl+Shift+Z)
 - Added node animation on new platform data
 - Added class and driver nodes instanciation
 - Added REPL custom widget in control view
@@ -25,6 +27,7 @@
 - Added basic widgets for attributes of type si, number, bolean, enum and string
 - Added basic premliminary widget for future attribute of type file
 - Added memory command attribute skeleton
+- Added context menu, on right click, over the tree view to copy attribute metadata to the system clipboard
 
 ### Removed
 
