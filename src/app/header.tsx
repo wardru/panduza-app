@@ -7,6 +7,8 @@ import { usePlatform, ConnectionState } from './platform';
 import { useTranslation } from 'react-i18next';
 import { LanguageIcon } from '@heroicons/react/24/outline';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { useShallow } from 'zustand/shallow';
+import { useHeaderStore } from './HeaderStore';
 
 const statusColorMap: Record<ConnectionState, string> = {
     [ConnectionState.Connected]: 'bg-green-500',
@@ -19,9 +21,6 @@ const buttonContentMap: Record<ConnectionState, string> = {
     [ConnectionState.Disconnected]: 'connect',
     [ConnectionState.Reconnecting]: 'cancel',
 };
-
-const defaultAddress = 'localhost';
-const defaultPort = 1883;
 
 const Logo = () => {
     return (
@@ -97,8 +96,15 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onAboutClick }) => {
     const { connectionState, connect, disconnect } = usePlatform();
-    const [address, setAddress] = useState(defaultAddress);
-    const [portAsString, setPortAsString] = useState(defaultPort.toString());
+    const { address, setAddress, port, setPort } = useHeaderStore(
+        useShallow((state) => ({
+            address: state.address,
+            port: state.port,
+            setAddress: state.setAddress,
+            setPort: state.setPort,
+        }))
+    );
+
     const [error, setError] = useState<string | null>(null);
     const { t } = useTranslation('header');
 
@@ -127,19 +133,29 @@ const Header: React.FC<HeaderProps> = ({ onAboutClick }) => {
                 disconnect();
                 break;
             case ConnectionState.Disconnected:
-                const port = Number(portAsString);
-                if (isNaN(port) || port < 0 || port > 65535) {
-                    setError('invalid-port');
-                } else {
-                    try {
-                        await connect(address, port);
+                try {
+                    if (address && port) {
+                        connect(address, port);
                         setError(null);
-                    } catch (e) {
-                        const errorMessage = e instanceof Error ? e.message : String(e);
-                        setError(errorMessage);
                     }
+                } catch (e) {
+                    const errorMessage = e instanceof Error ? e.message : String(e);
+                    setError(errorMessage);
                 }
                 break;
+        }
+    };
+
+    const handlePortChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const str = event.currentTarget.value;
+        const port = Number(str);
+
+        if (isNaN(port) || str === '') {
+            setPort(null);
+            return;
+        }
+        if (port >= 0 && port <= 65535) {
+            setPort(port);
         }
     };
 
@@ -158,18 +174,18 @@ const Header: React.FC<HeaderProps> = ({ onAboutClick }) => {
                 {connectionState === ConnectionState.Disconnected ? (
                     <div className='pl-3 text-black space-x-2 flex'>
                         <input
-                            placeholder={defaultAddress}
+                            value={address || ''}
+                            placeholder='Enter an address'
                             onChange={(e) =>
-                                setAddress(e.currentTarget.value === '' ? defaultAddress : e.currentTarget.value)
+                                e.currentTarget.value === '' ? setAddress(null) : setAddress(e.currentTarget.value)
                             }
                         />
                         <input
-                            placeholder={defaultPort.toString()}
-                            onChange={(e) =>
-                                setPortAsString(
-                                    e.currentTarget.value === '' ? defaultPort.toString() : e.currentTarget.value
-                                )
-                            }
+                            type='text'
+                            pattern='[0-9]*'
+                            value={port || ''}
+                            placeholder='Enter a port'
+                            onChange={handlePortChange}
                         />
                         {error && <p className='text-red-500 mt-2'>{t(error)}</p>}
                     </div>

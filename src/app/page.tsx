@@ -28,6 +28,10 @@ import {
 } from '@dnd-kit/core';
 import { snapCenterToCursor } from '@dnd-kit/modifiers';
 
+import { useGlobalStore } from './store';
+
+import { useAppEvents } from '@/app/AppEvents';
+
 interface appInfoProps {
     name: string;
     buildInfo: string;
@@ -38,6 +42,13 @@ const Main = () => {
     const [appInfo, setAppInfo] = useState<appInfoProps>();
     const [draggedNode, setDraggedNode] = useState<{ id: string; label: string } | null>(null);
     const { t } = useTranslation('about');
+    const save = useGlobalStore((state) => state.save);
+    const load = useGlobalStore((state) => state.load);
+
+    useAppEvents({
+        onAppClose: async () => await save(),
+        onSaveKey: () => save(),
+    });
 
     const mouseSensor = useSensor(MouseSensor, {
         activationConstraint: {
@@ -56,7 +67,9 @@ const Main = () => {
         };
 
         getAppInfo().catch(console.error);
-    }, []);
+
+        load();
+    }, [load]);
 
     const handleAboutClick = () => {
         setShowAbout(true);
