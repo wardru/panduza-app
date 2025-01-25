@@ -4,11 +4,13 @@ import { Node, useReactFlow } from '@xyflow/react';
 type UseUndoRedoOptions = {
     maxHistorySize: number;
     enableShortcuts: boolean;
+    shortcutKey: string;
 };
 
 const defaultOptions: UseUndoRedoOptions = {
     maxHistorySize: 100,
     enableShortcuts: true,
+    shortcutKey: 'z',
 };
 
 type UseUndoRedo = (options?: UseUndoRedoOptions) => {
@@ -27,6 +29,7 @@ type HistoryItem = {
 export const useUndoRedo: UseUndoRedo = ({
     maxHistorySize = defaultOptions.maxHistorySize,
     enableShortcuts = defaultOptions.enableShortcuts,
+    shortcutKey = defaultOptions.shortcutKey,
 } = defaultOptions) => {
     // the past and future arrays store the states that we can jump to
     const [past, setPast] = useState<HistoryItem[]>([]);
@@ -72,19 +75,20 @@ export const useUndoRedo: UseUndoRedo = ({
         }
 
         const keyDownHandler = (event: KeyboardEvent) => {
-            if (event.key === 'a' && (event.ctrlKey || event.metaKey)) {
+            const key = event.key.toLowerCase(); // when shift is pressed z => Z same with capslock so lowercase fixes all these edge cases
+            if (key === shortcutKey && (event.ctrlKey || event.metaKey) && event.shiftKey) {
                 redo();
-            } else if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
+            } else if (key === shortcutKey && (event.ctrlKey || event.metaKey)) {
                 undo();
             }
         };
 
-        document.addEventListener('keydown', keyDownHandler);
+        window.addEventListener('keydown', keyDownHandler);
 
         return () => {
-            document.removeEventListener('keydown', keyDownHandler);
+            window.removeEventListener('keydown', keyDownHandler);
         };
-    }, [undo, redo, enableShortcuts]);
+    }, [undo, redo, enableShortcuts, shortcutKey]);
 
     return {
         undo,
