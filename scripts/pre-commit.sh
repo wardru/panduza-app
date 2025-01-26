@@ -18,7 +18,7 @@ run_lint() {
     fi
     if [ ! -f ./node_modules/.bin/eslint ]; then
         echo -e "\033[33m[Eslint] Dependencies not installed. Installing...\033[0m"
-        npm install --legacy-peer-deps
+        npm install --force
     fi
 
     echo "$FILES" | xargs ./node_modules/.bin/eslint
@@ -76,7 +76,7 @@ run_prettier() {
 
     if [ ! -f ./node_modules/.bin/prettier ]; then
         echo -e "\033[33m[Prettier] Dependencies not installed. Installing...\033[0m"
-        npm install --legacy-peer-deps
+        npm install --force
     fi
 
     echo "$FILES" | xargs ./node_modules/.bin/prettier --ignore-unknown --write

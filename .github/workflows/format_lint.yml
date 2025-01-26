@@ -47,8 +47,8 @@ jobs:
               with:
                   node-version: lts/*
             - name: Install fronted dependencies
-              #TODO: remove --legacy-peer-deps once allotment supports React 19
-              run: npm install --legacy-peer-deps
+              #TODO: remove --force once allotment supports React 19
+              run: npm install --force
             - name: Prettier
               run: npm run format:check
             - name: ESlint
