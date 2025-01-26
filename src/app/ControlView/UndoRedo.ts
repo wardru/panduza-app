@@ -1,16 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Node, useReactFlow } from '@xyflow/react';
 
 type UseUndoRedoOptions = {
     maxHistorySize: number;
-    enableShortcuts: boolean;
-    shortcutKey: string;
 };
 
 const defaultOptions: UseUndoRedoOptions = {
     maxHistorySize: 100,
-    enableShortcuts: true,
-    shortcutKey: 'z',
 };
 
 type UseUndoRedo = (options?: UseUndoRedoOptions) => {
@@ -26,11 +22,7 @@ type HistoryItem = {
 };
 
 // https://redux.js.org/usage/implementing-undo-history
-export const useUndoRedo: UseUndoRedo = ({
-    maxHistorySize = defaultOptions.maxHistorySize,
-    enableShortcuts = defaultOptions.enableShortcuts,
-    shortcutKey = defaultOptions.shortcutKey,
-} = defaultOptions) => {
+export const useUndoRedo: UseUndoRedo = ({ maxHistorySize = defaultOptions.maxHistorySize } = defaultOptions) => {
     // the past and future arrays store the states that we can jump to
     const [past, setPast] = useState<HistoryItem[]>([]);
     const [future, setFuture] = useState<HistoryItem[]>([]);
@@ -67,28 +59,6 @@ export const useUndoRedo: UseUndoRedo = ({
             setNodes(futureState.nodes);
         }
     }, [setNodes, getNodes, future]);
-
-    useEffect(() => {
-        // this effect is used to attach the global event handlers
-        if (!enableShortcuts) {
-            return;
-        }
-
-        const keyDownHandler = (event: KeyboardEvent) => {
-            const key = event.key.toLowerCase(); // when shift is pressed z => Z same with capslock so lowercase fixes all these edge cases
-            if (key === shortcutKey && (event.ctrlKey || event.metaKey) && event.shiftKey) {
-                redo();
-            } else if (key === shortcutKey && (event.ctrlKey || event.metaKey)) {
-                undo();
-            }
-        };
-
-        window.addEventListener('keydown', keyDownHandler);
-
-        return () => {
-            window.removeEventListener('keydown', keyDownHandler);
-        };
-    }, [undo, redo, enableShortcuts, shortcutKey]);
 
     return {
         undo,

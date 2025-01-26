@@ -2,9 +2,6 @@ import { useDroppable, useDndMonitor } from '@dnd-kit/core';
 
 import { v4 as uuidv4 } from 'uuid';
 
-import { IClass } from '../structure';
-import { useUndoRedo } from './UndoRedo';
-
 import {
     ReactFlow,
     ReactFlowProvider,
@@ -17,6 +14,7 @@ import {
     OnNodeDrag,
     SelectionDragHandler,
     Viewport,
+    XYPosition,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import '../../styles/globals.css';
@@ -25,6 +23,9 @@ import { useCallback, useEffect, useRef } from 'react';
 import { applyNodeChanges, OnNodesChange } from '@xyflow/react';
 
 import { usePlatform } from '../platform';
+import { IClass } from '../structure';
+import { useUndoRedo } from './UndoRedo';
+import { useCopyPasteCut } from './CopyPasteCut';
 
 import BooleanToggleNode from './Nodes/BooleanToggle';
 import BooleanButtonsNode from './Nodes/BooleanButtons';
@@ -57,10 +58,6 @@ const nodeTypes = {
 const proOptions = { hideAttribution: true };
 
 const ControlView: React.FC = () => {
-    const { active, setNodeRef, isOver } = useDroppable({
-        id: 'controlview',
-    });
-
     const nodes = useControlViewStore((state) => state.nodes);
     const setNodes = useControlViewStore((state) => state.setNodes);
     const viewport = useControlViewStore((state) => state.viewport);
@@ -68,11 +65,14 @@ const ControlView: React.FC = () => {
     const unlocked = useControlViewStore((state) => state.unlocked);
     const setUnlocked = useControlViewStore((state) => state.setUnlocked);
 
-    const mousePosition = useRef({ x: 0, y: 0 });
-    const { takeSnapshot } = useUndoRedo();
+    const { active, setNodeRef, isOver } = useDroppable({ id: 'controlview' });
+    const { undo, redo, takeSnapshot } = useUndoRedo();
+    const { copy, paste, cut, selectAll, unselectAll } = useCopyPasteCut();
 
     const flow = useReactFlow();
     const platform = usePlatform();
+    const mousePosition = useRef<XYPosition>({ x: 0, y: 0 });
+    const ctrlViewRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -119,9 +119,7 @@ const ControlView: React.FC = () => {
                 y: mousePosition.current.y,
             });
 
-        flow.getNodes().map((node) => {
-            flow.updateNode(node.id, { selected: false });
-        });
+        unselectAll();
 
         flow.addNodes([
             {
@@ -277,7 +275,7 @@ const ControlView: React.FC = () => {
             if (isOver) {
                 const path = active?.data?.current?.path;
                 const type = active?.data?.current?.type;
-
+                unselectAll();
                 if (type === 'attribute') {
                     createAttributeNode(path);
                 } else if (type === 'class') {
@@ -286,9 +284,18 @@ const ControlView: React.FC = () => {
                     createDriverNode(path);
                 }
                 takeSnapshot();
+                if (ctrlViewRef.current) {
+                    ctrlViewRef.current.focus();
+                }
             }
         },
     });
+
+    // Combine setNodeRef with storing the element in elementRef
+    const handleRef = (element: HTMLDivElement | null) => {
+        setNodeRef(element); // Assign to dnd-kit
+        ctrlViewRef.current = element; // Store in useRef
+    };
 
     const onViewportChange = (viewport: Viewport) => {
         setViewport(viewport);
@@ -311,11 +318,52 @@ const ControlView: React.FC = () => {
         takeSnapshot();
     }, [takeSnapshot]);
 
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        const key = event.key.toLowerCase();
+        if (key === 'c' && (event.ctrlKey || event.metaKey)) {
+            // copy
+            copy();
+            console.log('Copy');
+        } else if (key === 'v' && (event.ctrlKey || event.metaKey)) {
+            // paste
+            takeSnapshot();
+            paste(mousePosition.current);
+            console.log('Paste');
+        } else if (key === 'x' && (event.ctrlKey || event.metaKey)) {
+            takeSnapshot();
+            cut();
+            // cut
+            console.log('Cut');
+        } else if (key === 'z' && (event.ctrlKey || event.metaKey) && event.shiftKey) {
+            // redo
+            redo();
+            console.log('Redo');
+        } else if (key === 'z' && (event.ctrlKey || event.metaKey)) {
+            // undo
+            undo();
+            console.log('Undo');
+        } else if (key === 'a' && (event.ctrlKey || event.metaKey)) {
+            // select all
+            if (unlocked) {
+                selectAll();
+                console.log('Select All');
+            }
+        } else if (key === 'escape') {
+            // unselect all
+            if (unlocked) {
+                unselectAll();
+                console.log('UnSelect All');
+            }
+        }
+    };
+
     return (
         <div
             className='w-full h-full bg-neutral-900 relative'
-            ref={setNodeRef}
+            ref={handleRef}
+            tabIndex={0} // Makes the div focusable
             onContextMenu={(e) => e.preventDefault()}
+            onKeyDown={handleKeyDown} // Attach the keyboard event handler
         >
             <ReactFlow
                 viewport={viewport}
@@ -354,9 +402,7 @@ const ControlView: React.FC = () => {
 
                         // disable nodes when lock
                         if (status == false) {
-                            flow.getNodes().map((node) => {
-                                flow.updateNode(node.id, { selected: false });
-                            });
+                            unselectAll();
                         }
                     }}
                 />
