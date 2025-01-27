@@ -1,7 +1,5 @@
 import { Node, NodeProps } from '@xyflow/react';
 
-import { AttributeString } from '@/app/attribute';
-
 import NodeShell from '../NodeShell';
 
 import { useAttributeStringListener } from '../AttributeListener';
@@ -9,19 +7,26 @@ import { useAttributeStringListener } from '../AttributeListener';
 import StringDisplay from './Widgets/StringDisplay';
 
 export type StringDisplayNode = Node<{
-    attribute: AttributeString;
+    attribute: {
+        name: string;
+        path: string;
+        mode: string;
+        classPath: string;
+        driver: string;
+    };
 }>;
 
 const StringDisplayNode: React.FC<NodeProps<StringDisplayNode>> = (props) => {
     const { value, connected, isFreshValue } = useAttributeStringListener({
-        attribute: props.data.attribute,
+        path: props.data?.attribute.path,
+        mode: props.data?.attribute.mode,
     });
 
     return (
         <NodeShell
             topLeft={props.data?.attribute.name}
             topRight={props.data?.attribute.classPath}
-            bottomRight={props.data?.attribute.parentDriver}
+            bottomRight={props.data?.attribute.driver}
             selected={props.selected || false}
             disabled={!connected}
             animateBorder={isFreshValue}

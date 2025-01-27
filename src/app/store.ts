@@ -4,6 +4,7 @@ import { LazyStore } from '@tauri-apps/plugin-store';
 
 import { useHeaderStore } from '@/app/HeaderStore';
 import { useLanguageStore } from './LanguageStore';
+import { useControlViewStore } from './ControlView/store';
 
 export interface StoreActions {
     save: () => unknown;
@@ -31,6 +32,10 @@ export const useGlobalStore = create<GlobalStore>((set, get) => ({
         {
             store: useLanguageStore.getState(),
             key: 'language',
+        },
+        {
+            store: useControlViewStore.getState(),
+            key: 'control_view',
         },
     ],
 

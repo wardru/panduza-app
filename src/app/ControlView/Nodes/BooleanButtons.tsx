@@ -1,7 +1,5 @@
 import { Node, NodeProps } from '@xyflow/react';
 
-import { AttributeBool } from '@/app/attribute';
-
 import { useAttributeBoolListener } from '../AttributeListener';
 
 import NodeShell from '@/app/ControlView/NodeShell';
@@ -9,19 +7,26 @@ import NodeShell from '@/app/ControlView/NodeShell';
 import BooleanButton from './Widgets/BooleanButton';
 
 export type BooleanButtonsNode = Node<{
-    attribute: AttributeBool;
+    attribute: {
+        name: string;
+        path: string;
+        mode: string;
+        classPath: string;
+        driver: string;
+    };
 }>;
 
 const BooleanButtonsNode: React.FC<NodeProps<BooleanButtonsNode>> = (props) => {
     const { publish, connected } = useAttributeBoolListener({
-        attribute: props.data.attribute,
+        path: props.data?.attribute.path,
+        mode: props.data?.attribute.mode,
     });
 
     return (
         <NodeShell
             topLeft={props.data?.attribute.name}
             topRight={props.data?.attribute.classPath}
-            bottomRight={props.data?.attribute.parentDriver}
+            bottomRight={props.data?.attribute.driver}
             selected={props.selected || false}
             disabled={!connected}
         >

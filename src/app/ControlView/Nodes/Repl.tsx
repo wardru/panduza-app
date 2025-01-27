@@ -1,7 +1,5 @@
 import { Node, NodeProps } from '@xyflow/react';
 
-import { AttributeString } from '@/app/attribute';
-
 import { useAttributeStringListener } from '../AttributeListener';
 
 import NodeShell from '../NodeShell';
@@ -11,13 +9,26 @@ import StringInput from './Widgets/StringInput';
 import '@xyflow/react/dist/style.css';
 
 export type ReplNode = Node<{
-    commandAttribute: AttributeString;
-    responseAttribute: AttributeString;
+    attributeCommand: {
+        name: string;
+        path: string;
+        mode: string;
+        classPath: string;
+        driver: string;
+    };
+    attributeResponse: {
+        name: string;
+        path: string;
+        mode: string;
+        classPath: string;
+        driver: string;
+    };
 }>;
 
 const ReplNode: React.FC<NodeProps<ReplNode>> = (props) => {
     const { value: commandValue, publish } = useAttributeStringListener({
-        attribute: props.data.commandAttribute,
+        path: props.data?.attributeCommand.path,
+        mode: props.data?.attributeCommand.mode,
     });
 
     const {
@@ -25,15 +36,16 @@ const ReplNode: React.FC<NodeProps<ReplNode>> = (props) => {
         isFreshValue,
         connected,
     } = useAttributeStringListener({
-        attribute: props.data.responseAttribute,
+        path: props.data?.attributeResponse.path,
+        mode: props.data?.attributeResponse.mode,
     });
 
     return (
         <>
             <NodeShell
                 topLeft={'REPL'}
-                topRight={props.data?.commandAttribute.classPath}
-                bottomRight={props.data?.commandAttribute.parentDriver}
+                topRight={props.data?.attributeCommand.classPath}
+                bottomRight={props.data?.attributeCommand.driver}
                 selected={props.selected || false}
                 disabled={!connected}
                 animateBorder={isFreshValue}

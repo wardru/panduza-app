@@ -1,14 +1,19 @@
 import { Node, NodeProps } from '@xyflow/react';
 
 import NodeShell from '../NodeShell';
-import { AttributeEnum } from '@/app/attribute';
 
 import { useAttributeEnumListener } from '../AttributeListener';
 
 import EnumInput from './Widgets/EnumInput';
 
 export type EnumInputNode = Node<{
-    attribute: AttributeEnum;
+    attribute: {
+        name: string;
+        path: string;
+        mode: string;
+        classPath: string;
+        driver: string;
+    };
 }>;
 
 const EnumInputNode: React.FC<NodeProps<EnumInputNode>> = (props) => {
@@ -16,14 +21,15 @@ const EnumInputNode: React.FC<NodeProps<EnumInputNode>> = (props) => {
     //const [error, setError] = useState<string | null>(null);
 
     const { value, settings, isFreshValue, publish, connected } = useAttributeEnumListener({
-        attribute: props.data.attribute,
+        path: props.data?.attribute.path,
+        mode: props.data?.attribute.mode,
     });
 
     return (
         <NodeShell
             topLeft={props.data?.attribute.name}
             topRight={props.data?.attribute.classPath}
-            bottomRight={props.data?.attribute.parentDriver}
+            bottomRight={props.data?.attribute.driver}
             selected={props.selected || false}
             disabled={!connected}
             animateBorder={isFreshValue}
@@ -31,7 +37,7 @@ const EnumInputNode: React.FC<NodeProps<EnumInputNode>> = (props) => {
             <EnumInput
                 value={value}
                 onNewValue={publish}
-                choices={settings.choices}
+                choices={settings?.choices}
             />
         </NodeShell>
     );

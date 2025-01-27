@@ -1,14 +1,19 @@
 import { Node, NodeProps } from '@xyflow/react';
 
 import NodeShell from '../NodeShell';
-import { AttributeString } from '@/app/attribute';
 
 import { useAttributeStringListener } from '../AttributeListener';
 
 import StringInput from './Widgets/StringInput';
 
 export type StringInputNode = Node<{
-    attribute: AttributeString;
+    attribute: {
+        name: string;
+        path: string;
+        mode: string;
+        classPath: string;
+        driver: string;
+    };
 }>;
 
 const StringInputNode: React.FC<NodeProps<StringInputNode>> = (props) => {
@@ -16,14 +21,15 @@ const StringInputNode: React.FC<NodeProps<StringInputNode>> = (props) => {
     //const [error, setError] = useState<string | null>(null);
 
     const { value, isFreshValue, publish, connected } = useAttributeStringListener({
-        attribute: props.data.attribute,
+        path: props.data?.attribute.path,
+        mode: props.data?.attribute.mode,
     });
 
     return (
         <NodeShell
             topLeft={props.data?.attribute.name}
             topRight={props.data?.attribute.classPath}
-            bottomRight={props.data?.attribute.parentDriver}
+            bottomRight={props.data?.attribute.driver}
             selected={props.selected || false}
             disabled={!connected}
             animateBorder={isFreshValue}

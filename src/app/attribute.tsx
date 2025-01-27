@@ -160,6 +160,15 @@ export class AttributeSi extends Attribute {
         return num.toString();
     }
 
+    get settings(): SiSettings {
+        return {
+            min: this.min,
+            max: this.max,
+            decimals: this.decimals,
+            unit: this.unit,
+        };
+    }
+
     get min(): number {
         return this._props.min;
     }
@@ -285,6 +294,12 @@ export class AttributeEnum extends Attribute {
 
     get choices(): string[] {
         return this._props.choices;
+    }
+
+    get settings(): EnumSettings {
+        return {
+            choices: this.choices,
+        };
     }
 
     subscribe(listener: () => void) {

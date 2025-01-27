@@ -16,12 +16,13 @@ import {
     OnNodesDelete,
     OnNodeDrag,
     SelectionDragHandler,
+    Viewport,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import '../../styles/globals.css';
 
 import { useCallback, useState, useEffect } from 'react';
-import { Node, applyNodeChanges, OnNodesChange } from '@xyflow/react';
+import { applyNodeChanges, OnNodesChange } from '@xyflow/react';
 
 import { usePlatform } from '../platform';
 
@@ -37,6 +38,7 @@ import EnumInput from './Nodes/EnumInput';
 import EnumDisplay from './Nodes/EnumDisplay';
 import ReplNode from './Nodes/Repl';
 import FileUploader from './Nodes/FileUploader';
+import { useControlViewStore } from './store';
 
 const nodeTypes = {
     booleantoggle: BooleanToggleNode,
@@ -59,9 +61,14 @@ const ControlView: React.FC = () => {
         id: 'controlview',
     });
 
-    const [nodes, setNodes] = useState<Node[]>([]);
+    const nodes = useControlViewStore((state) => state.nodes);
+    const setNodes = useControlViewStore((state) => state.setNodes);
+    const viewport = useControlViewStore((state) => state.viewport);
+    const setViewport = useControlViewStore((state) => state.setViewport);
+    const unlocked = useControlViewStore((state) => state.unlocked);
+    const setUnlocked = useControlViewStore((state) => state.setUnlocked);
+
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-    const [isUnlocked, setIsUnlocked] = useState(true);
     const { takeSnapshot } = useUndoRedo();
 
     const flow = useReactFlow();
@@ -121,8 +128,16 @@ const ControlView: React.FC = () => {
                 id: uuidv4(),
                 type,
                 position,
-                selected: isUnlocked,
-                data: { attribute: att },
+                selected: unlocked,
+                data: {
+                    attribute: {
+                        path: att.path,
+                        name: att.name,
+                        mode: att.mode,
+                        classPath: att.classPath,
+                        driver: att.parentDriver,
+                    },
+                },
             },
         ]);
 
@@ -206,8 +221,20 @@ const ControlView: React.FC = () => {
             }
 
             data = {
-                commandAttribute,
-                responseAttribute,
+                attributeCommand: {
+                    path: commandAttribute.path,
+                    name: commandAttribute.name,
+                    mode: commandAttribute.mode,
+                    classPath: commandAttribute.classPath,
+                    driver: commandAttribute.parentDriver,
+                },
+                attributeResponse: {
+                    path: responseAttribute.path,
+                    name: responseAttribute.name,
+                    mode: responseAttribute.mode,
+                    classPath: responseAttribute.classPath,
+                    driver: responseAttribute.parentDriver,
+                },
             };
         }
 
@@ -220,7 +247,7 @@ const ControlView: React.FC = () => {
             {
                 id: uuidv4(),
                 type: nodeType,
-                selected: isUnlocked,
+                selected: unlocked,
                 position: { x: position.x, y: position.y },
                 data,
             },
@@ -263,9 +290,13 @@ const ControlView: React.FC = () => {
         },
     });
 
+    const onViewportChange = (viewport: Viewport) => {
+        setViewport(viewport);
+    };
+
     const onNodesChange: OnNodesChange = useCallback(
-        (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-        [setNodes]
+        (changes) => setNodes(applyNodeChanges(changes, nodes)),
+        [setNodes, nodes]
     );
 
     const onNodesDelete: OnNodesDelete = useCallback(() => {
@@ -287,6 +318,8 @@ const ControlView: React.FC = () => {
             onContextMenu={(e) => e.preventDefault()}
         >
             <ReactFlow
+                viewport={viewport}
+                onViewportChange={onViewportChange}
                 nodes={nodes}
                 nodeTypes={nodeTypes}
                 proOptions={proOptions}
@@ -312,12 +345,12 @@ const ControlView: React.FC = () => {
                 zoomOnScroll
                 //
                 zoomOnDoubleClick={false}
-                className={` border ${isUnlocked ? 'border-transparent' : ' border-lime-500'} `}
+                className={` border ${unlocked ? 'border-transparent' : ' border-lime-500'} `}
             >
-                {isUnlocked ? <Background /> : null}
+                {unlocked ? <Background /> : null}
                 <Controls
                     onInteractiveChange={(status) => {
-                        setIsUnlocked(status);
+                        setUnlocked(status);
 
                         // disable nodes when lock
                         if (status == false) {
@@ -327,7 +360,7 @@ const ControlView: React.FC = () => {
                         }
                     }}
                 />
-                {isUnlocked ? (
+                {unlocked ? (
                     <MiniMap
                         nodeStrokeWidth={3}
                         zoomable

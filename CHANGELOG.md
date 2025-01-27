@@ -10,6 +10,7 @@
 
 ### Added
 
+- Added Save/Load functionality for the connection data, control view, and language
 - Added Undo/Redo functionality for the last 100 node actions (create, delete, move) with shortcuts (Ctrl+Z / Ctrl+Shift+Z)
 - Added node animation on new platform data
 - Added class and driver nodes instanciation

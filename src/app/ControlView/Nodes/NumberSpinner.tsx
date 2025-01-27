@@ -1,19 +1,25 @@
 import { Node, NodeProps } from '@xyflow/react';
 
 import NodeShell from '../NodeShell';
-import { AttributeNumber } from '@/app/attribute';
 
 import { useAttributeNumberListener } from '../AttributeListener';
 
 import NumberSpinner from './Widgets/NumberSpinner';
 
 export type NumberSpinnerNode = Node<{
-    attribute: AttributeNumber;
+    attribute: {
+        name: string;
+        path: string;
+        mode: string;
+        classPath: string;
+        driver: string;
+    };
 }>;
 
 const NumberSpinnerNode: React.FC<NodeProps<NumberSpinnerNode>> = (props) => {
     const { value, isFreshValue, publish, connected } = useAttributeNumberListener({
-        attribute: props.data.attribute,
+        path: props.data?.attribute.path,
+        mode: props.data?.attribute.mode,
     });
 
     //TODO: Implement error handling https://github.com/Panduza/panduza-app/issues/65
@@ -23,7 +29,7 @@ const NumberSpinnerNode: React.FC<NodeProps<NumberSpinnerNode>> = (props) => {
         <NodeShell
             topLeft={props.data?.attribute.name}
             topRight={props.data?.attribute.classPath}
-            bottomRight={props.data?.attribute.parentDriver}
+            bottomRight={props.data?.attribute.driver}
             selected={props.selected || false}
             disabled={!connected}
             animateBorder={isFreshValue}

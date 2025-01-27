@@ -1,7 +1,7 @@
 interface NodeShellProps {
-    topLeft: string;
-    topRight: string;
-    bottomRight: string;
+    topLeft: string | undefined;
+    topRight: string | undefined;
+    bottomRight: string | undefined;
     selected: boolean;
     animateBorder?: boolean;
     disabled: boolean;
