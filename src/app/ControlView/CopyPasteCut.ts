@@ -1,16 +1,17 @@
-import { useReactFlow, Node, useStoreApi } from '@xyflow/react';
 import { useState, useCallback } from 'react';
+
+import { useReactFlow, Node, useStoreApi } from '@xyflow/react';
 
 import { v4 as uuidv4 } from 'uuid';
 
 export const useCopyPasteCut = () => {
     const { getNodes, setNodes, updateNode, screenToFlowPosition } = useReactFlow();
-    const [selectedNodes, setSelectedNodes] = useState<Node[]>([]);
+    const [copiedNodes, setCopiedNodes] = useState<Node[]>([]);
     const store = useStoreApi(); // for node sellection/desellection
 
     const copy = useCallback(() => {
         const selNodes = getNodes().filter((node) => node.selected);
-        setSelectedNodes(selNodes);
+        setCopiedNodes(selNodes);
     }, [getNodes]);
 
     const cut = useCallback(() => {
@@ -26,22 +27,21 @@ export const useCopyPasteCut = () => {
                 y: mousePos.y,
             })
         ) => {
-            const minX = Math.min(...selectedNodes.map((s) => s.position.x));
-            const minY = Math.min(...selectedNodes.map((s) => s.position.y));
+            const minX = Math.min(...copiedNodes.map((s) => s.position.x));
+            const minY = Math.min(...copiedNodes.map((s) => s.position.y));
 
-            const newNodes = selectedNodes.map((node) => {
+            const newNodes = copiedNodes.map((node) => {
                 const id = uuidv4();
                 const x = pastePos.x + (node.position.x - minX);
                 const y = pastePos.y + (node.position.y - minY);
+                node.selected = true; //set new nodes to be selected
 
                 return { ...node, id, position: { x, y } };
             });
 
-            // TODO: test alternative addNodes remove other if OK
-            addNodes(newNodes);
-            //     setNodes((nodes) => [...nodes.map((node) => ({ ...node, selected: false })), ...newNodes]);
+            setNodes((nodes) => [...nodes.map((node) => ({ ...node, selected: false })), ...newNodes]); // deselect other and add new nodes
         },
-        [selectedNodes, screenToFlowPosition, setNodes]
+        [copiedNodes, screenToFlowPosition, setNodes]
     );
 
     /// Select/UnSelect(inspired by https://github.com/xyflow/xyflow/issues/492)
@@ -55,11 +55,11 @@ export const useCopyPasteCut = () => {
         });
     }, [getNodes, updateNode]);
 
-    const setInteractivity = (isInteractive: boolean) => {
+    const setControlsLock = (isLocked: boolean) => {
         store.setState({
-            nodesDraggable: isInteractive,
-            nodesConnectable: isInteractive,
-            elementsSelectable: isInteractive,
+            nodesDraggable: !isLocked,
+            nodesConnectable: !isLocked,
+            elementsSelectable: !isLocked,
         });
     };
 

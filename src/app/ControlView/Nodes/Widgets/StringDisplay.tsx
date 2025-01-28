@@ -6,6 +6,7 @@ const StringDisplay: React.FC<StringDisplayProps> = (props) => {
     return (
         <textarea
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
             readOnly
             value={props.value}
             rows={1}

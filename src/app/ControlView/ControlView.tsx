@@ -67,24 +67,12 @@ const ControlView: React.FC = () => {
 
     const { active, setNodeRef, isOver } = useDroppable({ id: 'controlview' });
     const { undo, redo, takeSnapshot } = useUndoRedo();
-    const { copy, paste, cut, selectAll, unselectAll } = useCopyPasteCut();
+    const { copy, paste, cut, selectAll, unselectAll, setControlsLock } = useCopyPasteCut();
 
     const flow = useReactFlow();
     const platform = usePlatform();
     const mousePosition = useRef<XYPosition>({ x: 0, y: 0 });
     const ctrlViewRef = useRef<HTMLDivElement | null>(null);
-
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            mousePosition.current = { x: e.clientX, y: e.clientY };
-        };
-
-        document.addEventListener('mousemove', handleMouseMove);
-        // Cleanup on component unmount
-        return () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-        };
-    }, []); // Empty dependency array ensures this runs only once
 
     const createAttributeNode = (attributePath: string, customPosition?: { x: number; y: number }): boolean => {
         const att = platform.attributes?.[attributePath];
@@ -319,36 +307,40 @@ const ControlView: React.FC = () => {
     }, [takeSnapshot]);
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-        const key = event.key.toLowerCase();
-        if (key === 'c' && (event.ctrlKey || event.metaKey)) {
+        if (event.key === 'c' && (event.ctrlKey || event.metaKey)) {
             // copy
             copy();
             console.log('Copy');
-        } else if (key === 'v' && (event.ctrlKey || event.metaKey)) {
+        } else if (event.key === 'v' && (event.ctrlKey || event.metaKey)) {
             // paste
             takeSnapshot();
             paste(mousePosition.current);
             console.log('Paste');
-        } else if (key === 'x' && (event.ctrlKey || event.metaKey)) {
+        } else if (event.key === 'x' && (event.ctrlKey || event.metaKey)) {
             takeSnapshot();
             cut();
             // cut
             console.log('Cut');
-        } else if (key === 'z' && (event.ctrlKey || event.metaKey) && event.shiftKey) {
+        } else if (event.key === 'Z' && (event.ctrlKey || event.metaKey) && event.shiftKey) {
             // redo
             redo();
             console.log('Redo');
-        } else if (key === 'z' && (event.ctrlKey || event.metaKey)) {
+        } else if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
             // undo
             undo();
             console.log('Undo');
-        } else if (key === 'a' && (event.ctrlKey || event.metaKey)) {
+        } else if (event.key === 'l' && (event.ctrlKey || event.metaKey)) {
+            // lock
+            setUnlocked(!unlocked);
+            setControlsLock(unlocked);
+            console.log('Toggle Locking');
+        } else if (event.key === 'a' && (event.ctrlKey || event.metaKey)) {
             // select all
             if (unlocked) {
                 selectAll();
                 console.log('Select All');
             }
-        } else if (key === 'escape') {
+        } else if (event.key === 'escape') {
             // unselect all
             if (unlocked) {
                 unselectAll();
@@ -356,6 +348,18 @@ const ControlView: React.FC = () => {
             }
         }
     };
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            mousePosition.current = { x: e.clientX, y: e.clientY };
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+        // Cleanup on component unmount
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+        };
+    }, []); // Empty dependency array ensures this runs only once
 
     return (
         <div

@@ -72,6 +72,8 @@ const NumberSpinner: React.FC<NumberSpinnerProps> = (props) => {
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
             handleNewValue(event.currentTarget.value);
+        } else {
+            event.stopPropagation();
         }
     };
 

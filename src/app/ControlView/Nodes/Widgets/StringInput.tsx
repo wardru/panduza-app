@@ -21,6 +21,8 @@ const StringInput: React.FC<StringInputProps> = (props) => {
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
             handleNewValue(event.currentTarget.value);
+        } else {
+            event.stopPropagation();
         }
     };
 
