@@ -21,7 +21,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import '../../styles/globals.css';
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { applyNodeChanges, OnNodesChange } from '@xyflow/react';
 
 import { usePlatform } from '../platform';
@@ -68,7 +68,7 @@ const ControlView: React.FC = () => {
     const unlocked = useControlViewStore((state) => state.unlocked);
     const setUnlocked = useControlViewStore((state) => state.setUnlocked);
 
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const mousePosition = useRef({ x: 0, y: 0 });
     const { takeSnapshot } = useUndoRedo();
 
     const flow = useReactFlow();
@@ -76,7 +76,7 @@ const ControlView: React.FC = () => {
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
-            setMousePosition({ x: e.clientX, y: e.clientY });
+            mousePosition.current = { x: e.clientX, y: e.clientY };
         };
 
         document.addEventListener('mousemove', handleMouseMove);
@@ -115,8 +115,8 @@ const ControlView: React.FC = () => {
         const position =
             customPosition ||
             flow.screenToFlowPosition({
-                x: mousePosition.x,
-                y: mousePosition.y,
+                x: mousePosition.current.x,
+                y: mousePosition.current.y,
             });
 
         flow.getNodes().map((node) => {
@@ -161,8 +161,8 @@ const ControlView: React.FC = () => {
             const position =
                 customPosition ||
                 flow.screenToFlowPosition({
-                    x: mousePosition.x,
-                    y: mousePosition.y,
+                    x: mousePosition.current.x,
+                    y: mousePosition.current.y,
                 });
 
             const instantiateAttributesInClass = (
@@ -239,8 +239,8 @@ const ControlView: React.FC = () => {
         }
 
         const position = flow.screenToFlowPosition({
-            x: mousePosition.x,
-            y: mousePosition.y,
+            x: mousePosition.current.x,
+            y: mousePosition.current.y,
         });
 
         flow.addNodes([
@@ -263,8 +263,8 @@ const ControlView: React.FC = () => {
         }
 
         let position = flow.screenToFlowPosition({
-            x: mousePosition.x,
-            y: mousePosition.y,
+            x: mousePosition.current.x,
+            y: mousePosition.current.y,
         });
 
         for (const iclass in driver.classes) {
