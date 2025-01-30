@@ -57,7 +57,6 @@ export const ContextMenu = forwardRef((_, ref) => {
                 pointerEvents: 'auto',
                 display: `${isOpen ? 'inline' : 'none'}`,
             }}
-            onContextMenu={(e) => e.preventDefault()}
         >
             <ul className='text-sm'>
                 {items?.map((item, index) => (

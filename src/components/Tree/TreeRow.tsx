@@ -3,6 +3,9 @@ import { useTreeApi } from './TreeProvider';
 import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import { Squares2X2Icon, Square3Stack3DIcon } from '@heroicons/react/24/outline';
 import { useDraggable } from '@dnd-kit/core';
+import { writeText } from '@tauri-apps/plugin-clipboard-manager';
+
+import { ContextMenu, useContextMenu } from '@/components/ContextMenu';
 
 interface TreeRowProps {
     node: NodeData;
@@ -10,6 +13,7 @@ interface TreeRowProps {
 
 export const TreeRow: React.FC<TreeRowProps> = ({ node }) => {
     const tree = useTreeApi();
+    const { show, setContextMenuRef } = useContextMenu();
     const { attributes, listeners, isDragging, setNodeRef } = useDraggable({
         id: node.id,
         data: {
@@ -20,48 +24,58 @@ export const TreeRow: React.FC<TreeRowProps> = ({ node }) => {
     });
 
     const handleChevronClick = (event: React.MouseEvent) => {
-        if (!node.children) {
-            return;
-        }
+        if (!node.children) return;
         event.stopPropagation();
         tree.toggle(node);
     };
 
-    const handleSelectClick = () => {
+    const handleSelectClick = () => tree.select(node);
+
+    const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
         tree.select(node);
+        show(event, [
+            {
+                label: 'Copy xtopic',
+                action: () => writeText(node.id),
+            },
+        ]);
     };
 
     return (
-        <div
-            className={`hover:bg-green-900 items-center flex rounded-md mx-2 `}
-            onClick={handleSelectClick}
-            style={{
-                paddingLeft: node.level * 18,
-                backgroundColor: tree.isSelected(node) ? 'blue' : '',
-                cursor: isDragging ? 'grabbing' : 'auto',
-            }}
-            ref={setNodeRef}
-            {...attributes}
-            {...listeners}
-        >
-            <span
-                className='mr-1 flex flex-shrink-0 items-center justify-center size-6'
-                onClick={handleChevronClick}
+        <>
+            <div
+                className='hover:bg-green-900 items-center flex rounded-md mx-2 outline-none'
+                onClick={handleSelectClick}
+                onContextMenu={handleContextMenu}
+                style={{
+                    paddingLeft: node.level * 18,
+                    backgroundColor: tree.isSelected(node) ? 'blue' : '',
+                    cursor: isDragging ? 'grabbing' : 'auto',
+                }}
+                ref={setNodeRef}
+                {...attributes}
+                {...listeners}
             >
-                {node.children ? (
-                    tree.isOpen(node) ? (
-                        <ChevronDownIcon className='size-3' />
-                    ) : (
-                        <ChevronRightIcon className='size-3' />
-                    )
-                ) : null}
-            </span>
-            <span className='mr-1 flex flex-shrink-0 items-center justify-center size-6'>
-                {node.type === 'attribute' && <div className='rounded-full size-1 bg-neutral-300' />}
-                {node.type === 'class' && <Square3Stack3DIcon className='size-4' />}
-                {node.type === 'driver' && <Squares2X2Icon className='size-4' />}
-            </span>
-            <label className='text-nowrap'> {node.label} </label>
-        </div>
+                <span
+                    className='mr-1 flex flex-shrink-0 items-center justify-center size-6'
+                    onClick={handleChevronClick}
+                >
+                    {node.children &&
+                        (tree.isOpen(node) ? (
+                            <ChevronDownIcon className='size-3' />
+                        ) : (
+                            <ChevronRightIcon className='size-3' />
+                        ))}
+                </span>
+                <span className='mr-1 flex flex-shrink-0 items-center justify-center size-6'>
+                    {node.type === 'attribute' && <div className='rounded-full size-1 bg-neutral-300' />}
+                    {node.type === 'class' && <Square3Stack3DIcon className='size-4' />}
+                    {node.type === 'driver' && <Squares2X2Icon className='size-4' />}
+                </span>
+                <label className='text-nowrap'>{node.label}</label>
+            </div>
+
+            <ContextMenu ref={setContextMenuRef} />
+        </>
     );
 };

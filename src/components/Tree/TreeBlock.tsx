@@ -6,14 +6,12 @@ export const TreeBlock = () => {
 
     return (
         <div>
-            <div>
-                {tree.visibleNodes.map((node) => (
-                    <TreeRow
-                        key={node.id}
-                        node={node}
-                    />
-                ))}
-            </div>
+            {tree.visibleNodes.map((node) => (
+                <TreeRow
+                    key={node.id}
+                    node={node}
+                />
+            ))}
         </div>
     );
 };

@@ -162,6 +162,7 @@ const Header: React.FC<HeaderProps> = ({ onAboutClick }) => {
     };
 
     return (
+        //TODO: sticky and top-0 is probably useless
         <div className='bg-header sticky top-0 flex py-1 items-center'>
             <Logo />
             <div className='text-primary flex space-x-2 items-center flex-1'>
