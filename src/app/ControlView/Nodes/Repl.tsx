@@ -5,6 +5,7 @@ import { useAttributeStringListener } from '../AttributeListener';
 import NodeShell from '../NodeShell';
 
 import StringInput from './Widgets/StringInput';
+import StringDisplay from './Widgets/StringDisplay';
 
 import '@xyflow/react/dist/style.css';
 
@@ -61,11 +62,9 @@ const ReplNode: React.FC<NodeProps<ReplNode>> = (props) => {
                     </div>
                     <div className='flex flex-col items-center space-y-1 w-full'>
                         <label>Response</label>
-                        <textarea
-                            className='nodrag nowheel nopan text-black rounded-md p-0.5 w-full'
-                            readOnly
+                        <StringDisplay
                             value={responseValue}
-                            onClick={(e) => e.stopPropagation()}
+                            rows={5}
                         />
                     </div>
                 </div>
