@@ -3,9 +3,13 @@
 
 use app_lib::client::ClientState;
 use clap::Parser;
+use serde_json::json;
+use std::str;
 use tauri::Manager;
+use tauri_plugin_store::StoreExt;
 use tokio::sync::Mutex;
 
+static USER_SETTINGS_FNAME: &str = "settings.json";
 #[derive(Parser, Debug)]
 #[command(about, long_about = None)]
 struct Args {
@@ -34,6 +38,28 @@ async fn main() {
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             app.manage(Mutex::new(ClientState::new()));
+
+            println!(
+                "info: user settings stored at '{}/{USER_SETTINGS_FNAME}'",
+                app.app_handle().path().app_data_dir().unwrap().display()
+            );
+
+            let store = app.store(USER_SETTINGS_FNAME)?;
+            let app_version = get_build_info();
+
+            match store.get("version") {
+                Some(serde_json::Value::String(store_version)) if store_version == app_version => {
+                    println!("info: user settings version {} is compatible with current app version {}", store_version, app_version);
+                }
+                Some(serde_json::Value::String(store_version)) => {
+                    println!("warning: user settings version {} may not be compatible with current app version {}", store_version, app_version);
+                }
+                Some(_) => println!("error: unexpected version JSON type"), // Just in case
+                None => {
+                    println!("warning: user settings version not found, adding version {} to user settings", app_version);
+                    store.set("version", json!(get_build_info()));
+                }
+            }
 
             Ok(())
         })
