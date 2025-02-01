@@ -272,9 +272,7 @@ const ControlView: React.FC = () => {
                     createDriverNode(path);
                 }
                 takeSnapshot();
-                if (ctrlViewRef.current) {
-                    ctrlViewRef.current.focus();
-                }
+                ctrlViewRef.current?.focus();
             }
         },
     });
@@ -296,6 +294,7 @@ const ControlView: React.FC = () => {
 
     const onNodesDelete: OnNodesDelete = useCallback(() => {
         takeSnapshot();
+        ctrlViewRef.current?.focus();
     }, [takeSnapshot]);
 
     const onNodeDragStart: OnNodeDrag = useCallback(() => {
@@ -319,6 +318,7 @@ const ControlView: React.FC = () => {
         } else if (event.key === 'x' && (event.ctrlKey || event.metaKey)) {
             takeSnapshot();
             cut();
+            ctrlViewRef.current?.focus();
             // cut
             console.log('Cut');
         } else if (event.key === 'Z' && (event.ctrlKey || event.metaKey) && event.shiftKey) {
@@ -342,10 +342,9 @@ const ControlView: React.FC = () => {
             }
         } else if (event.key === 'escape') {
             // unselect all
-            if (unlocked) {
-                unselectAll();
-                console.log('UnSelect All');
-            }
+            unselectAll();
+            ctrlViewRef.current?.focus();
+            console.log('UnSelect All');
         }
     };
 
@@ -362,63 +361,59 @@ const ControlView: React.FC = () => {
     }, []); // Empty dependency array ensures this runs only once
 
     return (
-        <div
-            className='w-full h-full bg-neutral-900 relative'
+        <ReactFlow
+            className={`w-full h-full bg-neutral-900 relative border ${unlocked ? 'border-transparent' : 'border-lime-500'} `}
             ref={handleRef}
             tabIndex={0} // Makes the div focusable
             onContextMenu={(e) => e.preventDefault()}
             onKeyDown={handleKeyDown} // Attach the keyboard event handler
+            viewport={viewport}
+            onViewportChange={onViewportChange}
+            nodes={nodes}
+            nodeTypes={nodeTypes}
+            proOptions={proOptions}
+            onNodesChange={onNodesChange}
+            onNodesDelete={onNodesDelete}
+            onNodeDragStart={onNodeDragStart}
+            onSelectionDragStart={onSelectionDragStart}
+            deleteKeyCode={['Backspace', 'Delete']}
+            elevateNodesOnSelect
+            selectionKeyCode={''}
+            selectionOnDrag
+            selectionMode={SelectionMode.Partial}
+            panOnDrag={[1]}
+            //
+            //TODO: move this to user preference settings
+
+            // Figma Style
+            // panOnScroll={true}
+            // zoomOnScroll={false}
+
+            //Blender Style
+            panOnScroll={false}
+            zoomOnScroll
+            //
+            zoomOnDoubleClick={false}
         >
-            <ReactFlow
-                viewport={viewport}
-                onViewportChange={onViewportChange}
-                nodes={nodes}
-                nodeTypes={nodeTypes}
-                proOptions={proOptions}
-                onNodesChange={onNodesChange}
-                onNodesDelete={onNodesDelete}
-                onNodeDragStart={onNodeDragStart}
-                onSelectionDragStart={onSelectionDragStart}
-                deleteKeyCode={['Backspace', 'Delete']}
-                elevateNodesOnSelect
-                selectionKeyCode={''}
-                selectionOnDrag
-                selectionMode={SelectionMode.Partial}
-                panOnDrag={[1]}
-                //
-                //TODO: move this to user preference settings
+            {unlocked ? <Background /> : null}
+            <Controls
+                onInteractiveChange={(status) => {
+                    setUnlocked(status);
 
-                // Figma Style
-                // panOnScroll={true}
-                // zoomOnScroll={false}
-
-                //Blender Style
-                panOnScroll={false}
-                zoomOnScroll
-                //
-                zoomOnDoubleClick={false}
-                className={` border ${unlocked ? 'border-transparent' : ' border-lime-500'} `}
-            >
-                {unlocked ? <Background /> : null}
-                <Controls
-                    onInteractiveChange={(status) => {
-                        setUnlocked(status);
-
-                        // disable nodes when lock
-                        if (status == false) {
-                            unselectAll();
-                        }
-                    }}
+                    // disable nodes when lock
+                    if (status == false) {
+                        unselectAll();
+                    }
+                }}
+            />
+            {unlocked ? (
+                <MiniMap
+                    nodeStrokeWidth={3}
+                    zoomable
+                    pannable
                 />
-                {unlocked ? (
-                    <MiniMap
-                        nodeStrokeWidth={3}
-                        zoomable
-                        pannable
-                    />
-                ) : null}
-            </ReactFlow>
-        </div>
+            ) : null}
+        </ReactFlow>
     );
 };
 
