@@ -6,10 +6,11 @@
 
 - Renamed attribute method setValue() to more descriptive publish()
 - Renamed tree panel to explorer
-- Renamed info panel to Properties to express that these are attribute properties
+- Renamed `Info Panel` to `Properties` to express that these are attribute properties
 
 ### Added
 
+- Added helper lines on control view when it's not locked, to allow easy aligment of nodes
 - Added copy/paste/cut functionality for nodes with shortcuts (Ctrl+C / Ctrl+V / Ctrl+X)
 - Added select/unselect functionality for nodes with shortcuts (Ctrl+A / Esc)
 - Added save/load functionality for the connection data, control view, and language
