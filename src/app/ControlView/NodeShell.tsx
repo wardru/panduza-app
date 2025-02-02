@@ -1,3 +1,5 @@
+import { useControlViewStore } from './store';
+
 interface NodeShellProps {
     topLeft: string | undefined;
     topRight: string | undefined;
@@ -9,6 +11,9 @@ interface NodeShellProps {
 }
 
 const NodeShell = (props: NodeShellProps) => {
+    const getNodeColor = useControlViewStore((state) => state.getNodeColor);
+    const color: string | undefined = props.bottomRight ? getNodeColor(props.bottomRight) : undefined;
+
     return (
         <div
             className={`flex flex-col flex-grow rounded-md shadow-lg  min-w-[200px] min-h-[100px] border-2 bg-transparent
@@ -22,7 +27,10 @@ const NodeShell = (props: NodeShellProps) => {
                 <div className='flex-grow nodeshell-wrapper-content'>
                     {/* Header */}
                     {}{' '}
-                    <div className='flex justify-between rounded-t-md px-2 py-1 bg-opacity-75 mb-4 bg-orange-500'>
+                    <div
+                        className='flex justify-between rounded-t-md px-2 py-1 bg-opacity-75 mb-4 '
+                        style={{ backgroundColor: color }}
+                    >
                         <p className=' text-white font-bold'>{props.topLeft}</p>
                         <span className='text-white italic'>{props.topRight}</span>
                     </div>
