@@ -18,17 +18,17 @@ export const useHelperLines = () => {
         };
         const nodeA = nodes.find((node) => node.id === change.id);
 
-        if (!nodeA || !change.position) {
+        if (!nodeA || !change.position || !nodeA.measured?.height || !nodeA.measured?.width) {
             return defaultResult;
         }
 
         const nodeABounds = {
             left: change.position.x,
-            right: change.position.x + (nodeA.measured?.width ?? 0),
+            right: change.position.x + nodeA.measured.width,
             top: change.position.y,
-            bottom: change.position.y + (nodeA.measured?.height ?? 0),
-            width: nodeA.measured?.width ?? 0,
-            height: nodeA.measured?.height ?? 0,
+            bottom: change.position.y + nodeA.measured.height,
+            width: nodeA.measured.width,
+            height: nodeA.measured.height,
         };
 
         let horizontalDistance = distance;
@@ -37,13 +37,17 @@ export const useHelperLines = () => {
         return nodes
             .filter((node) => node.id !== nodeA.id)
             .reduce<GetHelperLinesResult>((result, nodeB) => {
+                if (!nodeB.measured?.height || !nodeB.measured?.width) {
+                    return result;
+                }
+
                 const nodeBBounds = {
                     left: nodeB.position.x,
-                    right: nodeB.position.x + (nodeB.measured?.width ?? 0),
+                    right: nodeB.position.x + nodeB.measured.width,
                     top: nodeB.position.y,
-                    bottom: nodeB.position.y + (nodeB.measured?.height ?? 0),
-                    width: nodeB.measured?.width ?? 0,
-                    height: nodeB.measured?.height ?? 0,
+                    bottom: nodeB.position.y + nodeB.measured.height,
+                    width: nodeB.measured.width,
+                    height: nodeB.measured.height,
                 };
 
                 //  |‾‾‾‾‾‾‾‾‾‾‾|
