@@ -1,13 +1,5 @@
-import { CSSProperties, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { ReactFlowState, useStore } from '@xyflow/react';
-
-const canvasStyle: CSSProperties = {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    zIndex: 10,
-    pointerEvents: 'none',
-};
 
 const storeSelector = (state: ReactFlowState) => ({
     width: state.width,
@@ -59,8 +51,7 @@ function HelperLinesRenderer({ horizontal, vertical }: HelperLinesProps) {
     return (
         <canvas
             ref={canvasRef}
-            className='react-flow__canvas'
-            style={canvasStyle}
+            className='react-flow__canvas w-full h-full absolute z-10 pointer-events-none'
         />
     );
 }
