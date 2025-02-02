@@ -1,3 +1,5 @@
+import { useCallback, useState, useEffect, useRef } from 'react';
+
 import { useDroppable, useDndMonitor } from '@dnd-kit/core';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -15,17 +17,21 @@ import {
     SelectionDragHandler,
     Viewport,
     XYPosition,
+    applyNodeChanges,
+    OnNodesChange,
+    NodeChange,
+    Node,
 } from '@xyflow/react';
+
 import '@xyflow/react/dist/style.css';
 import '../../styles/globals.css';
-
-import { useCallback, useEffect, useRef } from 'react';
-import { applyNodeChanges, OnNodesChange } from '@xyflow/react';
 
 import { usePlatform } from '../platform';
 import { IClass } from '../structure';
 import { useUndoRedo } from './UndoRedo';
 import { useCopyPasteCut } from './CopyPasteCut';
+import { useControlViewStore } from './store';
+import { useHelperLines } from './UseHelperLines';
 
 import BooleanToggleNode from './Nodes/BooleanToggle';
 import BooleanButtonsNode from './Nodes/BooleanButtons';
@@ -39,7 +45,7 @@ import EnumInput from './Nodes/EnumInput';
 import EnumDisplay from './Nodes/EnumDisplay';
 import ReplNode from './Nodes/Repl';
 import FileUploader from './Nodes/FileUploader';
-import { useControlViewStore } from './store';
+import HelperLines from './HelperLines';
 
 const nodeTypes = {
     booleantoggle: BooleanToggleNode,
@@ -68,6 +74,9 @@ const ControlView: React.FC = () => {
     const { active, setNodeRef, isOver } = useDroppable({ id: 'controlview' });
     const { undo, redo, takeSnapshot } = useUndoRedo();
     const { copy, paste, cut, selectAll, unselectAll, setControlsLock } = useCopyPasteCut();
+    const { getHelperLines } = useHelperLines();
+    const [helperLineHorizontal, setHelperLineHorizontal] = useState<number | undefined>(undefined);
+    const [helperLineVertical, setHelperLineVertical] = useState<number | undefined>(undefined);
 
     const flow = useReactFlow();
     const platform = usePlatform();
@@ -277,6 +286,37 @@ const ControlView: React.FC = () => {
         },
     });
 
+    const customApplyNodeChanges = useCallback(
+        (changes: NodeChange[], nodes: Node[]): Node[] => {
+            // reset the helper lines (clear existing lines, if any)
+            setHelperLineHorizontal(undefined);
+            setHelperLineVertical(undefined);
+
+            // this will be true if it's a single node being dragged
+            // inside we calculate the helper lines and snap position for the position where the node is being moved to
+            if (
+                (changes.length === 1 || nodes.filter((node) => node.selected).length === 1) &&
+                changes[0].type === 'position' &&
+                changes[0].dragging &&
+                changes[0].position
+            ) {
+                const helperLines = getHelperLines(changes[0], nodes);
+
+                // if we have a helper line, we snap the node to the helper line position
+                // this is being done by manipulating the node position inside the change object
+                changes[0].position.x = helperLines.snapPosition.x ?? changes[0].position.x;
+                changes[0].position.y = helperLines.snapPosition.y ?? changes[0].position.y;
+
+                // if helper lines are returned, we set them so that they can be displayed
+                setHelperLineHorizontal(helperLines.horizontal);
+                setHelperLineVertical(helperLines.vertical);
+            }
+
+            return applyNodeChanges(changes, nodes);
+        },
+        [getHelperLines]
+    );
+
     // Combine setNodeRef with storing the element in elementRef
     const handleRef = (element: HTMLDivElement | null) => {
         setNodeRef(element); // Assign to dnd-kit
@@ -288,8 +328,10 @@ const ControlView: React.FC = () => {
     };
 
     const onNodesChange: OnNodesChange = useCallback(
-        (changes) => setNodes(applyNodeChanges(changes, nodes)),
-        [setNodes, nodes]
+        (changes) => {
+            setNodes(customApplyNodeChanges(changes, nodes));
+        },
+        [nodes, setNodes, customApplyNodeChanges]
     );
 
     const onNodesDelete: OnNodesDelete = useCallback(() => {
@@ -413,6 +455,10 @@ const ControlView: React.FC = () => {
                     pannable
                 />
             ) : null}
+            <HelperLines
+                horizontal={helperLineHorizontal}
+                vertical={helperLineVertical}
+            />
         </ReactFlow>
     );
 };
