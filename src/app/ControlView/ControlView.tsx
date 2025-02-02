@@ -458,6 +458,8 @@ const ControlView: React.FC = () => {
             <HelperLines
                 horizontal={helperLineHorizontal}
                 vertical={helperLineVertical}
+                lineColor='yellow'
+                lineWidth={1}
             />
         </ReactFlow>
     );

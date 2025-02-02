@@ -10,11 +10,13 @@ const storeSelector = (state: ReactFlowState) => ({
 export type HelperLinesProps = {
     horizontal?: number;
     vertical?: number;
+    lineWidth: number;
+    lineColor: string;
 };
 
 // a simple component to display the helper lines
 // it puts a canvas on top of the React Flow pane and draws the lines using the canvas API
-function HelperLinesRenderer({ horizontal, vertical }: HelperLinesProps) {
+function HelperLinesRenderer({ horizontal, vertical, lineWidth, lineColor }: HelperLinesProps) {
     const { width, height, transform } = useStore(storeSelector);
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -33,7 +35,8 @@ function HelperLinesRenderer({ horizontal, vertical }: HelperLinesProps) {
 
         ctx.scale(dpi, dpi);
         ctx.clearRect(0, 0, width, height);
-        ctx.strokeStyle = '#0041d0';
+        ctx.strokeStyle = lineColor;
+        ctx.lineWidth = lineWidth;
 
         if (typeof vertical === 'number') {
             ctx.moveTo(vertical * transform[2] + transform[0], 0);
@@ -46,7 +49,7 @@ function HelperLinesRenderer({ horizontal, vertical }: HelperLinesProps) {
             ctx.lineTo(width, horizontal * transform[2] + transform[1]);
             ctx.stroke();
         }
-    }, [width, height, transform, horizontal, vertical]);
+    }, [width, height, transform, horizontal, vertical, lineWidth, lineColor]);
 
     return (
         <canvas
