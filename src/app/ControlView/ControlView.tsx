@@ -437,7 +437,6 @@ const ControlView: React.FC = () => {
             //
             zoomOnDoubleClick={false}
         >
-            {unlocked ? <Background /> : null}
             <Controls
                 onInteractiveChange={(status) => {
                     setUnlocked(status);
@@ -448,19 +447,22 @@ const ControlView: React.FC = () => {
                     }
                 }}
             />
-            {unlocked ? (
-                <MiniMap
-                    nodeStrokeWidth={3}
-                    zoomable
-                    pannable
-                />
-            ) : null}
-            <HelperLines
-                horizontal={helperLineHorizontal}
-                vertical={helperLineVertical}
-                lineColor='yellow'
-                lineWidth={1}
-            />
+            {unlocked && (
+                <>
+                    <Background />
+                    <MiniMap
+                        nodeStrokeWidth={3}
+                        zoomable
+                        pannable
+                    />
+                    <HelperLines
+                        horizontal={helperLineHorizontal}
+                        vertical={helperLineVertical}
+                        lineColor='yellow'
+                        lineWidth={1}
+                    />
+                </>
+            )}
         </ReactFlow>
     );
 };
