@@ -160,6 +160,37 @@ export const useHelperLines = () => {
                     horizontalDistance = distanceTopBottom;
                 }
 
+                //  |‾‾‾‾‾‾‾‾‾‾‾|
+                //  |     A     |
+                //  |___________|
+                //        |
+                //        |
+                //  |‾‾‾‾‾‾‾‾‾‾‾|
+                //  |     B     |
+                //  |___________|
+                const distanceVerticalCenter = Math.abs(
+                    nodeABounds.left + nodeABounds.width / 2.0 - (nodeBBounds.left + nodeBBounds.width / 2.0)
+                );
+
+                if (distanceVerticalCenter < verticalDistance) {
+                    result.snapPosition.x = nodeBBounds.left + nodeBBounds.width / 2.0 - nodeABounds.width / 2.0;
+                    result.vertical = nodeBBounds.left + nodeBBounds.width / 2.0;
+                    verticalDistance = distanceVerticalCenter;
+                }
+
+                //  |‾‾‾‾‾‾‾‾‾‾‾|     |‾‾‾‾‾‾‾‾‾‾‾|
+                //  |     A     |-----|     B     |
+                //  |___________|     |___________|
+                const distanceHorizontalCenter = Math.abs(
+                    nodeABounds.top + nodeABounds.height / 2.0 - (nodeBBounds.top + nodeBBounds.height / 2.0)
+                );
+
+                if (distanceHorizontalCenter < horizontalDistance) {
+                    result.snapPosition.y = nodeBBounds.top + nodeBBounds.height / 2.0 - nodeABounds.height / 2.0;
+                    result.horizontal = nodeBBounds.top + nodeBBounds.height / 2.0;
+                    horizontalDistance = distanceHorizontalCenter;
+                }
+
                 return result;
             }, defaultResult);
     }
