@@ -4,7 +4,7 @@ import { LazyStore } from '@tauri-apps/plugin-store';
 
 import { useHeaderStore } from '@/app/HeaderStore';
 import { useLanguageStore } from './LanguageStore';
-import { useControlViewStore } from './ControlView/store';
+import { useControlViewStore } from './ControlView/UseControlViewStore';
 
 export interface StoreActions {
     save: () => unknown;

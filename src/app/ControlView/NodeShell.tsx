@@ -1,4 +1,4 @@
-import { useControlViewStore } from './store';
+import { useControlViewStore } from './UseControlViewStore';
 
 interface NodeShellProps {
     topLeft: string | undefined;

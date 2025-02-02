@@ -28,9 +28,9 @@ import '../../styles/globals.css';
 
 import { usePlatform } from '../platform';
 import { IClass } from '../structure';
-import { useUndoRedo } from './UndoRedo';
-import { useCopyPasteCut } from './CopyPasteCut';
-import { useControlViewStore } from './store';
+import { useUndoRedo } from './UseUndoRedo';
+import { useCopyPasteCut } from './UseCopyPasteCut';
+import { useControlViewStore } from './UseControlViewStore';
 import { useHelperLines } from './UseHelperLines';
 
 import BooleanToggleNode from './Nodes/BooleanToggle';
