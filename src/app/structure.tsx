@@ -5,26 +5,26 @@ import { Channel, invoke } from '@tauri-apps/api/core';
 export interface IAttribute {
     mode: string;
     type: string;
-    settings?: any | null;
-    info: string | null;
+    settings?: any;
+    info?: string;
 }
 
 export interface IClass {
     attributes: Record<string, IAttribute>;
     classes: Record<string, IClass>;
-    info: string | null;
+    info?: string;
     tags: string[];
 }
 
 export interface IDriver {
     attributes: Record<string, IAttribute>;
     classes: Record<string, IClass>;
-    info: string | null;
+    info?: string;
 }
 
 export interface IStructure {
     drivers: Record<string, IDriver>;
-    info: string | null;
+    info?: string;
 }
 
 function validateKey(key: string, obj: any) {
@@ -105,9 +105,10 @@ async function fetchStructure() {
 
 function registerAttribute(name: string, obj: any) {
     const iattribute: IAttribute = {
-        info: null,
+        info: undefined,
         mode: '',
         type: '',
+        settings: undefined,
     };
 
     validateKeys(iattribute, obj);
@@ -127,7 +128,7 @@ function registerClass(name: string, obj: any) {
     const iclass: IClass = {
         attributes: {},
         classes: {},
-        info: null,
+        info: undefined,
         tags: [],
     };
 
@@ -151,7 +152,7 @@ function registerDriver(name: string, obj: any) {
     const idriver: IDriver = {
         attributes: {},
         classes: {},
-        info: null,
+        info: undefined,
     };
 
     validateKeys(idriver, obj);
@@ -173,7 +174,7 @@ export async function parseStructure() {
     const jsonPayload = await fetchStructure();
     const istructure: IStructure = {
         drivers: {},
-        info: null,
+        info: undefined,
     };
 
     validateKey('driver_instances', jsonPayload);

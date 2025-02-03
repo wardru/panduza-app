@@ -27,7 +27,8 @@ export abstract class Attribute {
     readonly classPath: string;
     readonly parentDriver: string;
     readonly mode: string;
-    readonly info: string | null;
+    readonly info?: string;
+    readonly settings?: unknown;
 
     constructor(name: string, parentDriver: string, parentClasses: string[], cfg: IAttribute) {
         this.name = name;
@@ -40,6 +41,7 @@ export abstract class Attribute {
         this.type = cfg.type;
         this.mode = cfg.mode;
         this.info = cfg.info;
+        this.settings = cfg.settings;
     }
 }
 
@@ -96,12 +98,6 @@ export interface SiSettings {
 
 export class AttributeSi extends Attribute {
     private _value = 0;
-    private _props: SiSettings = {
-        min: 0,
-        max: 0,
-        decimals: 0,
-        unit: '',
-    };
     private onAttributeMessage: Channel<Uint8Array>;
     private listeners: Array<() => void> = []; // Listeners to notify on change
 
@@ -111,11 +107,6 @@ export class AttributeSi extends Attribute {
         if (!cfg.settings) {
             throw new Error("Attribute SI doesn't have settings!");
         }
-
-        this._props.decimals = cfg.settings.decimals;
-        this._props.min = cfg.settings.min;
-        this._props.max = cfg.settings.max;
-        this._props.unit = cfg.settings.unit;
 
         this.onAttributeMessage = new Channel<Uint8Array>();
 
@@ -133,56 +124,6 @@ export class AttributeSi extends Attribute {
     publish(val: number) {
         const bytes = new TextEncoder().encode(val.toString());
         invoke('publish', { commandTopic: this.cmd_topic, value: bytes });
-    }
-
-    validateInput(val: string): string {
-        const num = parseFloat(val);
-
-        if (isNaN(num)) {
-            throw new Error(`Invalid input for Si attribute "${this.name}": "${val}" is not a number.`);
-        }
-
-        if (num < this.min || num > this.max) {
-            throw new Error(
-                `Value ${num} is out of range for Si attribute "${this.name}". Expected range: [${this.min}, ${this.max}].`
-            );
-        }
-
-        if (val.includes('.') && val.split('.')[1].length > this._props.decimals) {
-            const clampedValue = num.toFixed(this._props.decimals);
-
-            console.warn(
-                `Attribute Si "${this.name}" has a precision of ${this._props.decimals}. Clamped ${num} to ${clampedValue}.`
-            );
-            return clampedValue;
-        }
-
-        return num.toString();
-    }
-
-    get settings(): SiSettings {
-        return {
-            min: this.min,
-            max: this.max,
-            decimals: this.decimals,
-            unit: this.unit,
-        };
-    }
-
-    get min(): number {
-        return this._props.min;
-    }
-
-    get max(): number {
-        return this._props.max;
-    }
-
-    get unit(): string {
-        return this._props.unit;
-    }
-
-    get decimals(): number {
-        return this._props.decimals;
     }
 
     get value(): number {
@@ -296,12 +237,6 @@ export class AttributeEnum extends Attribute {
         return this._props.choices;
     }
 
-    get settings(): EnumSettings {
-        return {
-            choices: this.choices,
-        };
-    }
-
     subscribe(listener: () => void) {
         this.listeners.push(listener);
     }
@@ -333,16 +268,6 @@ export class AttributeNumber extends Attribute {
             this._value = Number(String.fromCharCode(...message));
             this.notifyListeners();
         };
-    }
-
-    validateInput(val: string): string {
-        const num = parseFloat(val);
-
-        if (isNaN(num)) {
-            throw new Error(`Invalid input for Number attribute "${this.name}": "${val}" is not a number.`);
-        }
-
-        return num.toString();
     }
 
     publish(val: number) {

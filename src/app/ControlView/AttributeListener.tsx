@@ -196,7 +196,7 @@ export const useAttributeEnumListener = (props: AttributeEnumListenerProps) => {
 
             setAttribute(attEnum);
             setValue(attEnum.value);
-            setSettings(attEnum.settings);
+            setSettings(attEnum.settings as EnumSettings);
         }
     }, [platform.connectionState, platform.attributes, path, mode]);
 
@@ -334,7 +334,7 @@ export const useAttributeSiListener = (props: AttributeSiListenerProps) => {
 
             setAttribute(attSi);
             setValue(attSi.value);
-            setSettings(attSi.settings);
+            setSettings(attSi.settings as SiSettings);
         }
     }, [platform.connectionState, platform.attributes, path, mode]);
 

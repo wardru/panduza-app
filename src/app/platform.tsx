@@ -98,7 +98,6 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             for (const attribute in attributes) {
                 newMap[`${driver}/${attribute}`] = createNewAttribute(attribute, driver, [], attributes[attribute]);
             }
-
             for (const iclass in classes) {
                 createAttributesInClass(newMap, driver, [iclass], classes[iclass]);
             }
