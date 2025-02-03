@@ -16,7 +16,7 @@ export type HelperLinesProps = {
 
 // a simple component to display the helper lines
 // it puts a canvas on top of the React Flow pane and draws the lines using the canvas API
-function HelperLinesRenderer({ horizontal, vertical, lineWidth, lineColor }: HelperLinesProps) {
+const HelperLines: React.FC<HelperLinesProps> = ({ horizontal, vertical, lineWidth, lineColor }) => {
     const { width, height, transform } = useStore(storeSelector);
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -57,6 +57,6 @@ function HelperLinesRenderer({ horizontal, vertical, lineWidth, lineColor }: Hel
             className='react-flow__canvas w-full h-full absolute z-10 pointer-events-none'
         />
     );
-}
+};
 
-export default HelperLinesRenderer;
+export default HelperLines;
