@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useDndMonitor } from '@dnd-kit/core';
@@ -8,12 +8,15 @@ import { usePlatform } from './platform';
 import { IStructure, IDriver, IClass } from './structure';
 import { Tree } from '../components/Tree';
 import TreeData from '../components/Tree/TreeData';
+import { Accordion } from '@/components/Accordion';
+
+import { InformationCircleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 
 interface TreeViewProps {
-    onAttributeSelect: (itemId: string | null) => void;
+    onItemSelect: (itemId: string | null) => void;
 }
 
-const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
+const TreeView: React.FC<TreeViewProps> = ({ onItemSelect }) => {
     const platform = usePlatform();
     const [tree, setTree] = useState<TreeData[]>();
     const [isDragging, setIsDragging] = useState(false);
@@ -100,11 +103,11 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
         };
 
         if (!platform.structure) {
-            onAttributeSelect(null);
+            onItemSelect(null);
             return;
         }
         setTree(createTreeFromStructure(platform.structure));
-    }, [platform.structure, onAttributeSelect]);
+    }, [platform.structure, onItemSelect]);
 
     return (
         <div
@@ -118,7 +121,7 @@ const TreeView: React.FC<TreeViewProps> = ({ onAttributeSelect }) => {
                     openByDefault
                     items={tree}
                     onSelect={(id) => {
-                        onAttributeSelect(id);
+                        onItemSelect(id);
                     }}
                 />
             ) : (
@@ -140,20 +143,52 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
     const { t } = useTranslation('explorer');
 
     return (
-        <div className='h-full w-full text-white bg-neutral-800 overflow-auto'>
-            <label>{t('properties')}</label>
-            <p>------------------------</p>
-            <br />
-            {attribute ? (
-                <div>
-                    <p>Attribute: {attribute.name}</p>
-                    <p>Classes: {attribute.parentClasses.join('/')}</p>
-                    <p>Driver: {attribute.parentDriver}</p>
-                    <p>Type: {attribute.type}</p>
-                    <p>Mode: {attribute.mode}</p>
-                    {attribute.info ? <p>Info: {attribute.info}</p> : null}
-                </div>
-            ) : null}
+        <div className='h-full w-full flex flex-col text-white bg-[#272727]'>
+            <span className='flex items-center pt-2 pb-4 px-2 space-x-2'>
+                <InformationCircleIcon className='size-5' />
+                <label>{t('properties')}</label>
+            </span>
+            <div className='mx-2 overflow-auto'>
+                {attribute?.settings ? (
+                    <Accordion name={t('settings')}>
+                        <div className='grid grid-cols-[auto_1fr] gap-x-0.5 gap-y-0.5 text-sm rounded-lg overflow-hidden'>
+                            {Object.entries(attribute.settings).map(([key, value], index) => (
+                                <Fragment key={index}>
+                                    <label
+                                        className='flex items-center bg-[#303030] px-6 py-1.5'
+                                        style={{ textTransform: 'capitalize' }}
+                                    >
+                                        {key}
+                                    </label>
+                                    <div className='flex items-center px-0.5 py-0.5 bg-[#303030]'>
+                                        {Array.isArray(value) ? (
+                                            <div className='grid grid-cols-1 bg-[#171717] px-2.5 py-0.5 m-0.5 w-full'>
+                                                {value.map((item, index) => (
+                                                    <span key={index}>
+                                                        {JSON.stringify(item).replace(/['"]+/g, '').trim()}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className='bg-[#171717] flex items-center rounded-lg px-2 h-full w-full'>
+                                                {JSON.stringify(value).replace(/['"]+/g, '').trim()}
+                                            </div>
+                                        )}
+                                    </div>
+                                </Fragment>
+                            ))}
+                        </div>
+                    </Accordion>
+                ) : null}
+                {attribute?.info ? (
+                    <Accordion name={t('info')}>
+                        <div className='bg-[#1B1B1B] border border-[#355870] rounded-lg p-2 flex w-full'>
+                            <LightBulbIcon className='flex-shrink-0 size-4 mx-1 my-1' />
+                            <p className='pl-2 text-white break-words w-full'>{attribute.info}</p>
+                        </div>
+                    </Accordion>
+                ) : null}
+            </div>
         </div>
     );
 };
@@ -163,7 +198,7 @@ const Explorer: React.FC = () => {
 
     return (
         <Allotment vertical={true}>
-            <TreeView onAttributeSelect={(itemId) => setSelectedItem(itemId)} />
+            <TreeView onItemSelect={(itemId) => setSelectedItem(itemId)} />
             <InfoPanel item={selectedItem} />
         </Allotment>
     );

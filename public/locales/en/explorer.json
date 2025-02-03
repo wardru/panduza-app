@@ -1,4 +1,6 @@
 {
     "no-platform": "No platform connected",
-    "properties": "Properties"
+    "properties": "Properties",
+    "info": "Info",
+    "settings": "Settings"
 }

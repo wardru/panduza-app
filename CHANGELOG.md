@@ -4,6 +4,7 @@
 
 ### Changed
 
+- Refactored `Properties` to reflect settings and info fields ([#148](https://github.com/Panduza/panduza-app/pull/148))
 - Renamed `Tree Panel` to `Explorer`
 - Renamed `Info Panel` to `Properties` to better reflect that it displays attribute properties
 - Renamed the attribute method setValue() to the more descriptive publish()
