@@ -4,54 +4,53 @@
 
 ### Changed
 
-- Renamed attribute method setValue() to more descriptive publish()
-- Renamed tree panel to explorer
-- Renamed `Info Panel` to `Properties` to express that these are attribute properties
+- Renamed `Tree Panel` to `Explorer`
+- Renamed `Info Panel` to `Properties` to better reflect that it displays attribute properties
+- Renamed the attribute method setValue() to the more descriptive publish()
 
 ### Added
 
-- Added helper lines on control view when it's not locked, to allow easy aligment of nodes
+- Added helper lines in the control view when unlocked to improve node alignment
 - Added copy/paste/cut functionality for nodes with shortcuts (Ctrl+C / Ctrl+V / Ctrl+X)
 - Added select/unselect functionality for nodes with shortcuts (Ctrl+A / Esc)
-- Added save/load functionality for the connection data, control view, and language
+- Added automatic load/save functionality at application start/close, and with shortcuts (Ctrl+S), for connection data, control view, and language
 - Added undo/redo functionality for the last 100 node actions (create, delete, move) with shortcuts (Ctrl+Z / Ctrl+Shift+Z)
-- Added node animation on new platform data
-- Added class and driver nodes instanciation
-- Added REPL custom widget in control view
+- Added a context menu in the tree view (right-click) to copy attribute metadata to the system clipboard
+- Added node animation on new platform data subscription
+- Added class and driver node instantiation
+- Added a REPL custom widget in the control view
 - Added generic widgets for control view nodes
 - Added connection state management for control view nodes
-- Added control view with node visualization, minimap, basic controls
-- Added i18n dependency
-- Added translation files for english and french
-- Added UTF-8 support to platform payloads (units, accents, ...)
-- Added tree view representation of attributes of type si, number, enum, string and json
-- Added basic widgets for attributes of type si, number, bolean, enum and string
-- Added basic premliminary widget for future attribute of type file
-- Added memory command attribute skeleton
-- Added context menu, on right click, over the tree view to copy attribute metadata to the system clipboard
+- Added a control view with node visualization, a minimap, and basic controls
+- Added i18n dependency for translations
+- Added translation files for English and French
+- Added UTF-8 support for platform payloads (units, accents, etc.)
+- Added a tree view representation for attributes of type si, number, enum, string, and json
+- Added basic widgets for attributes of type si, number, boolean, enum, and string
+- Added a preliminary basic widget for future file-type attributes
+- Added a memory command attribute skeleton
 
 ### Removed
 
-- Removed attribute instantiation on the Info Panel, since it's available via ControlView
+- Removed attribute instantiation in the `Info Panel`, as it's now available via the control view
 
 ### Fixed
 
-- Fixed treeview drag and drop #18
-- Fixed crash on unknown attributes
-- Fixed key identifier issue on info panel widgets
+- Fixed tree view drag-and-drop (#18)
+- Fixed a crash on unknown attributesx`
 
 ## [0.1.0] - 2025-01-07
 
 ### Added
 
-- Added cargo tauri app with Next.js frontend
-- Added a connection panel to set the panduza-platform ip/hostname and port
-- Added rumqttc backend to publish and subscribe MQTT topics from panduza-platform
-- Added treeview to visualize all the platform classes and attributes
-- Added info panel to visualize attribute metadata
-- Added support for Windows7 by fixing rust to 1.77.2
-- Added build info to app, available via command line with --version or in About menu in the UI
-- Added rust, typescript, javascript, markdown code formating and linting
-- Added translation from localhost to 127.0.0.1 to speed up connections due to Windows DNS
+- Added a Cargo Tauri app with a Next.js frontend
+- Added a connection panel to set the panduza-platform IP/hostname and port
+- Added a rumqttc backend to publish and subscribe to MQTT topics from panduza-platform
+- Added a tree view to visualize all platform classes and attributes
+- Added an info panel to display attribute metadata
+- Added support for Windows 7 by fixing Rust to version 1.77.2
+- Added build info to the app, accessible via the command line (--version) or the `About` menu in the UI
+- Added Rust, TypeScript, JavaScript, and Markdown formatting and linting
+- Added translation from `localhost` to `127.0.0.1` to speed up connections due to Windows DNS
 
 [0.1.0]: https://github.com/Panduza/panduza-app/releases/tag/0.1.0
