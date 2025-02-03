@@ -31,7 +31,10 @@ const EnumDisplayNode: React.FC<NodeProps<EnumDisplayNode>> = (props) => {
             disabled={!connected}
             animateBorder={isFreshValue}
         >
-            <StringDisplay value={value} />
+            <StringDisplay
+                rows={1}
+                value={value}
+            />
         </NodeShell>
     );
 };

@@ -31,7 +31,10 @@ const StringDisplayNode: React.FC<NodeProps<StringDisplayNode>> = (props) => {
             disabled={!connected}
             animateBorder={isFreshValue}
         >
-            <StringDisplay value={value} />
+            <StringDisplay
+                rows={1}
+                value={value}
+            />
         </NodeShell>
     );
 };

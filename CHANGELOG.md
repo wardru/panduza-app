@@ -10,34 +10,31 @@
 
 ### Added
 
-- Added helper lines in the control view when unlocked to improve node alignment
-- Added copy/paste/cut functionality for nodes with shortcuts (Ctrl+C / Ctrl+V / Ctrl+X)
-- Added select/unselect functionality for nodes with shortcuts (Ctrl+A / Esc)
-- Added automatic load/save functionality at application start/close, and with shortcuts (Ctrl+S), for connection data, control view, and language
-- Added undo/redo functionality for the last 100 node actions (create, delete, move) with shortcuts (Ctrl+Z / Ctrl+Shift+Z)
-- Added a context menu in the tree view (right-click) to copy attribute metadata to the system clipboard
-- Added node animation on new platform data subscription
-- Added class and driver node instantiation
-- Added a REPL custom widget in the control view
-- Added generic widgets for control view nodes
-- Added connection state management for control view nodes
 - Added a control view with node visualization, a minimap, and basic controls
-- Added i18n dependency for translations
+- Added generic widgets for control view nodes, for attributes of type si, number, boolean, enum, and string ([#16](https://github.com/Panduza/panduza-app/issues/16))
+- Added class and driver node instantiation ([#19](https://github.com/Panduza/panduza-app/issues/19))
+- Added automatic load/save functionality at application start/close, and with shortcuts (Ctrl+S), for connection data, control view, and language ([#17](https://github.com/Panduza/panduza-app/issues/17))
+- Added undo/redo functionality for the last 100 node actions (create, delete, move) with shortcuts (Ctrl+Z / Ctrl+Shift+Z) ([#63](https://github.com/Panduza/panduza-app/issues/63))
+- Added helper lines in the control view when unlocked to improve node alignment ([#149](https://github.com/Panduza/panduza-app/issues/149))
+- Added copy/paste/cut functionality for nodes with shortcuts (Ctrl+C / Ctrl+V / Ctrl+X) ([#86](https://github.com/Panduza/panduza-app/issues/86))
+- Added select/unselect functionality for nodes with shortcuts (Ctrl+A / Esc)
+- Added a context menu in the tree view (right-click) to copy attribute metadata to the system clipboard ([#52](https://github.com/Panduza/panduza-app/issues/52))
+- Added node animation on new platform data subscription
+- Added a REPL custom widget in the control view ([#26](https://github.com/Panduza/panduza-app/issues/26))
+- Added connection state management for control view nodes
+- Added i18n dependency for translations ([#20](https://github.com/Panduza/panduza-app/issues/20))
 - Added translation files for English and French
 - Added UTF-8 support for platform payloads (units, accents, etc.)
-- Added a tree view representation for attributes of type si, number, enum, string, and json
-- Added basic widgets for attributes of type si, number, boolean, enum, and string
-- Added a preliminary basic widget for future file-type attributes
-- Added a memory command attribute skeleton
+- Added a preliminary basic widget for future file-type attributes ([#13](https://github.com/Panduza/panduza-app/issues/13))
 
 ### Removed
 
-- Removed attribute instantiation in the `Info Panel`, as it's now available via the control view
+- Removed attribute representation in the `Info Panel`, as it's now available via the control view
 
 ### Fixed
 
-- Fixed tree view drag-and-drop (#18)
-- Fixed a crash on unknown attributesx`
+- Fixed tree view drag-and-drop ([#18](https://github.com/Panduza/panduza-app/issues/18))
+- Fixed a crash on unknown attributes
 
 ## [0.1.0] - 2025-01-07
 
@@ -46,6 +43,7 @@
 - Added a Cargo Tauri app with a Next.js frontend
 - Added a connection panel to set the panduza-platform IP/hostname and port
 - Added a rumqttc backend to publish and subscribe to MQTT topics from panduza-platform
+- Added a `Info Panel` representation for attributes of type si, number, enum, string, and json
 - Added a tree view to visualize all platform classes and attributes
 - Added an info panel to display attribute metadata
 - Added support for Windows 7 by fixing Rust to version 1.77.2
