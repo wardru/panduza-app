@@ -45,6 +45,8 @@ import EnumInput from './Nodes/EnumInput';
 import EnumDisplay from './Nodes/EnumDisplay';
 import ReplNode from './Nodes/Repl';
 import FileUploader from './Nodes/FileUploader';
+import Graph from './Nodes/Graph';
+
 import HelperLines from './HelperLines';
 
 const nodeTypes = {
@@ -60,6 +62,7 @@ const nodeTypes = {
     enuminput_ro: EnumDisplay,
     repl: ReplNode,
     fileuploader: FileUploader,
+    graph: Graph,
 };
 const proOptions = { hideAttribution: true };
 
@@ -348,45 +351,51 @@ const ControlView: React.FC = () => {
     }, [takeSnapshot]);
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-        if (event.key === 'c' && (event.ctrlKey || event.metaKey)) {
+        if (event.key === 'g' && (event.ctrlKey || event.metaKey)) {
+            // add graph as hack
+            event.preventDefault();
+            takeSnapshot();
+            unselectAll();
+            flow.addNodes([
+                {
+                    id: uuidv4(),
+                    type: 'graph',
+                    position: flow.screenToFlowPosition(mousePosition.current),
+                    selected: unlocked,
+                    data: {},
+                },
+            ]);
+        } else if (event.key === 'c' && (event.ctrlKey || event.metaKey)) {
             // copy
             copy();
-            console.log('Copy');
         } else if (event.key === 'v' && (event.ctrlKey || event.metaKey)) {
             // paste
             takeSnapshot();
             paste(mousePosition.current);
-            console.log('Paste');
         } else if (event.key === 'x' && (event.ctrlKey || event.metaKey)) {
             takeSnapshot();
             cut();
             ctrlViewRef.current?.focus();
             // cut
-            console.log('Cut');
         } else if (event.key === 'Z' && (event.ctrlKey || event.metaKey) && event.shiftKey) {
             // redo
             redo();
-            console.log('Redo');
         } else if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
             // undo
             undo();
-            console.log('Undo');
         } else if (event.key === 'l' && (event.ctrlKey || event.metaKey)) {
             // lock
             setUnlocked(!unlocked);
             setControlsLock(unlocked);
-            console.log('Toggle Locking');
         } else if (event.key === 'a' && (event.ctrlKey || event.metaKey)) {
             // select all
             if (unlocked) {
                 selectAll();
-                console.log('Select All');
             }
         } else if (event.key === 'escape') {
             // unselect all
             unselectAll();
             ctrlViewRef.current?.focus();
-            console.log('UnSelect All');
         }
     };
 
