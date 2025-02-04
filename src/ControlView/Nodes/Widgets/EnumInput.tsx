@@ -12,13 +12,19 @@ const EnumInput: React.FC<EnumInputProps> = (props) => {
 
     return (
         <select
-            className='nodrag nopan w-full px-2 py-1 text-center text-lg font-medium text-black rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500'
+            className='nodrag nopan bg-box focus:ring-active w-full rounded-md px-2 py-1 text-center text-lg font-medium focus:ring-3 focus:outline-hidden'
             onChange={handleSelectChange}
             value={props.value}
             disabled={props.disabled}
         >
             {props.choices.map((choice) => (
-                <option key={choice}> {choice} </option>
+                <option
+                    className='text-center'
+                    key={choice}
+                >
+                    {' '}
+                    {choice}{' '}
+                </option>
             ))}
         </select>
     );

@@ -58,7 +58,7 @@ const FileUploader: React.FC<NodeProps> = (props) => {
             disabled={disabled}
         >
             <div
-                className='flex flex-col justify-center items-center text-white hover:text-gray-300 text-lg'
+                className='flex flex-col items-center justify-center text-lg hover:text-gray-300'
                 onClick={openFileAndSendToBackend}
             >
                 <CloudArrowUpIcon className='size-12' />

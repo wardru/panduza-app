@@ -7,7 +7,7 @@ interface BooleanButtonProps {
 const BooleanButton: React.FC<BooleanButtonProps> = (props) => {
     return (
         <button
-            className='nodrag nopan px-4 py-2 bg-green-800 text-white rounded-lg active:scale-95'
+            className='nodrag nopan bg-active rounded-lg px-3 py-1.5 active:scale-95'
             disabled={props.disabled}
             onClick={(e) => {
                 e.stopPropagation();

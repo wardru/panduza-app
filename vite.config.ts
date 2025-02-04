@@ -2,11 +2,22 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import eslint from 'vite-plugin-eslint';
 import commonjs from 'vite-plugin-commonjs';
+import tailwindcss from '@tailwindcss/vite';
+import svgr from 'vite-plugin-svgr';
 
 const host = process.env.TAURI_DEV_HOST;
 
 export default defineConfig({
-    plugins: [react(), eslint(), commonjs()],
+    plugins: [
+        react(),
+        tailwindcss(),
+        eslint(),
+        commonjs(),
+        svgr({
+            svgrOptions: { exportType: 'default', ref: true, svgo: false, titleProp: true },
+            include: '**/*.svg',
+        }),
+    ],
     // prevent vite from obscuring rust errors
     clearScreen: false,
     server: {

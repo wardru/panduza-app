@@ -5,13 +5,13 @@ interface NumberDisplayProps {
 
 const NumberDisplay: React.FC<NumberDisplayProps> = (props) => {
     return (
-        <div
+        <p
+            className='nodrag nopan selection:bg-active inline-block px-4 py-1 font-semibold select-text'
             onClick={(e) => e.stopPropagation()}
-            className='nodrag nopan flex text-center w-min  text-white select-text'
         >
-            <p className='font-semibold'>{props.value}</p>
-            {props.unit ? <span className='ml-2 font-bold'>{props.unit}</span> : null}
-        </div>
+            {props.value}
+            {props.unit && <>&nbsp;&nbsp;{props.unit}</>}
+        </p>
     );
 };
 

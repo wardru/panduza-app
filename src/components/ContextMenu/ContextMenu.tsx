@@ -48,7 +48,7 @@ export const ContextMenu = forwardRef((_, ref) => {
     return ReactDOM.createPortal(
         <div
             ref={localRef}
-            className={`fixed bg-white`}
+            className={`bg-background fixed overflow-hidden rounded-md`}
             style={{
                 top: position.y,
                 left: position.x,
@@ -62,7 +62,7 @@ export const ContextMenu = forwardRef((_, ref) => {
                 {items?.map((item, index) => (
                     <li
                         key={index}
-                        className='px-4 py-2 hover:bg-gray-200 cursor-pointer'
+                        className='hover:bg-background-hover cursor-pointer px-4 py-2'
                         onClick={item.action}
                     >
                         {item.label}

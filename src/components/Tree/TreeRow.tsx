@@ -32,6 +32,7 @@ export const TreeRow: React.FC<TreeRowProps> = ({ node }) => {
     const handleSelectClick = () => tree.select(node);
 
     const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+        event.stopPropagation();
         tree.select(node);
         show(event, [
             {
@@ -44,12 +45,11 @@ export const TreeRow: React.FC<TreeRowProps> = ({ node }) => {
     return (
         <>
             <div
-                className='hover:bg-green-900 items-center flex rounded-md mx-2 outline-none'
+                className={`my-0.5 mr-3 ml-1 flex items-center rounded-md py-0.5 outline-hidden ${tree.isSelected(node) ? 'bg-active' : 'bg-transparent hover:bg-[#495258]'} `}
                 onClick={handleSelectClick}
                 onContextMenu={handleContextMenu}
                 style={{
                     paddingLeft: node.level * 18,
-                    backgroundColor: tree.isSelected(node) ? 'blue' : '',
                     cursor: isDragging ? 'grabbing' : 'auto',
                 }}
                 ref={setNodeRef}
@@ -57,7 +57,7 @@ export const TreeRow: React.FC<TreeRowProps> = ({ node }) => {
                 {...listeners}
             >
                 <span
-                    className='mr-1 flex flex-shrink-0 items-center justify-center size-6'
+                    className='mr-1 flex size-6 shrink-0 items-center justify-center'
                     onClick={handleChevronClick}
                 >
                     {node.children &&
@@ -67,12 +67,14 @@ export const TreeRow: React.FC<TreeRowProps> = ({ node }) => {
                             <ChevronRightIcon className='size-3' />
                         ))}
                 </span>
-                <span className='mr-1 flex flex-shrink-0 items-center justify-center size-6'>
-                    {node.type === 'attribute' && <div className='rounded-full size-1 bg-neutral-300' />}
+                <span className='mr-1 flex size-6 shrink-0 items-center justify-center'>
+                    {node.type === 'attribute' && <div className='bg-primary size-1 rounded-full' />}
                     {node.type === 'class' && <Square3Stack3DIcon className='size-4' />}
                     {node.type === 'driver' && <Squares2X2Icon className='size-4' />}
                 </span>
-                <label className='text-nowrap'>{node.label}</label>
+                {node.type === 'attribute' && <label style={{ textTransform: 'capitalize' }}>{node.label}</label>}
+                {node.type === 'class' && <label style={{ textTransform: 'capitalize' }}>{node.label}</label>}
+                {node.type === 'driver' && <label>{node.label.toUpperCase()}</label>}
             </div>
 
             <ContextMenu ref={setContextMenuRef} />

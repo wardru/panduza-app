@@ -50,7 +50,7 @@ const Graph: React.FC<NodeProps> = (props) => {
         animationEnabled: true,
         exportEnabled: true,
         theme: 'dark2',
-        backgroundColor: '#1f2937',
+        backgroundColor: 'control-view-node-background',
         gridThickness: 0,
         zoomEnabled: false,
         axisY: {

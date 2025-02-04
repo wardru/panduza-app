@@ -412,7 +412,7 @@ const ControlView: React.FC = () => {
 
     return (
         <ReactFlow
-            className={`size-full bg-neutral-900 relative border ${unlocked ? 'border-transparent' : 'border-lime-500'} `}
+            className={`border ${unlocked ? 'border-transparent' : 'border-control-view-locked'} `}
             ref={handleRef}
             tabIndex={0} // Makes the div focusable
             onContextMenu={(e) => e.preventDefault()}
@@ -457,7 +457,7 @@ const ControlView: React.FC = () => {
             />
             {unlocked && (
                 <>
-                    <Background />
+                    <Background gap={30} />
                     <MiniMap
                         nodeStrokeWidth={3}
                         zoomable
@@ -466,7 +466,7 @@ const ControlView: React.FC = () => {
                     <HelperLines
                         horizontal={helperLineHorizontal}
                         vertical={helperLineVertical}
-                        lineColor='yellow'
+                        lineColor='#D0C657'
                         lineWidth={1}
                     />
                 </>

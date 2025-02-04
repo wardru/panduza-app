@@ -18,15 +18,18 @@ const StringInput: React.FC<StringInputProps> = (props) => {
         props.onNewValue(value);
     };
 
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (event.key === 'Enter') {
-            handleNewValue(event.currentTarget.value);
+            if (!event.shiftKey) {
+                handleNewValue(event.currentTarget.value);
+                event.preventDefault();
+            }
         } else {
             event.stopPropagation();
         }
     };
 
-    const handleOnBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    const handleOnBlur = (event: React.FocusEvent<HTMLTextAreaElement>) => {
         if (event.relatedTarget === event.target) {
             return;
         }
@@ -34,15 +37,14 @@ const StringInput: React.FC<StringInputProps> = (props) => {
         handleNewValue(event.currentTarget.value);
     };
 
-    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleOnChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newValue = event.target.value;
 
         setValue(newValue);
     };
     return (
-        <input
-            className='nodrag nopan w-full px-2 py-1 text-center text-lg font-medium text-black rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500'
-            type='text'
+        <textarea
+            className='nodrag nopan nowheel h-8 w-full'
             value={value}
             disabled={props.disabled}
             placeholder={props.placeholder}

@@ -8,6 +8,7 @@ const config = {
     proseWrap: 'never',
     singleAttributePerLine: true,
     jsxSingleQuote: true,
+    plugins: ['prettier-plugin-tailwindcss'],
 };
 
 export default config;

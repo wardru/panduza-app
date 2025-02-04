@@ -9,6 +9,9 @@ interface NumberSpinnerProps {
     onNewValue: (value: number) => void;
 }
 
+import InputArrowDown from '../../../assets/icons/InputArrowDown.svg';
+import InputArrowUp from '../../../assets/icons/InputArrowUp.svg';
+
 function clamp(value: number, min: number, max: number): number {
     if (value < min) return min;
     if (value > max) return max;
@@ -124,11 +127,50 @@ const NumberSpinner: React.FC<NumberSpinnerProps> = (props) => {
     return (
         <div className='flex items-center space-x-2'>
             <div
-                className='relative flex items-center'
+                className='nodrag nopan flex h-8 overflow-hidden rounded-md border border-[#505050]'
                 onClick={(e) => e.stopPropagation()}
             >
                 <input
-                    className='nodrag nopan w-full px-2 py-1 text-center text-lg font-medium text-black rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500'
+                    type='text'
+                    value={value}
+                    ref={inputRef}
+                    placeholder='Enter number'
+                    //TODO: take care of decimal values
+                    onChange={handleOnChange}
+                    onKeyDown={handleKeyDown}
+                    onBlur={handleOnBlur}
+                    className='w-40 rounded-none'
+                />
+                <div className='flex w-5 flex-col bg-[#424242]'>
+                    <button
+                        className='flex flex-grow items-center justify-center hover:bg-[#525252]'
+                        onMouseDown={handleMouseDownInc}
+                        onMouseUp={handleMouseUpInc}
+                        onMouseLeave={handleMouseUpInc}
+                    >
+                        <InputArrowUp className='size-2' />
+                    </button>
+
+                    <button
+                        className='flex flex-grow items-center justify-center hover:bg-[#525252]'
+                        onMouseDown={handleMouseDownDec}
+                        onMouseUp={handleMouseUpDec}
+                        onMouseLeave={handleMouseUpDec}
+                    >
+                        <InputArrowDown className='size-2' />
+                    </button>
+                </div>
+            </div>
+            {props.unit ? <label className='text-lg'>{props.unit}</label> : null}
+        </div>
+
+        /*
+        <div className='flex items-center space-x-2'>
+            <div
+                className='relative flex items-center'
+            >
+                <input
+                    className='nodrag nopan h-8'
                     type='text'
                     value={value}
                     ref={inputRef}
@@ -139,16 +181,14 @@ const NumberSpinner: React.FC<NumberSpinnerProps> = (props) => {
                     onBlur={handleOnBlur}
                 />
                 <button
-                    className='nodrag nopan absolute right-0 top-0 bg-gray-200 text-gray-600 hover:bg-gray-300 w-8 h-1/2 rounded-tr-md flex items-center justify-center'
+                    className='nodrag nopan absolute top-0 right-0 flex h-1/2 w-6 items-center justify-center rounded-tr-md bg-gray-200/0 bg-green-600 text-gray-600 hover:bg-gray-300'
                     onMouseDown={handleMouseDownInc}
                     onMouseUp={handleMouseUpInc}
                     onMouseLeave={handleMouseUpInc}
-                >
-                    {' '}
-                    ▲{' '}
-                </button>
+                ></button>
+                <label className='size-4 bg-red-600'></label>
                 <button
-                    className='nodrag nopan absolute right-0 bottom-0 bg-gray-200 text-gray-600 hover:bg-gray-300 w-8 h-1/2 rounded-br-md flex items-center justify-center'
+                    className='nodrag nopan absolute right-0 bottom-0 flex hidden h-1/2 w-8 items-center justify-center rounded-br-md bg-gray-200 text-gray-600 hover:bg-gray-300'
                     onMouseDown={handleMouseDownDec}
                     onMouseUp={handleMouseUpDec}
                     onMouseLeave={handleMouseUpDec}
@@ -157,8 +197,9 @@ const NumberSpinner: React.FC<NumberSpinnerProps> = (props) => {
                     ▼{' '}
                 </button>
             </div>
-            {props.unit ? <label className='text-white text-lg'>{props.unit}</label> : null}
+            
         </div>
+            */
     );
 };
 

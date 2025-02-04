@@ -1,50 +1,155 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss' important;
+@import './styles/fonts/lato.css';
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
 
-.theme-dark {
-    --color-header: 20 20 20;
-    --color-primary: 255 255 255;
-    --color-secondary: 0 0 0;
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+        background-color: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: var(--color-scrollbar-thumb);
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:active {
+        background-color: var(--color-scrollbar-thumb-active);
+    }
+
+    ::-webkit-scrollbar-corner {
+        background-color: transparent;
+    }
+
+    html {
+        @apply font-lato text-primary;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    input {
+        @apply bg-box text-primary outline-secondary-border focus:outline-active rounded-md text-center outline-1 outline-offset-0 selection:bg-blue-200;
+    }
+    textarea {
+        @apply bg-box text-primary outline-secondary-border focus:outline-active rounded-md px-1 py-0.5 outline-1 outline-offset-0 selection:bg-blue-200;
+    }
+    select {
+        @apply bg-box text-primary outline-secondary-border focus:outline-active appearance-none rounded-md outline-1;
+    }
 }
 
-.theme-light {
-    --color-header: 200 200 200;
-    --color-primary: 0 0 0;
-    --color-secondary: 255 255 255;
+@theme inline {
+    --font-lato: Lato;
+
+    --color-scrollbar-thumb: rgba(94, 94, 94, 1);
+    --color-scrollbar-thumb-active: rgba(107, 107, 107, 1);
+    --color-primary: rgba(222, 222, 222, 1);
+    --color-secondary: rgba(39, 39, 39, 1);
+    --color-background: rgba(17, 17, 17, 1);
+    --color-background-hover: rgba(60, 60, 60, 1);
+    --color-active: rgba(53, 88, 112, 1);
+    --color-active-hover: rgba(73, 99, 117, 1);
+    --color-box: rgba(5, 5, 5, 1);
+    --color-box-readonly: rgba(26, 26, 26, 1);
+    --color-secondary-border: rgba(48, 48, 48, 1);
+
+    --color-dot-green: rgba(27, 230, 0, 1);
+    --color-dot-red: rgba(241, 7, 7, 1);
+    --color-dot-orange: rgba(241, 132, 7, 1);
+
+    --color-control-view-background: rgba(21, 21, 21, 1);
+    --color-control-view-dots: rgba(113, 113, 122, 1);
+    --color-control-view-controls-buttons: rgba(172, 172, 172, 1);
+
+    --color-control-view-node-background: rgba(47, 47, 47, 1);
+    --color-control-view-locked: rgba(124, 207, 0, 1);
+
+    --animate-spin: spin 1.2s infinite;
+
+    @keyframes spin {
+        100% {
+            transform: rotate(-360deg);
+        }
+    }
 }
 
-.disable-select {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+.react-flow__controls {
+    @apply overflow-hidden rounded-lg;
+}
+
+.react-flow__minimap {
+    @apply border-active bg-box overflow-hidden rounded-md border;
+}
+
+.react-flow__minimap-node {
+    fill: var(--color-primary) !important;
+}
+
+.react-flow__minimap-mask {
+    fill: var(--color-box-readonly) !important;
+    fill-opacity: 0.85 !important;
+}
+
+.react-flow {
+    background-color: var(--color-control-view-background) !important;
+    --xy-controls-button-background-color-default: var(--color-box) !important;
+    --xy-controls-button-background-color-hover-default: var(--color-box-readonly) !important;
+    --xy-controls-button-color-default: var(--color-control-view-controls-buttons) !important;
+    --xy-controls-button-border-color-default: var(--color-control-view-controls-buttons) !important;
+    --xy-controls-box-shadow-default: 0 0 7px 1px var(--color-active) !important;
+
+    --xy-background-pattern-dots-color-default: var(--color-control-view-dots) !important;
+}
+
+.react-flow__node {
+    @apply rounded-lg border-1 border-[#424141];
+}
+
+.react-flow__node.selected {
+    @apply rounded-lg border-1 border-[#5e9eca];
 }
 
 .react-flow__selection {
-    border-width: 2px;
-    border-style: dashed;
-    box-sizing: border-box;
+    @apply box-border border-2 border-dashed;
 }
 
-@layer utilities {
-    .nodeshell-animated-wrapper {
-        @apply relative rounded-md flex items-center justify-center overflow-hidden;
-    }
+@utility nodeshell-animated-wrapper {
+    @apply relative flex items-center justify-center overflow-hidden rounded-md;
 
-    .nodeshell-animated-wrapper::before {
+    &::before {
         background: conic-gradient(rgba(233, 121, 255, 0.763) 0deg 90deg, transparent 180deg);
 
-        @apply absolute content-[''] rounded-md
-            h-[200%] w-[200%] 
-            animate-spin transition-opacity duration-1000;
+        @apply absolute h-[200%] w-[200%] animate-spin rounded-md transition-opacity duration-1000 content-[''];
     }
 
-    .nodeshell-animated-wrapper.fade-out::before {
+    &.fade-out::before {
         @apply opacity-0;
     }
+}
 
-    .nodeshell-wrapper-content {
-        @apply relative bg-gray-800 rounded-md m-0.5;
+@utility fade-out {
+    &.nodeshell-animated-wrapper::before {
+        @apply opacity-0;
     }
+}
+
+@utility nodeshell-wrapper-content {
+    @apply bg-control-view-node-background relative m-0.5 rounded-md;
 }

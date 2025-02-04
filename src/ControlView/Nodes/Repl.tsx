@@ -51,7 +51,7 @@ const ReplNode: React.FC<NodeProps<ReplNode>> = (props) => {
                 disabled={!connected}
                 animateBorder={isFreshValue}
             >
-                <div className='flex flex-col space-y-3 text-white w-full'>
+                <div className='flex w-full flex-col space-y-3'>
                     <div className='flex flex-col items-center space-y-1'>
                         <label>Command</label>
                         <StringInput
@@ -60,7 +60,7 @@ const ReplNode: React.FC<NodeProps<ReplNode>> = (props) => {
                             placeholder='Enter a command'
                         />
                     </div>
-                    <div className='flex flex-col items-center space-y-1 w-full'>
+                    <div className='flex w-full flex-col items-center space-y-1'>
                         <label>Response</label>
                         <StringDisplay
                             value={responseValue}

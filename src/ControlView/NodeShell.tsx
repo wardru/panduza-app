@@ -16,30 +16,31 @@ const NodeShell = (props: NodeShellProps) => {
 
     return (
         <div
-            className={`flex flex-col flex-grow rounded-md shadow-lg  min-w-[200px] min-h-[100px] border-2 bg-transparent
-                ${props.selected ? ' border-blue-500' : 'border-transparent'}
-                ${props.disabled ? '  opacity-60 pointer-events-none' : 'pointer-events-auto'}
-                `}
+            className={`rounded-m flex min-h-[100px] min-w-[210px] flex-col shadow-lg ${props.disabled ? 'pointer-events-none opacity-60' : 'pointer-events-auto'} `}
         >
             <div
                 className={` ${props.animateBorder ? 'nodeshell-animated-wrapper' : 'nodeshell-animated-wrapper fade-out'}`}
             >
-                <div className='flex-grow nodeshell-wrapper-content'>
+                <div className='nodeshell-wrapper-content grow'>
                     {/* Header */}
-                    {}{' '}
                     <div
-                        className='flex justify-between rounded-t-md px-2 py-1 bg-opacity-75 mb-4 '
+                        className='mb-3 flex justify-between rounded-t-md px-2 py-1'
                         style={{ backgroundColor: color }}
                     >
-                        <p className=' text-white font-bold'>{props.topLeft}</p>
-                        <span className='text-white italic'>{props.topRight}</span>
+                        <p className='font-bold'>{props.topLeft?.toUpperCase()}</p>
+                        <p
+                            className='font-light italic'
+                            style={{ textTransform: 'capitalize' }}
+                        >
+                            {props.topRight}
+                        </p>
                     </div>
                     {/* Custom Content */}
-                    <div className='p-2 flex items-center justify-center'>{props.children}</div>
+                    <div className='z-[1000] flex items-center justify-center p-2'>{props.children}</div>
                     {/* Footer */}
-                    <div className='text-white flex justify-between items-center px-2 text-right'>
-                        <div className={`rounded-full size-2 ${props.disabled ? 'bg-red-600' : 'bg-green-500'}`} />
-                        <span className='text-white'>{props.bottomRight}</span>
+                    <div className='flex items-center justify-between px-2 text-right'>
+                        <div className={`size-2 rounded-full ${props.disabled ? 'bg-dot-red' : 'bg-dot-green'}`} />
+                        <p className='font-light italic'>{props.bottomRight?.toUpperCase()}</p>
                     </div>
                 </div>
             </div>

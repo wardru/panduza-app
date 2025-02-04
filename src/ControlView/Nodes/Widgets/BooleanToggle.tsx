@@ -7,9 +7,9 @@ interface BooleanWidgetProps {
 
 const BooleanToggle: React.FC<BooleanWidgetProps> = (props) => {
     return (
-        <div className='nodrag nopan flex justify-center items-center'>
+        <div className='nodrag nopan flex items-center justify-center'>
             <label
-                className='inline-flex items-center cursor-pointer'
+                className='inline-flex cursor-pointer items-center'
                 onClick={(e) => e.stopPropagation()}
             >
                 <input
@@ -20,10 +20,10 @@ const BooleanToggle: React.FC<BooleanWidgetProps> = (props) => {
                         props.onNewValue(e.currentTarget.checked);
                     }}
                     readOnly={props.readOnly}
-                    className='sr-only peer'
+                    className='peer sr-only'
                 />
                 <div
-                    className={`relative w-14 h-7 peer-focus:outline-none peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 ${props.readOnly ? 'peer-checked:bg-green-900 after:bg-neutral-400' : 'peer-checked:bg-green-500 after:bg-white'}`}
+                    className={`peer relative h-7 w-14 rounded-full peer-focus:ring-blue-300 peer-focus:outline-hidden after:absolute after:start-[4px] after:top-0.5 after:h-6 after:w-6 after:rounded-full after:border after:border-gray-300 after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:rtl:after:-translate-x-full dark:border-neutral-400 dark:bg-neutral-600 dark:peer-focus:ring-blue-800 ${props.readOnly ? 'peer-checked:bg-[#7AB872] after:bg-[#D7D7D7]' : 'peer-checked:bg-[#26c211] after:bg-[#D7D7D7]'}`}
                 ></div>
             </label>
         </div>

@@ -9,9 +9,9 @@ import { useHeaderStore } from './HeaderStore';
 import { useLanguageStore } from './LanguageStore';
 
 const statusColorMap: Record<ConnectionState, string> = {
-    [ConnectionState.Connected]: 'bg-green-500',
-    [ConnectionState.Disconnected]: 'bg-red-500',
-    [ConnectionState.Reconnecting]: 'bg-orange-500',
+    [ConnectionState.Connected]: 'bg-dot-green',
+    [ConnectionState.Disconnected]: 'bg-dot-red',
+    [ConnectionState.Reconnecting]: 'bg-dot-orange',
 };
 
 const buttonContentMap: Record<ConnectionState, string> = {
@@ -20,13 +20,18 @@ const buttonContentMap: Record<ConnectionState, string> = {
     [ConnectionState.Reconnecting]: 'cancel',
 };
 
-const Logo = () => {
+interface LogoProps {
+    className?: string;
+    size: number;
+}
+
+const Logo: React.FC<LogoProps> = (props) => {
     return (
-        <div className='flex-shrink-0 ml-2 mr-5'>
+        <div className={props.className}>
             <img
                 src={PanduzaLogo}
-                width={27}
-                height={27}
+                width={props.size}
+                height={props.size}
                 alt='logo'
             />
         </div>
@@ -46,10 +51,9 @@ const LanguageSelector = () => {
     };
 
     return (
-        <div className='flex space-x-2 items-center'>
-            <LanguageIcon className='text-white size-4' />
+        <div className='flex items-center space-x-2'>
+            <LanguageIcon className='size-4' />
             <select
-                className='bg-transparent text-white border border-white rounded-md px-2 appearance-none'
                 onChange={handleChange}
                 value={language}
             >
@@ -81,7 +85,7 @@ const Scanner = () => {
 
     return (
         <button
-            className='hover:bg-slate-600 px-4 rounded-lg text-primary mr-5'
+            className='hover:bg-active-hover rounded-lg px-4'
             onClick={handleScanner}
         >
             {t('scanner')}
@@ -159,21 +163,31 @@ const Header: React.FC<HeaderProps> = ({ onAboutClick }) => {
     };
 
     return (
-        //TODO: sticky and top-0 is probably useless
-        <div className='bg-header sticky top-0 flex py-1 items-center'>
-            <Logo />
-            <div className='text-primary flex space-x-2 items-center flex-1'>
+        <div
+            className='disable-select flex items-center space-x-4 py-1'
+            onContextMenu={(event) => {
+                //TODO: This is for debug purpose only. We allow the 'inspect element' and 'reload' on the header only.
+                //At some point we should remove it once the app is more stable
+                event.stopPropagation();
+            }}
+        >
+            <Logo
+                className='mr-6 ml-2 shrink-0'
+                size={27}
+            />
+            <div className='flex flex-1 items-center space-x-4'>
                 {connectionState == ConnectionState.Reconnecting ? <p>{t('reconnecting')}...</p> : null}
                 <button
-                    className='hover:bg-slate-600 px-4 rounded-lg'
+                    className='bg-active hover:bg-active-hover rounded-lg px-4'
                     onClick={onButtonAction}
                 >
                     {t(getButtonContent())}
                 </button>
-                <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
+                <div className={`size-2 rounded-full ${getStatusColor()}`} />
                 {connectionState === ConnectionState.Disconnected ? (
-                    <div className='pl-3 text-black space-x-2 flex'>
+                    <div className='flex space-x-2'>
                         <input
+                            className='w-40'
                             value={address || ''}
                             placeholder='Enter an address'
                             onChange={(e) =>
@@ -181,20 +195,21 @@ const Header: React.FC<HeaderProps> = ({ onAboutClick }) => {
                             }
                         />
                         <input
+                            className='w-40'
                             type='text'
                             pattern='[0-9]*'
                             value={port || ''}
                             placeholder='Enter a port'
                             onChange={handlePortChange}
                         />
-                        {error && <p className='text-red-500 mt-2'>{t(error)}</p>}
+                        {error && <p className='mt-2 text-red-500'>{t(error)}</p>}
                     </div>
                 ) : null}
             </div>
             {connectionState == ConnectionState.Connected ? <Scanner /> : null}
             <LanguageSelector />
             <button
-                className='hover:bg-slate-600 px-4 rounded-lg text-primary mr-5'
+                className='hover:bg-active-hover mr-5 rounded-lg px-4'
                 onClick={() => {
                     onAboutClick();
                 }}

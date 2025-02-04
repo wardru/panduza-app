@@ -1,7 +1,6 @@
 import { useEffect, useState, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useDndMonitor } from '@dnd-kit/core';
 import { Allotment } from 'allotment';
 
 import { usePlatform } from './platform';
@@ -10,7 +9,7 @@ import { Tree } from './components/Tree';
 import TreeData from './components/Tree/TreeData';
 import { Accordion } from './components/Accordion';
 
-import { InformationCircleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
+import { InformationCircleIcon, LightBulbIcon, ComputerDesktopIcon } from '@heroicons/react/24/outline';
 
 interface TreeViewProps {
     onItemSelect: (itemId: string | null) => void;
@@ -19,20 +18,7 @@ interface TreeViewProps {
 const TreeView: React.FC<TreeViewProps> = ({ onItemSelect }) => {
     const platform = usePlatform();
     const [tree, setTree] = useState<TreeData[]>();
-    const [isDragging, setIsDragging] = useState(false);
     const { t } = useTranslation('explorer');
-
-    useDndMonitor({
-        onDragStart() {
-            setIsDragging(true);
-        },
-        onDragEnd() {
-            setIsDragging(false);
-        },
-        onDragCancel() {
-            setIsDragging(false);
-        },
-    });
 
     useEffect(() => {
         const createAttributeTreeItem = (baseId: string, attributeName: string): TreeData => {
@@ -110,12 +96,11 @@ const TreeView: React.FC<TreeViewProps> = ({ onItemSelect }) => {
     }, [platform.structure, onItemSelect]);
 
     return (
-        <div
-            className={`text-white bg-gray-800 h-full w-full`}
-            style={{
-                overflow: isDragging ? 'hidden' : 'auto',
-            }}
-        >
+        <div className={`bg-secondary flex size-full flex-col`}>
+            <span className='border-secondary-border mb-2 flex items-center space-x-2 border-b px-4 py-2'>
+                <ComputerDesktopIcon className='size-5' />
+                <label>{t('drivers')}</label>
+            </span>
             {tree && platform.structure ? (
                 <Tree
                     openByDefault
@@ -125,9 +110,7 @@ const TreeView: React.FC<TreeViewProps> = ({ onItemSelect }) => {
                     }}
                 />
             ) : (
-                <div className='h-full w-full bg-neutral-900 flex items-center justify-center'>
-                    {t('no-platform')}..
-                </div>
+                <div className='flex size-full items-center justify-center'>{t('no-platform')}..</div>
             )}
         </div>
     );
@@ -143,26 +126,26 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
     const { t } = useTranslation('explorer');
 
     return (
-        <div className='h-full w-full flex flex-col text-white bg-[#272727]'>
-            <span className='flex items-center pt-2 pb-4 px-2 space-x-2'>
+        <div className='bg-secondary flex size-full flex-col'>
+            <span className='border-secondary-border mb-2 flex items-center space-x-2 border-b px-4 py-2'>
                 <InformationCircleIcon className='size-5' />
                 <label>{t('properties')}</label>
             </span>
             <div className='mx-2 overflow-auto'>
                 {attribute?.settings ? (
                     <Accordion name={t('settings')}>
-                        <div className='grid grid-cols-[auto_1fr] gap-x-0.5 gap-y-0.5 text-sm rounded-lg overflow-hidden'>
+                        <div className='grid grid-cols-[auto_1fr] gap-x-0.5 gap-y-0.5 overflow-hidden rounded-lg text-sm'>
                             {Object.entries(attribute.settings).map(([key, value], index) => (
                                 <Fragment key={index}>
                                     <label
-                                        className='flex items-center bg-[#303030] px-6 py-1.5'
+                                        className='flex items-center bg-[#353535] px-6 py-1.5'
                                         style={{ textTransform: 'capitalize' }}
                                     >
                                         {key}
                                     </label>
-                                    <div className='flex items-center px-0.5 py-0.5 bg-[#303030]'>
+                                    <div className='flex items-center bg-[#303030] px-0.5 py-0.5'>
                                         {Array.isArray(value) ? (
-                                            <div className='grid grid-cols-1 bg-[#171717] px-2.5 py-0.5 m-0.5 w-full'>
+                                            <div className='bg-box-readonly m-0.5 grid w-full grid-cols-1 px-2.5 py-0.5'>
                                                 {value.map((item, index) => (
                                                     <span key={index}>
                                                         {JSON.stringify(item).replace(/['"]+/g, '').trim()}
@@ -170,7 +153,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
                                                 ))}
                                             </div>
                                         ) : (
-                                            <div className='bg-[#171717] flex items-center rounded-lg px-2 h-full w-full'>
+                                            <div className='bg-box-readonly flex h-full w-full items-center rounded-lg px-2'>
                                                 {JSON.stringify(value).replace(/['"]+/g, '').trim()}
                                             </div>
                                         )}
@@ -182,9 +165,9 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ item }) => {
                 ) : null}
                 {attribute?.info ? (
                     <Accordion name={t('info')}>
-                        <div className='bg-[#1B1B1B] border border-[#355870] rounded-lg p-2 flex w-full'>
-                            <LightBulbIcon className='flex-shrink-0 size-4 mx-1 my-1' />
-                            <p className='pl-2 text-white break-words w-full'>{attribute.info}</p>
+                        <div className='border-active bg-box-readonly flex w-full rounded-lg border p-2'>
+                            <LightBulbIcon className='mx-1 my-1 size-4 shrink-0' />
+                            <p className='w-full pl-2 break-words'>{attribute.info}</p>
                         </div>
                     </Accordion>
                 ) : null}
@@ -197,7 +180,10 @@ const Explorer: React.FC = () => {
     const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
     return (
-        <Allotment vertical={true}>
+        <Allotment
+            vertical={true}
+            defaultSizes={[2, 1]}
+        >
             <TreeView onItemSelect={(itemId) => setSelectedItem(itemId)} />
             <InfoPanel item={selectedItem} />
         </Allotment>

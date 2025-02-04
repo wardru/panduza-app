@@ -54,7 +54,7 @@ const HelperLines: React.FC<HelperLinesProps> = ({ horizontal, vertical, lineWid
     return (
         <canvas
             ref={canvasRef}
-            className='react-flow__canvas w-full h-full absolute z-10 pointer-events-none'
+            className='react-flow__canvas pointer-events-none absolute z-10 h-full w-full'
         />
     );
 };

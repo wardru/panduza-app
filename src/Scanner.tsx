@@ -32,17 +32,17 @@ const Scanner = () => {
     };
 
     return (
-        <div className='disable-select theme-dark bg-neutral-900 text-primary h-screen w-screen flex items-center justify-center'>
-            <div className='flex flex-col items-center m- h-full w-full  p-2'>
+        <div className='disable-select theme-dark flex h-screen w-screen items-center justify-center bg-neutral-900'>
+            <div className='m- flex h-full w-full flex-col items-center p-2'>
                 <button
-                    className='bg-green-400 w-min py-1 px-6 rounded-md m-2 text-black hover:bg-neutral-600'
+                    className='bg-active hover:bg-active-hover m-2 w-min rounded-md px-6 py-1'
                     onClick={handleClick}
                 >
                     Scan
                 </button>
 
                 <textarea
-                    className='bg-black w-full h-full flex-1 p-2 border-orange-600 border  focus:outline-none'
+                    className='border-active bg-background h-full w-full flex-1 resize-none border p-2 focus:outline-hidden'
                     readOnly={true}
                     value={result}
                 ></textarea>

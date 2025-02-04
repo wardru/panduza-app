@@ -13,8 +13,6 @@ import { invoke } from '@tauri-apps/api/core';
 
 import './i18n';
 
-import './App.css';
-
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -41,6 +39,7 @@ const App = () => {
     const [showAbout, setShowAbout] = useState(false);
     const [appInfo, setAppInfo] = useState<appInfoProps>();
     const [draggedNode, setDraggedNode] = useState<{ id: string; label: string } | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
     const { t } = useTranslation('about');
     const save = useGlobalStore((state) => state.save);
     const load = useGlobalStore((state) => state.load);
@@ -87,7 +86,10 @@ const App = () => {
 
     return (
         <PlatformProvider>
-            <div className='bg-header h-screen w-screen flex flex-col theme-dark'>
+            <div
+                className='bg-background flex h-screen w-screen flex-col'
+                onContextMenu={(event) => event.preventDefault()}
+            >
                 <Header onAboutClick={handleAboutClick} />
 
                 <DndContext
@@ -106,19 +108,26 @@ const App = () => {
                         modifiers={[snapCenterToCursor]}
                         dropAnimation={null}
                     >
-                        {draggedNode ? <label className='text-white bg-red-700'>{draggedNode.label}</label> : null}
+                        {draggedNode ? (
+                            <label
+                                className={`bg-background border-active rounded-md border px-4 py-1.5 ${isDragging ? 'cursor-grabbing' : 'cursor-auto'}`}
+                            >
+                                {draggedNode.label}
+                            </label>
+                        ) : null}
                     </DragOverlay>
                 </DndContext>
             </div>
 
             {showAbout && (
                 <div
-                    className='fixed inset-0 flex items-center justify-center bg-white bg-opacity-50'
+                    className='bg-primary/30 fixed inset-0 flex items-center justify-center'
+                    style={{ zIndex: 1000 }}
                     onClick={handleOverlayClick}
                 >
-                    <div className='bg-white rounded-lg shadow-lg p-6 w-96 text-center '>
-                        <h2 className='text-2xl font-bold mb-4'>{appInfo?.name}</h2>
-                        <p className='text-gray-700 mb-6'>
+                    <div className='bg-secondary min-w-96 rounded-lg p-6 text-center shadow-lg'>
+                        <h2 className='mb-4 text-2xl font-bold'>{appInfo?.name}</h2>
+                        <p className='mb-6'>
                             {' '}
                             {t('version')}: {appInfo?.buildInfo}
                         </p>
@@ -130,10 +139,12 @@ const App = () => {
 
     function handleDragStart(event: DragStartEvent) {
         setDraggedNode(event.active.data.current ? (event.active.data.current as { id: string; label: string }) : null);
+        setIsDragging(true);
     }
 
     function handleDragEnd() {
         setDraggedNode(null);
+        setIsDragging(false);
     }
 };
 

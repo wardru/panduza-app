@@ -2,5 +2,6 @@
     "no-platform": "No platform connected",
     "properties": "Properties",
     "info": "Info",
-    "settings": "Settings"
+    "settings": "Settings",
+    "drivers": "Drivers"
 }

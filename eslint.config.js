@@ -9,7 +9,7 @@ export default [
         files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
     },
     {
-        ignores: ['**/src-tauri/*'],
+        ignores: ['**/src-tauri/', '**/node_modules/', '**/dist/'],
     },
     { languageOptions: { globals: globals.browser } },
     pluginJs.configs.recommended,
