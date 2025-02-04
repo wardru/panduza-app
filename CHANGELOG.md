@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - YYYY-MM-DD
+## [0.2.0] - 2025-02-04
 
 ### Changed
 
@@ -53,4 +53,5 @@
 - Added Rust, TypeScript, JavaScript, and Markdown formatting and linting
 - Added translation from `localhost` to `127.0.0.1` to speed up connections due to Windows DNS
 
+[0.2.0]: https://github.com/Panduza/panduza-app/releases/tag/0.2.0
 [0.1.0]: https://github.com/Panduza/panduza-app/releases/tag/0.1.0
