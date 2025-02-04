@@ -20,6 +20,7 @@
 - Added copy/paste/cut functionality for nodes with shortcuts (Ctrl+C / Ctrl+V / Ctrl+X) ([#86](https://github.com/Panduza/panduza-app/issues/86))
 - Added select/unselect functionality for nodes with shortcuts (Ctrl+A / Esc)
 - Added a context menu in the tree view (right-click) to copy attribute metadata to the system clipboard ([#52](https://github.com/Panduza/panduza-app/issues/52))
+- Added graph node with a demo sinewave, node is created on (Ctrl+G) shortcut ([#15](https://github.com/Panduza/panduza-app/issues/15))
 - Added node animation on new platform data subscription
 - Added a REPL custom widget in the control view ([#26](https://github.com/Panduza/panduza-app/issues/26))
 - Added connection state management for control view nodes
