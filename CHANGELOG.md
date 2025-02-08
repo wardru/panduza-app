@@ -1,5 +1,20 @@
 # Changelog
 
+## [UnReleased] - YYYY-MM-DD
+
+### Changed
+
+- Bumped Tauri to 2.2.5
+- Unpined Rust 1.77.2
+
+### Added
+
+### Removed
+
+- **Breaking**: Removed Windows7 build support, since Rust 1.77.2 was last supported version on Windows7
+
+### Fixed
+
 ## [0.2.0] - 2025-02-04
 
 ### Changed
