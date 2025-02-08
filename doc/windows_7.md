@@ -1,4 +1,6 @@
-# Windows 7 x64 compatibility
+# Windows 7 x64 compatibility (Unsupported since 0.3.0)
+
+Since app version **0.3.0**, the Rust toolchain has been bumped, thus removing Window 7 support. The principal rationale was to get newer versions of Tauri and Rust, so that the app can be more future proof.
 
 ## Rust toolchain
 
