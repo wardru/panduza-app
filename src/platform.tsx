@@ -1,5 +1,3 @@
-'use client';
-
 import { createContext, useContext, useState, useEffect } from 'react';
 import { invoke, Channel } from '@tauri-apps/api/core';
 import { parseStructure, IStructure, IAttribute, IClass } from './structure';

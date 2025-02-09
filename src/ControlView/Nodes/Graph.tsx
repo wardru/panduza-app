@@ -1,21 +1,12 @@
-'use client';
 import React, { useState, useEffect } from 'react';
 
-import dynamic from 'next/dynamic';
-
-const CanvasJSChart = dynamic(
-    async () => {
-        const mod = await import('@canvasjs/react-charts');
-        return mod.default?.CanvasJSChart || mod.CanvasJSChart;
-    },
-    { ssr: false }
-);
+import CanvasJSReact from '@canvasjs/react-charts';
 
 import { NodeProps } from '@xyflow/react';
 
 import NodeShell from '../NodeShell';
 
-import { usePlatform, ConnectionState } from '@/app/platform';
+import { usePlatform, ConnectionState } from '../../platform';
 
 const Graph: React.FC<NodeProps> = (props) => {
     const [disabled, setIsDisabled] = useState(false);
@@ -53,7 +44,7 @@ const Graph: React.FC<NodeProps> = (props) => {
         return () => clearInterval(interval);
     }, []);
 
-    if (!CanvasJSChart) return null;
+    if (!CanvasJSReact.CanvasJSChart) return null;
 
     const options = {
         animationEnabled: true,
@@ -89,7 +80,7 @@ const Graph: React.FC<NodeProps> = (props) => {
             disabled={disabled}
         >
             <div className='nodrag nopan w-[1200px]'>
-                <CanvasJSChart options={options} />
+                <CanvasJSReact.CanvasJSChart options={options} />{' '}
             </div>
         </NodeShell>
     );

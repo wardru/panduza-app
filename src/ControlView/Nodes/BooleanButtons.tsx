@@ -2,7 +2,7 @@ import { Node, NodeProps } from '@xyflow/react';
 
 import { useAttributeBoolListener } from '../AttributeListener';
 
-import NodeShell from '@/app/ControlView/NodeShell';
+import NodeShell from '../NodeShell';
 
 import BooleanButton from './Widgets/BooleanButton';
 

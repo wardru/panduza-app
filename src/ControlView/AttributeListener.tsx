@@ -2,7 +2,7 @@ import { ConnectionState, usePlatform } from '../platform';
 
 import { useEffect, useState, useRef } from 'react';
 
-import { AttributeBool, AttributeString, AttributeEnum, AttributeNumber, AttributeSi } from '@/app/attribute';
+import { AttributeBool, AttributeString, AttributeEnum, AttributeNumber, AttributeSi } from '../attribute';
 
 interface AttributeBoolListenerProps {
     path: string;
@@ -162,7 +162,7 @@ interface AttributeEnumListenerProps {
     onDisconnect?: () => void;
 }
 
-import { EnumSettings } from '@/app/attribute';
+import { EnumSettings } from '../attribute';
 
 export const useAttributeEnumListener = (props: AttributeEnumListenerProps) => {
     const { path, mode, onConnect, onDisconnect } = props;
@@ -291,7 +291,7 @@ export const useAttributeNumberListener = (props: AttributeNumberListenerProps) 
     return { value, isFreshValue, connected, publish };
 };
 
-import { SiSettings } from '@/app/attribute';
+import { SiSettings } from '../attribute';
 
 interface AttributeSiListenerProps {
     path: string;

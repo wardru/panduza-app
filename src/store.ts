@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 import { LazyStore } from '@tauri-apps/plugin-store';
 
-import { useHeaderStore } from '@/app/HeaderStore';
+import { useHeaderStore } from './HeaderStore';
 import { useLanguageStore } from './LanguageStore';
 import { useControlViewStore } from './ControlView/UseControlViewStore';
 
@@ -23,7 +23,7 @@ interface GlobalStore {
     load: () => Promise<void>;
 }
 
-export const useGlobalStore = create<GlobalStore>((set, get) => ({
+export const useGlobalStore = create<GlobalStore>((_, get) => ({
     modules: [
         {
             store: useHeaderStore.getState(),

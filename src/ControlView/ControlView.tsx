@@ -24,7 +24,6 @@ import {
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
-import '../../styles/globals.css';
 
 import { usePlatform } from '../platform';
 import { IClass } from '../structure';
@@ -412,69 +411,67 @@ const ControlView: React.FC = () => {
     }, []); // Empty dependency array ensures this runs only once
 
     return (
-        <div className='size-full bg-neutral-900'>
-            <ReactFlow
-                className={`w-full h-full bg-neutral-900 relative border ${unlocked ? 'border-transparent' : 'border-lime-500'} `}
-                ref={handleRef}
-                tabIndex={0} // Makes the div focusable
-                onContextMenu={(e) => e.preventDefault()}
-                onKeyDown={handleKeyDown} // Attach the keyboard event handler
-                viewport={viewport}
-                onViewportChange={onViewportChange}
-                nodes={nodes}
-                nodeTypes={nodeTypes}
-                proOptions={proOptions}
-                onNodesChange={onNodesChange}
-                onNodesDelete={onNodesDelete}
-                onNodeDragStart={onNodeDragStart}
-                onSelectionDragStart={onSelectionDragStart}
-                deleteKeyCode={['Backspace', 'Delete']}
-                elevateNodesOnSelect
-                selectionKeyCode={''}
-                selectionOnDrag
-                selectionMode={SelectionMode.Partial}
-                panOnDrag={[1]}
-                //
-                //TODO: move this to user preference settings
+        <ReactFlow
+            className={`size-full bg-neutral-900 relative border ${unlocked ? 'border-transparent' : 'border-lime-500'} `}
+            ref={handleRef}
+            tabIndex={0} // Makes the div focusable
+            onContextMenu={(e) => e.preventDefault()}
+            onKeyDown={handleKeyDown} // Attach the keyboard event handler
+            viewport={viewport}
+            onViewportChange={onViewportChange}
+            nodes={nodes}
+            nodeTypes={nodeTypes}
+            proOptions={proOptions}
+            onNodesChange={onNodesChange}
+            onNodesDelete={onNodesDelete}
+            onNodeDragStart={onNodeDragStart}
+            onSelectionDragStart={onSelectionDragStart}
+            deleteKeyCode={['Backspace', 'Delete']}
+            elevateNodesOnSelect
+            selectionKeyCode={''}
+            selectionOnDrag
+            selectionMode={SelectionMode.Partial}
+            panOnDrag={[1]}
+            //
+            //TODO: move this to user preference settings
 
-                // Figma Style
-                // panOnScroll={true}
-                // zoomOnScroll={false}
+            // Figma Style
+            // panOnScroll={true}
+            // zoomOnScroll={false}
 
-                //Blender Style
-                panOnScroll={false}
-                zoomOnScroll
-                //
-                zoomOnDoubleClick={false}
-            >
-                <Controls
-                    onInteractiveChange={(status) => {
-                        setUnlocked(status);
+            //Blender Style
+            panOnScroll={false}
+            zoomOnScroll
+            //
+            zoomOnDoubleClick={false}
+        >
+            <Controls
+                onInteractiveChange={(status) => {
+                    setUnlocked(status);
 
-                        // disable nodes when lock
-                        if (status == false) {
-                            unselectAll();
-                        }
-                    }}
-                />
-                {unlocked && (
-                    <>
-                        <Background />
-                        <MiniMap
-                            nodeStrokeWidth={3}
-                            zoomable
-                            pannable
-                        />
-                        <HelperLines
-                            horizontal={helperLineHorizontal}
-                            vertical={helperLineVertical}
-                            lineColor='yellow'
-                            lineWidth={1}
-                        />
-                    </>
-                )}
-            </ReactFlow>
-        </div>
+                    // disable nodes when lock
+                    if (status == false) {
+                        unselectAll();
+                    }
+                }}
+            />
+            {unlocked && (
+                <>
+                    <Background />
+                    <MiniMap
+                        nodeStrokeWidth={3}
+                        zoomable
+                        pannable
+                    />
+                    <HelperLines
+                        horizontal={helperLineHorizontal}
+                        vertical={helperLineVertical}
+                        lineColor='yellow'
+                        lineWidth={1}
+                    />
+                </>
+            )}
+        </ReactFlow>
     );
 };
 

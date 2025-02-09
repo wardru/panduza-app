@@ -1,7 +1,4 @@
-'use client';
-
-import Image from 'next/image';
-import PanduzaLogo from '../images/logo/logo_circle_black_blue_256.png';
+import PanduzaLogo from './assets/images/logo/logo_circle_black_blue_256.png';
 import { useState } from 'react';
 import { usePlatform, ConnectionState } from './platform';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +23,7 @@ const buttonContentMap: Record<ConnectionState, string> = {
 const Logo = () => {
     return (
         <div className='flex-shrink-0 ml-2 mr-5'>
-            <Image
+            <img
                 src={PanduzaLogo}
                 width={27}
                 height={27}

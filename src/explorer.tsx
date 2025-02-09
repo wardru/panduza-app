@@ -6,9 +6,9 @@ import { Allotment } from 'allotment';
 
 import { usePlatform } from './platform';
 import { IStructure, IDriver, IClass } from './structure';
-import { Tree } from '../components/Tree';
-import TreeData from '../components/Tree/TreeData';
-import { Accordion } from '@/components/Accordion';
+import { Tree } from './components/Tree';
+import TreeData from './components/Tree/TreeData';
+import { Accordion } from './components/Accordion';
 
 import { InformationCircleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 

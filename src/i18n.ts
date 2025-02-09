@@ -1,15 +1,13 @@
-'use client';
-
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import header_en from '../../public/locales/en/header.json';
-import about_en from '../../public/locales/en/about.json';
-import explorer_en from '../../public/locales/en/explorer.json';
+import header_en from './assets/locales/en/header.json';
+import about_en from './assets/locales/en/about.json';
+import explorer_en from './assets/locales/en/explorer.json';
 
-import header_fr from '../../public/locales/fr/header.json';
-import about_fr from '../../public/locales/fr/about.json';
-import explorer_fr from '../../public/locales/fr/explorer.json';
+import header_fr from './assets/locales/fr/header.json';
+import about_fr from './assets/locales/fr/about.json';
+import explorer_fr from './assets/locales/fr/explorer.json';
 
 i18n.use(initReactI18next).init({
     fallbackLng: 'en',

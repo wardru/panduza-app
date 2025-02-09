@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { create } from 'zustand';
-import { StoreActions } from '@/app/store';
+import { StoreActions } from './store';
 
 const headerSchema = z.object({
     address: z.nullable(z.string()),

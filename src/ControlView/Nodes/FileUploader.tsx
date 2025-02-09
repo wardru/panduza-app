@@ -8,7 +8,7 @@ import { NodeProps } from '@xyflow/react';
 
 import NodeShell from '../NodeShell';
 
-import { usePlatform, ConnectionState } from '@/app/platform';
+import { usePlatform, ConnectionState } from '../../platform';
 
 const FileUploader: React.FC<NodeProps> = (props) => {
     //TODO: refactor with useAttributeListener once file uploader attribute is defined

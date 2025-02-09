@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { z } from 'zod';
-import { StoreActions } from '@/app/store';
+import { StoreActions } from '../store';
 import { Node, Viewport } from '@xyflow/react';
 
 const colorList = ['#683838', '#263E48', '#294F18', '#735431', '#786E38', '#387373', '#553660'];

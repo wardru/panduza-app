@@ -1,4 +1,4 @@
-import '../styles/globals.css';
+import './App.css';
 import { invoke, Channel } from '@tauri-apps/api/core';
 import { useState } from 'react';
 

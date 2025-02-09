@@ -103,7 +103,7 @@ async function fetchStructure() {
     return structure_json;
 }
 
-function registerAttribute(name: string, obj: any) {
+function registerAttribute(obj: any) {
     const iattribute: IAttribute = {
         info: undefined,
         mode: '',
@@ -124,7 +124,7 @@ function registerAttribute(name: string, obj: any) {
     return iattribute;
 }
 
-function registerClass(name: string, obj: any) {
+function registerClass(obj: any) {
     const iclass: IClass = {
         attributes: {},
         classes: {},
@@ -138,17 +138,17 @@ function registerClass(name: string, obj: any) {
     iclass.tags = parseTags(obj);
 
     for (const attributeKey in obj.attributes) {
-        iclass.attributes[attributeKey] = registerAttribute(attributeKey, obj.attributes[attributeKey]);
+        iclass.attributes[attributeKey] = registerAttribute(obj.attributes[attributeKey]);
     }
 
     for (const classKey in obj.classes) {
-        iclass.classes[classKey] = registerClass(classKey, obj.classes[classKey]);
+        iclass.classes[classKey] = registerClass(obj.classes[classKey]);
     }
 
     return iclass;
 }
 
-function registerDriver(name: string, obj: any) {
+function registerDriver(obj: any) {
     const idriver: IDriver = {
         attributes: {},
         classes: {},
@@ -160,11 +160,11 @@ function registerDriver(name: string, obj: any) {
     idriver.info = parseInfo(obj);
 
     for (const attributeKey in obj.attributes) {
-        idriver.attributes[attributeKey] = registerAttribute(attributeKey, obj.attributes[attributeKey]);
+        idriver.attributes[attributeKey] = registerAttribute(obj.attributes[attributeKey]);
     }
 
     for (const classKey in obj.classes) {
-        idriver.classes[classKey] = registerClass(classKey, obj.classes[classKey]);
+        idriver.classes[classKey] = registerClass(obj.classes[classKey]);
     }
 
     return idriver;
@@ -183,7 +183,7 @@ export async function parseStructure() {
 
     for (const driverKey in jsonPayload.driver_instances) {
         try {
-            istructure.drivers[driverKey] = registerDriver(driverKey, jsonPayload.driver_instances[driverKey]);
+            istructure.drivers[driverKey] = registerDriver(jsonPayload.driver_instances[driverKey]);
         } catch (e) {
             console.error(`Error registering driver ${driverKey}: {}`, e);
         }

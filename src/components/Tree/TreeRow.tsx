@@ -5,7 +5,7 @@ import { Squares2X2Icon, Square3Stack3DIcon } from '@heroicons/react/24/outline'
 import { useDraggable } from '@dnd-kit/core';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 
-import { ContextMenu, useContextMenu } from '@/components/ContextMenu';
+import { ContextMenu, useContextMenu } from '../../components/ContextMenu';
 
 interface TreeRowProps {
     node: NodeData;

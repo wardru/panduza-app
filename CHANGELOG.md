@@ -4,6 +4,7 @@
 
 ### Changed
 
+- Dropped NextJS and migrated to Vite
 - Bumped Tauri to 2.2.5
 - Unpined Rust 1.77.2
 

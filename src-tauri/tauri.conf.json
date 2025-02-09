@@ -3,10 +3,10 @@
     "productName": "Panduza App",
     "identifier": "com.panduza.app",
     "build": {
-        "frontendDist": "../out",
-        "devUrl": "http://localhost:3000",
         "beforeDevCommand": "npm run dev",
-        "beforeBuildCommand": "npm run build"
+        "beforeBuildCommand": "npm run build",
+        "devUrl": "http://localhost:5173",
+        "frontendDist": "../dist"
     },
     "app": {
         "windows": [

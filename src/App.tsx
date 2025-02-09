@@ -1,5 +1,3 @@
-'use client';
-
 import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
 
@@ -14,6 +12,8 @@ import { getName } from '@tauri-apps/api/app';
 import { invoke } from '@tauri-apps/api/core';
 
 import './i18n';
+
+import './App.css';
 
 import { useTranslation } from 'react-i18next';
 
@@ -30,14 +30,14 @@ import { snapCenterToCursor } from '@dnd-kit/modifiers';
 
 import { useGlobalStore } from './store';
 
-import { useAppEvents } from '@/app/AppEvents';
+import { useAppEvents } from './AppEvents';
 
 interface appInfoProps {
     name: string;
     buildInfo: string;
 }
 
-const Main = () => {
+const App = () => {
     const [showAbout, setShowAbout] = useState(false);
     const [appInfo, setAppInfo] = useState<appInfoProps>();
     const [draggedNode, setDraggedNode] = useState<{ id: string; label: string } | null>(null);
@@ -87,7 +87,7 @@ const Main = () => {
 
     return (
         <PlatformProvider>
-            <div className='bg-black h-screen w-screen flex flex-col'>
+            <div className='bg-header h-screen w-screen flex flex-col theme-dark'>
                 <Header onAboutClick={handleAboutClick} />
 
                 <DndContext
@@ -137,4 +137,4 @@ const Main = () => {
     }
 };
 
-export default Main;
+export default App;

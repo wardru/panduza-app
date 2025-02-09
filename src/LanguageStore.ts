@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { create } from 'zustand';
-import { StoreActions } from '@/app/store';
+import { StoreActions } from './store';
 import i18next from 'i18next';
 
 const languages = ['en', 'fr'] as const;
