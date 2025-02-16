@@ -7,7 +7,7 @@ Follow Tauri's Prerequisites page and install all dependencies for your platform
 ## Install deps
 
 ```
-npm install --force
+npm install
 ```
 
 ## Build (dev mode)

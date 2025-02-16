@@ -55,8 +55,7 @@ jobs:
               with:
                   node-version: lts/*
             - name: Install fronted dependencies
-              #TODO: remove --force once allotment supports React 19
-              run: npm install --force
+              run: npm install
 
             - name: Bump npm package version
               run: npm version --no-git-tag-version ${{ github.event.inputs.version }}
