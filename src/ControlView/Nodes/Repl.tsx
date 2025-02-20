@@ -60,7 +60,7 @@ const ReplNode: React.FC<NodeProps<ReplNode>> = (props) => {
                             placeholder='Enter a command'
                         />
                     </div>
-                    <div className='flex w-full flex-col items-center space-y-1'>
+                    <div className='flex flex-col items-center space-y-1'>
                         <label>Response</label>
                         <StringDisplay
                             value={responseValue}

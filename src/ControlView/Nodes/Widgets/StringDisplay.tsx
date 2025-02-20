@@ -11,7 +11,7 @@ const StringDisplay: React.FC<StringDisplayProps> = (props) => {
             readOnly
             value={props.value}
             rows={props.rows}
-            className='nodrag nopan nowheel bg-box-readonly'
+            className='nodrag nopan nowheel'
         ></textarea>
     );
 };

@@ -44,7 +44,7 @@ const StringInput: React.FC<StringInputProps> = (props) => {
     };
     return (
         <textarea
-            className='nodrag nopan nowheel h-8 w-full'
+            className='nodrag nopan nowheel'
             value={value}
             disabled={props.disabled}
             placeholder={props.placeholder}

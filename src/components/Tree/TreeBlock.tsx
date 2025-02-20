@@ -21,12 +21,7 @@ export const TreeBlock = () => {
     });
 
     return (
-        <div
-            className='size-full overflow-hidden'
-            style={{
-                overflow: isDragging ? 'hidden' : 'auto',
-            }}
-        >
+        <div className={`size-full ${isDragging ? 'overflow-hidden' : 'overflow-auto'}`}>
             {tree.visibleNodes.map((node) => (
                 <TreeRow
                     key={node.id}
