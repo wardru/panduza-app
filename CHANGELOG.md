@@ -4,23 +4,26 @@
 
 ### Changed
 
-- Dropped NextJS and migrated to Vite
+- Dropped NextJS and migrated to Vite ([#115](https://github.com/Panduza/panduza-app/issues/115))
 - Bumped Tauri to 2.2.5
-- Unpined Rust 1.77.2
+- Unpined Rust 1.77.2 ([#113](https://github.com/Panduza/panduza-app/issues/113))
+- Restyled app to make design more consistent ([#128](https://github.com/Panduza/panduza-app/issues/128))
 
 ### Added
 
 ### Removed
 
-- **Breaking**: Removed Windows7 build support, since Rust 1.77.2 was last supported version on Windows7
+- **Breaking**: Removed Windows7 build support, since Rust 1.77.2 was last supported version on Windows7 ([#113](https://github.com/Panduza/panduza-app/issues/113))
 
 ### Fixed
+
+- Fixed lock not restoring correct state ([#133](https://github.com/Panduza/panduza-app/issues/133))
 
 ## [0.2.0] - 2025-02-04
 
 ### Changed
 
-- Refactored `Properties` to reflect settings and info fields ([#148](https://github.com/Panduza/panduza-app/pull/148))
+- Refactored `Properties` to reflect settings and info fields ([#64](https://github.com/Panduza/panduza-app/issues/64))
 - Renamed `Tree Panel` to `Explorer`
 - Renamed `Info Panel` to `Properties` to better reflect that it displays attribute properties
 - Renamed the attribute method setValue() to the more descriptive publish()

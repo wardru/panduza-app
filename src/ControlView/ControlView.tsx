@@ -48,6 +48,8 @@ import Graph from './Nodes/Graph';
 
 import HelperLines from './HelperLines';
 
+import useLockMechanism from './UseLockMechanism';
+
 const nodeTypes = {
     booleantoggle: BooleanToggleNode,
     booleanbuttons: BooleanButtonsNode,
@@ -70,12 +72,12 @@ const ControlView: React.FC = () => {
     const setNodes = useControlViewStore((state) => state.setNodes);
     const viewport = useControlViewStore((state) => state.viewport);
     const setViewport = useControlViewStore((state) => state.setViewport);
-    const unlocked = useControlViewStore((state) => state.unlocked);
-    const setUnlocked = useControlViewStore((state) => state.setUnlocked);
+    const locked = useControlViewStore((state) => state.locked);
+    const setLocked = useControlViewStore((state) => state.setLocked);
 
     const { active, setNodeRef, isOver } = useDroppable({ id: 'controlview' });
     const { undo, redo, takeSnapshot } = useUndoRedo();
-    const { copy, paste, cut, selectAll, unselectAll, setControlsLock } = useCopyPasteCut();
+    const { copy, paste, cut, selectAll, unselectAll } = useCopyPasteCut();
     const { getHelperLines } = useHelperLines();
     const [helperLineHorizontal, setHelperLineHorizontal] = useState<number | undefined>(undefined);
     const [helperLineVertical, setHelperLineVertical] = useState<number | undefined>(undefined);
@@ -84,6 +86,15 @@ const ControlView: React.FC = () => {
     const platform = usePlatform();
     const mousePosition = useRef<XYPosition>({ x: 0, y: 0 });
     const ctrlViewRef = useRef<HTMLDivElement | null>(null);
+
+    useLockMechanism({
+        locked,
+        onLocked: useCallback(() => {
+            if (locked) {
+                unselectAll();
+            }
+        }, [locked]),
+    });
 
     const createAttributeNode = (attributePath: string, customPosition?: { x: number; y: number }): boolean => {
         const att = platform.attributes?.[attributePath];
@@ -125,7 +136,7 @@ const ControlView: React.FC = () => {
                 id: uuidv4(),
                 type,
                 position,
-                selected: unlocked,
+                selected: !locked,
                 data: {
                     attribute: {
                         path: att.path,
@@ -244,7 +255,7 @@ const ControlView: React.FC = () => {
             {
                 id: uuidv4(),
                 type: nodeType,
-                selected: unlocked,
+                selected: !locked,
                 position: { x: position.x, y: position.y },
                 data,
             },
@@ -360,7 +371,7 @@ const ControlView: React.FC = () => {
                     id: uuidv4(),
                     type: 'graph',
                     position: flow.screenToFlowPosition(mousePosition.current),
-                    selected: unlocked,
+                    selected: !locked,
                     data: {},
                 },
             ]);
@@ -384,11 +395,10 @@ const ControlView: React.FC = () => {
             undo();
         } else if (event.key === 'l' && (event.ctrlKey || event.metaKey)) {
             // lock
-            setUnlocked(!unlocked);
-            setControlsLock(unlocked);
+            setLocked(!locked);
         } else if (event.key === 'a' && (event.ctrlKey || event.metaKey)) {
             // select all
-            if (unlocked) {
+            if (!locked) {
                 selectAll();
             }
         } else if (event.key === 'escape') {
@@ -412,7 +422,7 @@ const ControlView: React.FC = () => {
 
     return (
         <ReactFlow
-            className={`border ${unlocked ? 'border-transparent' : 'border-control-view-locked'} `}
+            className={`border ${locked ? 'border-control-view-locked' : 'border-transparent'} `}
             ref={handleRef}
             tabIndex={0} // Makes the div focusable
             onContextMenu={(e) => e.preventDefault()}
@@ -447,15 +457,10 @@ const ControlView: React.FC = () => {
         >
             <Controls
                 onInteractiveChange={(status) => {
-                    setUnlocked(status);
-
-                    // disable nodes when lock
-                    if (status == false) {
-                        unselectAll();
-                    }
+                    setLocked(!status);
                 }}
             />
-            {unlocked && (
+            {!locked && (
                 <>
                     <Background gap={30} />
                     <MiniMap

@@ -12,25 +12,25 @@ const controlViewSchema = z.object({
         y: z.number(),
         zoom: z.number(),
     }),
-    unlocked: z.boolean(),
+    locked: z.boolean(),
     nodeColors: z.record(z.string(), z.number()),
 });
 
 interface ControlViewStore extends StoreActions {
     nodes: Node[];
     viewport: Viewport;
-    unlocked: boolean;
+    locked: boolean;
     nodeColors: Record<string, number>;
     setNodes: (nodes: Node[]) => void;
     setViewport: (viewport: Viewport) => void;
-    setUnlocked: (unlocked: boolean) => void;
+    setLocked: (locked: boolean) => void;
     getNodeColor: (key: string) => string;
 }
 
 export const useControlViewStore = create<ControlViewStore>((set, get) => ({
     nodes: [],
     viewport: { x: 0, y: 0, zoom: 1 },
-    unlocked: true,
+    locked: false,
     nodeColors: {},
 
     setNodes: (nodes: Node[]) => {
@@ -39,8 +39,8 @@ export const useControlViewStore = create<ControlViewStore>((set, get) => ({
     setViewport: (viewport: Viewport) => {
         set({ viewport });
     },
-    setUnlocked: (unlocked: boolean) => {
-        set({ unlocked });
+    setLocked: (locked: boolean) => {
+        set({ locked });
     },
 
     getNodeColor: (key: string): string => {
@@ -63,7 +63,7 @@ export const useControlViewStore = create<ControlViewStore>((set, get) => ({
         return {
             nodes: state.nodes,
             viewport: state.viewport,
-            unlocked: state.unlocked,
+            locked: state.locked,
             nodeColors: state.nodeColors,
         };
     },
@@ -79,7 +79,7 @@ export const useControlViewStore = create<ControlViewStore>((set, get) => ({
         set({
             nodes: result.data.nodes,
             viewport: result.data.viewport,
-            unlocked: result.data.unlocked,
+            locked: result.data.locked,
             nodeColors: result.data.nodeColors,
         });
     },

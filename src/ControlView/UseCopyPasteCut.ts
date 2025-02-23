@@ -55,13 +55,5 @@ export const useCopyPasteCut = () => {
         });
     }, [getNodes, updateNode]);
 
-    const setControlsLock = (isLocked: boolean) => {
-        store.setState({
-            nodesDraggable: !isLocked,
-            nodesConnectable: !isLocked,
-            elementsSelectable: !isLocked,
-        });
-    };
-
-    return { copy, paste, cut, selectAll, unselectAll, setControlsLock };
+    return { copy, paste, cut, selectAll, unselectAll };
 };
