@@ -23,12 +23,10 @@ log = "0.4"
 tauri = { version = "2.2.5", features = ["unstable"] }
 tauri-plugin-clipboard-manager = "2.2.1"
 tauri-plugin-dialog = "2.1.0"
-tauri-plugin-log = "2.3.0"
 tauri-plugin-store = "2.2.0"
 rumqttc = "0.24.0"
 tokio = { version = "1.43.0", features = ["full"] }
 uuid = { version = "1.15.1", features = ["v4"] }
 bytes = { version = "1.9.0", features = ["serde"] }
 futures = "0.3.31"
-thiserror = "2.0.12"
 clap = { version = "4.5.32", features = ["derive"] }
