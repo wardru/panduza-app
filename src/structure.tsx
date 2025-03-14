@@ -65,7 +65,17 @@ function parseMode(obj: any) {
 }
 
 function parseType(obj: any) {
-    const typeList = ['string', 'boolean', 'si', 'enum', 'json', 'number', 'memory_command'];
+    const typeList = [
+        'string',
+        'boolean',
+        'si',
+        'enum',
+        'json',
+        'number',
+        'memory_command',
+        'vector_f32-v0',
+        'trigger-v0',
+    ];
 
     if (typeof obj.type === 'string' && typeList.includes(obj.type)) {
         return obj.type;

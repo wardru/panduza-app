@@ -11,6 +11,8 @@
 
 ### Added
 
+- Added attributes vectorF32 and trigger
+
 ### Removed
 
 - **Breaking**: Removed Windows7 build support, since Rust 1.77.2 was last supported version on Windows7 ([#113](https://github.com/Panduza/panduza-app/issues/113))

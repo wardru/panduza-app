@@ -9,6 +9,8 @@ export enum AttributeType {
     Number = 'number',
     Json = 'json',
     MemoryCommand = 'memory_command',
+    VectorF32 = 'vector_f32-v0',
+    Trigger = 'trigger-v0',
 }
 
 export enum AttributeMode {
@@ -293,3 +295,5 @@ export class AttributeNumber extends Attribute {
 }
 export class AttributeJson extends Attribute {}
 export class AttributeMemoryCommand extends Attribute {}
+export class AttributeTrigger extends Attribute {}
+export class AttributeVectorF32 extends Attribute {}

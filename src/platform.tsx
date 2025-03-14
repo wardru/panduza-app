@@ -11,6 +11,8 @@ import {
     AttributeJson,
     AttributeType,
     AttributeMemoryCommand,
+    AttributeTrigger,
+    AttributeVectorF32,
 } from './attribute';
 
 export enum ConnectionState {
@@ -37,6 +39,8 @@ const factoryMap: Record<string, (name: string, driver: string, classes: string[
     [AttributeType.Json]: (name, driver, classes, cfg) => new AttributeJson(name, driver, classes, cfg),
     [AttributeType.MemoryCommand]: (name, driver, classes, cfg) =>
         new AttributeMemoryCommand(name, driver, classes, cfg),
+    [AttributeType.Trigger]: (name, driver, classes, cfg) => new AttributeTrigger(name, driver, classes, cfg),
+    [AttributeType.VectorF32]: (name, driver, classes, cfg) => new AttributeVectorF32(name, driver, classes, cfg),
 };
 
 type AttributeMap = Record<string, Attribute>;
