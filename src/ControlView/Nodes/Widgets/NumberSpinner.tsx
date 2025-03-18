@@ -58,10 +58,18 @@ const NumberSpinner: React.FC<NumberSpinnerProps> = (props) => {
         }
     }, [isPressingUp, isPressingDown, delay, min, max]);
 
-    const handleNewValue = (newValue: number | string) => {
-        // number can never be empty by definition
-        if (newValue === '') {
+    const handleNewValue = (newValue: string) => {
+        // number can never be empty or NaN by definition
+        if (newValue === '' || Number.isNaN(newValue)) {
             setValue(value);
+            return;
+        }
+
+        // Auto-fix cases like "1e", "1e+", "1e-" → "1e0", "1e+0", "1e-0"
+        if (/^[-+]?\d*\.?\d*[eE][-+]?$/.test(newValue)) {
+            newValue += '0';
+            setValue(Number(newValue));
+            props.onNewValue(Number(newValue));
             return;
         }
 
@@ -197,7 +205,7 @@ const NumberSpinner: React.FC<NumberSpinnerProps> = (props) => {
                     ▼{' '}
                 </button>
             </div>
-            
+
         </div>
             */
     );
