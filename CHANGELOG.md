@@ -20,6 +20,7 @@
 ### Fixed
 
 - Fixed lock not restoring correct state ([#133](https://github.com/Panduza/panduza-app/issues/133))
+- Fixed NaN in number and SI input when inserting 1e by treating the missing exponent as zero ([#138](https://github.com/Panduza/panduza-app/issues/138))
 
 ## [0.2.0] - 2025-02-04
 
