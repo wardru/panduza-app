@@ -29,4 +29,4 @@ tokio = { version = "1.44.2", features = ["full"] }
 uuid = { version = "1.16.0", features = ["v4"] }
 bytes = { version = "1.9.0", features = ["serde"] }
 futures = "0.3.31"
-clap = { version = "4.5.34", features = ["derive"] }
+clap = { version = "4.5.37", features = ["derive"] }
